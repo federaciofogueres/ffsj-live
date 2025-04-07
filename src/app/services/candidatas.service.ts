@@ -149,13 +149,13 @@ export class CandidataService {
         this.adultas = this.sortCandidatasByOrder(this.adultas);
         this.infantiles = this.sortCandidatasByOrder(this.infantiles);
 
-        const data = await this.firebaseStorageService.getCollection('candidatas/2024/anotaciones/' + this.cookieService.get('idUsuario') + '/anotaciones');
-        if (data) {
-            this.anotaciones = [];
-            for (let anotation of data) {
-                this.anotaciones.push(anotation['anotation'])
-            }
-        }
+        // const data = await this.firebaseStorageService.getCollection('candidatas/2024/anotaciones/' + this.cookieService.get('idUsuario') + '/anotaciones');
+        // if (data) {
+        //     this.anotaciones = [];
+        //     for (let anotation of data) {
+        //         this.anotaciones.push(anotation['anotation'])
+        //     }
+        // }
 
         const returnObject = {
             adultas: this.adultas,
