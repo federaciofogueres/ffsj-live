@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from 'ffsj-web-components';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { AuthService } from '../../../lib/ffsj-web-components';
 
 @Component({
   selector: 'app-footer',

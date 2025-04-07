@@ -17,6 +17,7 @@ export declare class AuthService {
     saveToken(token: string): void;
     login(user: string, password: string): Promise<unknown>;
     getToken(): string;
+    getIdUsuario(): number;
     logout(): void;
     isLoggedIn(): boolean;
     getCargos(): any[];
