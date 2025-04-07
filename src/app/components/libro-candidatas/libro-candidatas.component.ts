@@ -55,10 +55,10 @@ export class LibroCandidatasComponent {
     this.loadData();
   }
 
-  async loadData(forceReload: boolean = false) {
+  async loadData() {
     try {
 
-      const candidatas = await this.candidataService.getCandidatas(forceReload);
+      const candidatas = await this.candidataService.getCandidatas(true);
       this.infantiles = candidatas.infantiles;
       this.adultas = candidatas.adultas;
       this.adultasData = candidatas.adultasData;
