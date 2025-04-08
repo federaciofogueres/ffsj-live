@@ -1,1 +1,45 @@
-<p>home works!</p>
+<div class="home-container">
+    <div class="d-flex flex-column text-center">
+        <span class="h1">{{ eventInfo.title }}</span>
+        <span class="h3">{{ eventInfo.horario }}</span>
+    </div>
+
+    @if(!showProtagonists) {
+    <!-- Esquema de actuaciones -->
+    <section class="event-performances">
+        <h2>Esquema de Actuaciones</h2>
+        <ol>
+            @for (evento of eventInfo.eventos; track $index) {
+            <li>{{ evento }}</li>
+            }
+        </ol>
+    </section>
+
+    <!-- Botón para mostrar más información -->
+    <button class="btn btn-foc-rojo" (click)="toggleProtagonists()">
+        Conoce a los protagonistas
+    </button>
+    }
+
+    <!-- Información de los protagonistas -->
+    @if (showProtagonists) {
+    <section class="protagonists">
+        <h2>Presentadores</h2>
+        @for(protagonist of eventInfo.presentadores; track $index) {
+        <div class="protagonist">
+            <img [src]="protagonist.src" [alt]="protagonist.nombre" />
+            <h3>{{ protagonist.nombre }}</h3>
+            <p>{{ protagonist.info }}</p>
+        </div>
+        }
+    </section>
+    <div class="d-flex flex-column g-3">
+        <button class="btn btn-foc-naranja w-100 m-1" (click)="router.navigateByUrl('/list')">
+            Conoce a las candidatas
+        </button>
+        <button class="btn btn-foc-rojo w-100 m-1" (click)="toggleProtagonists()">
+            Volver a Inicio
+        </button>
+    </div>
+    }
+</div>
