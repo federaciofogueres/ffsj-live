@@ -17,17 +17,26 @@
                 <i class="bi bi-list" style="font-size: 1.5rem;"></i>
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item" routerLink="/home"><i class="bi bi-house-fill me-2"></i>Inicio</a></li>
-                <li><a class="dropdown-item" routerLink="/plenos"><i
-                            class="bi bi-calendar-check-fill me-2"></i>Plenos</a></li>
-                <li><a class="dropdown-item" (click)="redirectToPleno()"><i
-                            class="bi bi-calendar-check-fill me-2"></i>Pleno actual</a></li>
-                <li><a class="dropdown-item" routerLink="/asistencia"><i
-                            class="bi bi-person-fill me-2"></i>Asistencia</a></li>
-                <li><a class="dropdown-item" routerLink="/documentos"><i
-                            class="bi bi-file-earmark-text-fill me-2"></i>Documentos</a></li>
-                <li><a class="dropdown-item" routerLink="/votaciones"><i
-                            class="bi bi-envelope-paper-fill me-2"></i>Votaciones</a></li>
+                <li>
+                    <a class="dropdown-item" routerLink="/home">
+                        <i class="bi bi-house-fill me-2"></i>Inicio
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" routerLink="/streaming">
+                        <i class="bi bi-cast me-2"></i>Streaming
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" routerLink="/live">
+                        <i class="bi bi-broadcast-pin me-2"></i>En vivo
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" routerLink="/list">
+                        <i class="bi bi-person-lines-fill bi-file-earmark-text-fill me-2"></i>Candidatas
+                    </a>
+                </li>
                 @if (userAdmin) {
                 <li><a class="dropdown-item" routerLink="/admin"><i class="bi bi-gear-fill me-2"></i>Administración</a>
                 </li>
