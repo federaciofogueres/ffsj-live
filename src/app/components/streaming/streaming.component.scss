@@ -1,0 +1,18 @@
+.streaming-container {
+    height: 100%;
+}
+
+.streaming-container iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+.video-title {
+    padding: 2rem;
+    text-align: center;
+    font-size: 2rem;
+    /* Tamaño grande */
+    font-weight: bold;
+    margin-bottom: 1rem;
+    /* Espacio entre el título y el reproductor */
+}
