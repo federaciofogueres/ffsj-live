@@ -1,5 +1,7 @@
 <div class="streaming-container">
+    @if(!fullScreen) {
     <h1 class="video-title">{{ streaming.title }}</h1>
+    }
     <iframe [src]="safeUrl" [title]="streaming.title" frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen>
