@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
@@ -24,6 +24,8 @@ import { FirebaseStorageService } from '../../../services/storage.service';
 export class CandidataComponent {
 
   Object = Object;
+
+  @Input() candidataId: string = "";
 
   candidataData!: CandidataData;
 
@@ -51,7 +53,20 @@ export class CandidataComponent {
   ) { }
 
   async ngOnInit() {
-    this.candidataData = JSON.parse(localStorage.getItem('candidataData') || '');
+    if (this.candidataId !== '') {
+      const info = JSON.parse(localStorage.getItem('candidatasData') || '');
+      let candidataData = info.adultas.find((candidata: any) => candidata.id.value === this.candidataId.toString());
+      if (!candidataData) {
+        candidataData = info.infantiles.find((candidata: any) => candidata.id.value === this.candidataId.toString());
+      }
+      if (candidataData) {
+        this.candidataData = candidataData;
+      } else {
+        this.candidataData = JSON.parse(localStorage.getItem('candidataData') || '');
+      }
+    } else {
+      this.candidataData = JSON.parse(localStorage.getItem('candidataData') || '');
+    }
     this.idUsuario = this.cookieService.get('idUsuario');
     this.loadAnotation();
 
