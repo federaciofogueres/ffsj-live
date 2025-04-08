@@ -16,7 +16,8 @@ export class StreamingComponent {
     src: 'r0Cxiv2tTyk',
     title: 'Testing title',
     width: 0,
-    height: 0
+    height: 0,
+    subtitle: 'Testing subtitle'
   };
 
   safeUrl!: SafeResourceUrl;
