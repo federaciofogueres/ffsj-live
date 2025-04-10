@@ -86,9 +86,9 @@ export class LibroCandidatasComponent {
   filterItems(value: string | any) {
     value = (value.target as HTMLInputElement).value.toLowerCase();
     this.candidatasToShow = this.candidatas.filter(item => {
-      const nombreCompleto = item.informacionPersonal.nombre.value ? item.informacionPersonal.nombre.value.toLowerCase() : '';
-      const asociacion = item.vidaEnFogueres.asociacion_label.value ? item.vidaEnFogueres.asociacion_label.value.toLowerCase() : '';
-      const numeroFoguera = item.vidaEnFogueres.asociacion_order.value ? item.vidaEnFogueres.asociacion_order.value : -1;
+      const nombreCompleto = item.informacionPersonal.nombre ? item.informacionPersonal.nombre.toLowerCase() : '';
+      const asociacion = item.vidaEnFogueres.asociacion_label ? item.vidaEnFogueres.asociacion_label.toLowerCase() : '';
+      const numeroFoguera = item.vidaEnFogueres.asociacion_order ? item.vidaEnFogueres.asociacion_order : -1;
       return nombreCompleto.includes(value) || asociacion.includes(value) || numeroFoguera.toString().includes(value);
     });
   }

@@ -38,26 +38,26 @@ export class CandidataCardComponent {
   }
 
   ngOnInit() {
-    this.currentImage = (this.candidataData.documentacion.fotoBelleza.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoBelleza.value;
-    this.alternateImageUrl = (this.candidataData.documentacion.fotoCalle.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoCalle.value;
-    this.foguera = this.candidataData.vidaEnFogueres.asociacion_label.value;
+    this.currentImage = (this.candidataData.documentacion.fotoBelleza === '' || !this.candidataData.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoBelleza;
+    this.alternateImageUrl = (this.candidataData.documentacion.fotoCalle === '' || !this.candidataData.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoCalle;
+    this.foguera = this.candidataData.vidaEnFogueres.asociacion_label;
   }
 
   updateCandidataData() {
-    this.currentImage = (this.candidataData.documentacion.fotoBelleza.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoBelleza.value;
-    this.alternateImageUrl = (this.candidataData.documentacion.fotoCalle.value === '' || !this.candidataData.documentacion.fotoBelleza.value.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoCalle.value;
-    this.foguera = this.candidataData.vidaEnFogueres.asociacion_label.value;
+    this.currentImage = (this.candidataData.documentacion.fotoBelleza === '' || !this.candidataData.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoBelleza;
+    this.alternateImageUrl = (this.candidataData.documentacion.fotoCalle === '' || !this.candidataData.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoCalle;
+    this.foguera = this.candidataData.vidaEnFogueres.asociacion_label;
   }
 
   toggleImage() {
-    this.currentImage = this.currentImage === this.candidataData.documentacion.fotoBelleza.value
-      ? this.candidataData.documentacion.fotoCalle.value
-      : this.candidataData.documentacion.fotoBelleza.value;
+    this.currentImage = this.currentImage === this.candidataData.documentacion.fotoBelleza
+      ? this.candidataData.documentacion.fotoCalle
+      : this.candidataData.documentacion.fotoBelleza;
   }
 
   viewDetails() {
     localStorage.setItem('candidataData', JSON.stringify(this.candidataData));
-    this.router.navigateByUrl('candidatas/' + this.candidataData.id.value);
+    this.router.navigateByUrl('candidatas/' + this.candidataData.id);
   }
 
 }

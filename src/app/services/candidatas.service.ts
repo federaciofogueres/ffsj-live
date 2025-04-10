@@ -72,43 +72,43 @@ export class CandidataService {
             const data = await this.firebaseStorageService.getCollection(collection);
             data.forEach(dataBD => {
                 let candidata: CandidataData = {
-                    id: { value: dataBD['id'], required: true },
+                    id: dataBD['id'] || "",
                     informacionPersonal: {
-                        dni: { value: dataBD['dni'], required: true },
-                        nombre: { value: dataBD['nombre'], required: true },
-                        fechaNacimiento: { value: dataBD['fechaNacimiento'], required: true },
-                        ciudad: { value: dataBD['ciudad'], required: true },
-                        email: { value: dataBD['email'], required: true },
-                        telefono: { value: dataBD['telefono'], required: true },
-                        edad: { value: dataBD['edad'], required: true },
-                        tipoCandidata: { value: dataBD['tipoCandidata'], required: true }
+                        dni: dataBD['dni'] || "",
+                        nombre: dataBD['nombre'] || "",
+                        fechaNacimiento: dataBD['fechaNacimiento'] || "",
+                        ciudad: dataBD['ciudad'] || "",
+                        email: dataBD['email'] || "",
+                        telefono: dataBD['telefono'] || "",
+                        edad: dataBD['edad'] || "",
+                        tipoCandidata: dataBD['tipoCandidata'] || ""
                     },
                     vidaEnFogueres: {
-                        asociacion_order: { value: dataBD['asociacion_order'], required: false },
-                        asociacion_label: { value: dataBD['asociacion_label'], required: false },
-                        asociacion: { value: dataBD['asociacion'], required: true },
-                        anyosFiesta: { value: dataBD['anyosFiesta'], required: true },
-                        curriculum: { value: dataBD['curriculum'], required: true }
+                        asociacion_order: dataBD['asociacion_order'] || "",
+                        asociacion_label: dataBD['asociacion_label'] || "",
+                        asociacion: dataBD['asociacion'] || "",
+                        anyosFiesta: dataBD['anyosFiesta'] || "",
+                        curriculum: dataBD['curriculum'] || ""
                     },
                     academico: {
-                        formacion: { value: dataBD['formacion'], required: true },
-                        situacionLaboral: { value: dataBD['situacionLaboral'], required: false },
-                        observaciones: { value: dataBD['observaciones'], required: false },
-                        aficiones: { value: dataBD['aficiones'], required: false }
+                        formacion: dataBD['formacion'] || "",
+                        situacionLaboral: dataBD['situacionLaboral'] || "",
+                        observaciones: dataBD['observaciones'] || "",
+                        aficiones: dataBD['aficiones'] || ""
                     },
                     documentacion: {
-                        autorizacionFoguera: { value: dataBD['autorizacionFoguera'], required: true },
-                        compromisoDisponibilidad: { value: dataBD['compromisoDisponibilidad'], required: true },
-                        derechosAutor: { value: dataBD['derechosAutor'], required: true },
-                        dniEscaneado: { value: dataBD['dniEscaneado'], required: true },
-                        fotoBelleza: { value: dataBD['fotoBelleza'], required: true },
-                        fotoCalle: { value: dataBD['fotoCalle'], required: true }
+                        autorizacionFoguera: dataBD['autorizacionFoguera'] || "",
+                        compromisoDisponibilidad: dataBD['compromisoDisponibilidad'] || "",
+                        derechosAutor: dataBD['derechosAutor'] || "",
+                        dniEscaneado: dataBD['dniEscaneado'] || "",
+                        fotoBelleza: dataBD['fotoBelleza'] || "",
+                        fotoCalle: dataBD['fotoCalle'] || ""
                     },
                     responsables: {
-                        nombreTutor1: { value: dataBD['nombreTutor1'], required: false },
-                        nombreTutor2: { value: dataBD['nombreTutor2'], required: false },
-                        telefonoTutor1: { value: dataBD['telefonoTutor1'], required: false },
-                        telefonoTutor2: { value: dataBD['telefonoTutor2'], required: false }
+                        nombreTutor1: dataBD['nombreTutor1'] || "",
+                        nombreTutor2: dataBD['nombreTutor2'] || "",
+                        telefonoTutor1: dataBD['telefonoTutor1'] || "",
+                        telefonoTutor2: dataBD['telefonoTutor2'] || ""
                     }
                 };
                 arrayData.push(candidata);
@@ -176,20 +176,20 @@ export class CandidataService {
 
     sortCandidatasByOrder(candidatas: CandidataData[]) {
         return candidatas.sort((a: CandidataData, b: CandidataData) => {
-            const aOrder = Number(a.vidaEnFogueres.asociacion_order?.value) || 0;
-            const bOrder = Number(b.vidaEnFogueres.asociacion_order?.value) || 0;
+            const aOrder = Number(a.vidaEnFogueres.asociacion_order) || 0;
+            const bOrder = Number(b.vidaEnFogueres.asociacion_order) || 0;
             return aOrder - bOrder;
         });
     }
 
     updateAsociacionValues(data: CandidataData[], adultasData: InfoShowTable[]): void {
         data.forEach((item, index) => {
-            const asociacion = this.asociaciones.find(asociacion => { return item.vidaEnFogueres.asociacion.value === String(asociacion.id) });
+            const asociacion = this.asociaciones.find(asociacion => { return item.vidaEnFogueres.asociacion === String(asociacion.id) });
             if (asociacion) {
-                item.vidaEnFogueres.asociacion_label = { value: asociacion.nombre, required: false };
-                item.vidaEnFogueres.asociacion_order = { value: asociacion['asociacion_order'], required: false };
-                item.documentacion.fotoBelleza.value = `${BASE_URL_IMAGES}/belleza/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion_order.value}.jpg`;
-                item.documentacion.fotoCalle.value = `${BASE_URL_IMAGES}/calle/${item.informacionPersonal.tipoCandidata.value}/${item.vidaEnFogueres.asociacion_order.value}.jpg`;
+                item.vidaEnFogueres.asociacion_label = asociacion.nombre;
+                item.vidaEnFogueres.asociacion_order = asociacion['asociacion_order'];
+                item.documentacion.fotoBelleza = `${BASE_URL_IMAGES}/belleza/${item.informacionPersonal.tipoCandidata}/${item.vidaEnFogueres.asociacion_order}.jpg`;
+                item.documentacion.fotoCalle = `${BASE_URL_IMAGES}/calle/${item.informacionPersonal.tipoCandidata}/${item.vidaEnFogueres.asociacion_order}.jpg`;
             }
         });
     }
@@ -202,11 +202,11 @@ export class CandidataService {
             nuevasColumnasText.push('Responsables');
         }
         let infoTabla: any[] = [];
-        array.sort((a, b) => a.vidaEnFogueres.asociacion.value.localeCompare(b.vidaEnFogueres.asociacion.value))
+        array.sort((a, b) => a.vidaEnFogueres.asociacion.localeCompare(b.vidaEnFogueres.asociacion))
         array.forEach(c => {
             let info: InfoShowTable = {
-                id: c.id.value,
-                foguera: this.asociaciones.find(asociacion => { return c.vidaEnFogueres.asociacion.value === String(asociacion.id) })?.nombre || 'Sin datos',
+                id: c.id,
+                foguera: this.asociaciones.find(asociacion => { return c.vidaEnFogueres.asociacion === String(asociacion.id) })?.nombre || 'Sin datos',
                 informacionPersonal: this.checkCampos(c.informacionPersonal) ? 'Completo' : 'Faltan datos',
                 vidaEnFogueres: this.checkCampos(c.vidaEnFogueres) ? 'Completo' : 'Faltan datos',
                 academico: this.checkCampos(c.academico) ? 'Completo' : 'Faltan datos',

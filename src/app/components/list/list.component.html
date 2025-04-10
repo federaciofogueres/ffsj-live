@@ -1,1 +1,22 @@
-<p>list works!</p>
+<div class="container scrollable">
+    <span class="h1">
+        {{config.list?.title}}
+    </span>
+
+    @if (config.list?.searching) {
+    <div class="input-group m-2 mb-3 w-auto">
+        <span class="input-group-text" id="basic-addon1">
+            <i class="bi bi-person-circle"></i>
+        </span>
+        <input type="text" class="form-control" [formControl]="searchControl" [placeholder]="config.list?.searching"
+            (input)="filterItems($event)">
+    </div>
+    }
+
+    @if (loading) {
+    <lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
+    }@else {
+    <app-listado [candidatas]="filteredItems"></app-listado>
+    }
+
+</div>

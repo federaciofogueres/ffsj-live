@@ -1,8 +1,8 @@
 <div class="container scrollable">
     <div class="row g-1">
         <div class="d-flex flex-column">
-            <span><b>{{candidataData.informacionPersonal.nombre.value}}</b></span>
-            <span>{{candidataData.vidaEnFogueres.asociacion_label.value}}</span>
+            <span><b>{{candidataData.informacionPersonal.nombre}}</b></span>
+            <span>{{candidataData.vidaEnFogueres.asociacion_label}}</span>
         </div>
     </div>
     <div class="row g-0">
@@ -11,11 +11,11 @@
             (click)="toggleImage()">
         } @else {
         <div class="col-md-6">
-            <img [src]="candidataData.documentacion.fotoBelleza.value" class="img-fluid rounded-start animated-image"
+            <img [src]="candidataData.documentacion.fotoBelleza" class="img-fluid rounded-start animated-image"
                 alt="Foto bellesa">
         </div>
         <div class="col-md-6">
-            <img [src]="candidataData.documentacion.fotoCalle.value" class="img-fluid rounded-start animated-image"
+            <img [src]="candidataData.documentacion.fotoCalle" class="img-fluid rounded-start animated-image"
                 alt="Foto alternativa">
         </div>
         }
@@ -28,23 +28,23 @@
                         <div class="d-flex flex-column">
                             <span class="h2">Información personal</span>
                             <span><b>Fecha nacimiento:
-                                </b>{{candidataData.informacionPersonal.fechaNacimiento.value}}</span>
-                            <span><b>Edad: </b>{{candidataData.informacionPersonal.edad.value}} años</span>
-                            <span><b>Ciudad: </b>{{candidataData.informacionPersonal.ciudad.value}}</span>
+                                </b>{{candidataData.informacionPersonal.fechaNacimiento}}</span>
+                            <span><b>Edad: </b>{{candidataData.informacionPersonal.edad}} años</span>
+                            <span><b>Ciudad: </b>{{candidataData.informacionPersonal.ciudad}}</span>
                         </div>
                         <hr>
                         <div class="d-flex flex-column">
                             <span class="h2">Información de la fiesta</span>
-                            <span><b>Años en la fiesta: </b>{{candidataData.vidaEnFogueres.anyosFiesta.value}}
+                            <span><b>Años en la fiesta: </b>{{candidataData.vidaEnFogueres.anyosFiesta}}
                                 años</span>
-                            <span><b>Curriculum festero: </b>{{candidataData.vidaEnFogueres.curriculum.value}}</span>
+                            <span><b>Curriculum festero: </b>{{candidataData.vidaEnFogueres.curriculum}}</span>
                         </div>
                         <hr>
                         <div class="d-flex flex-column">
                             <span class="h2">Información académica y laboral</span>
-                            <span><b>Estudios: </b>{{candidataData.academico.formacion.value}}</span>
-                            <span><b>Situación laboral: </b>{{candidataData.academico.situacionLaboral.value}}</span>
-                            <span><b>Aficiones: </b>{{candidataData.academico.aficiones.value}}</span>
+                            <span><b>Estudios: </b>{{candidataData.academico.formacion}}</span>
+                            <span><b>Situación laboral: </b>{{candidataData.academico.situacionLaboral}}</span>
+                            <span><b>Aficiones: </b>{{candidataData.academico.aficiones}}</span>
                         </div>
                     </div>
                 </mat-tab>

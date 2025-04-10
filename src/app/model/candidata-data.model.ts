@@ -1,57 +1,52 @@
 export interface InformacionPersonal {
-  dni: CampoCandidataData;
-  nombre: CampoCandidataData;
-  fechaNacimiento: CampoCandidataData;
-  ciudad: CampoCandidataData;
-  email: CampoCandidataData;
-  telefono: CampoCandidataData;
-  edad: CampoCandidataData;
-  tipoCandidata: CampoCandidataData;
+  dni: string;
+  nombre: string;
+  fechaNacimiento: string;
+  ciudad: string;
+  email: string;
+  telefono: string;
+  edad: string;
+  tipoCandidata: string;
 }
 
 export interface VidaEnFogueres {
-  asociacion_label: CampoCandidataData;
-  asociacion_order: CampoCandidataData;
-  asociacion: CampoCandidataData;
-  anyosFiesta: CampoCandidataData;
-  curriculum: CampoCandidataData;
+  asociacion_label: string;
+  asociacion_order: string;
+  asociacion: string;
+  anyosFiesta: string;
+  curriculum: string;
 }
 
 export interface Academico {
-  formacion: CampoCandidataData;
-  situacionLaboral: CampoCandidataData;
-  observaciones: CampoCandidataData;
-  aficiones: CampoCandidataData;
+  formacion: string;
+  situacionLaboral: string;
+  observaciones: string;
+  aficiones: string;
 }
 
 export interface Documentacion {
-  autorizacionFoguera: CampoCandidataData;
-  compromisoDisponibilidad: CampoCandidataData;
-  derechosAutor: CampoCandidataData;
-  dniEscaneado: CampoCandidataData;
-  fotoBelleza: CampoCandidataData;
-  fotoCalle: CampoCandidataData;
+  autorizacionFoguera: string;
+  compromisoDisponibilidad: string;
+  derechosAutor: string;
+  dniEscaneado: string;
+  fotoBelleza: string;
+  fotoCalle: string;
 }
 
 export interface Responsables {
-  nombreTutor1: CampoCandidataData;
-  nombreTutor2: CampoCandidataData;
-  telefonoTutor1: CampoCandidataData;
-  telefonoTutor2: CampoCandidataData;
+  nombreTutor1: string;
+  nombreTutor2: string;
+  telefonoTutor1: string;
+  telefonoTutor2: string;
 }
 
 export interface CandidataData {
-  id: CampoCandidataData;
+  id: string;
   informacionPersonal: InformacionPersonal;
   vidaEnFogueres: VidaEnFogueres;
   academico: Academico;
   documentacion: Documentacion;
   responsables: Responsables;
-}
-
-export interface CampoCandidataData {
-  value: string;
-  required: boolean;
 }
 
 export type TiposCampos = InformacionPersonal | VidaEnFogueres | Academico | Documentacion | Responsables;

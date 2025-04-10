@@ -1,8 +1,8 @@
 export interface IRealTimeConfigModel {
-    event: IRealTimeEvent;
-    list: IRealTimeList;
-    live: IRealTimeLive;
-    streaming: IRealTimeStreaming;
+    event?: IRealTimeEvent;
+    list?: IRealTimeList;
+    live?: IRealTimeLive;
+    streaming?: IRealTimeStreaming;
 }
 
 // Eventos
@@ -22,12 +22,50 @@ export interface IRealTimePresentador {
 // Listados
 export interface IRealTimeList {
     title: string;
-    items: IRealTimeItemsList[];
+    items: IRealTimeItem[];
+    searching: string;
+    filterKeys: string[];
 }
 
-export interface IRealTimeItemsList {
-    title: string;
-    items: string;
+export interface IRealTimeItem {
+    id: string;
+    informacionPersonal: {
+        dni: string;
+        nombre: string;
+        fechaNacimiento: string;
+        ciudad: string;
+        email: string;
+        telefono: string;
+        edad: string;
+        tipoCandidata: string;
+    };
+    vidaEnFogueres: {
+        asociacion_order?: number;
+        asociacion_label?: string;
+        asociacion: string;
+        anyosFiesta: number;
+        curriculum: string;
+    };
+    academico: {
+        formacion: string;
+        situacionLaboral?: string;
+        observaciones?: string;
+        aficiones?: string;
+    };
+    documentacion: {
+        autorizacionFoguera: string;
+        compromisoDisponibilidad: string;
+        derechosAutor: string;
+        dniEscaneado: string;
+        fotoBelleza: string;
+        fotoCalle: string;
+    };
+    responsables: {
+        nombreTutor1?: string;
+        nombreTutor2?: string;
+        telefonoTutor1?: string;
+        telefonoTutor2?: string;
+    };
 }
 
 // Live info

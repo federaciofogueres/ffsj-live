@@ -55,9 +55,9 @@ export class CandidataComponent {
   async ngOnInit() {
     if (this.candidataId !== '') {
       const info = JSON.parse(localStorage.getItem('candidatasData') || '');
-      let candidataData = info.adultas.find((candidata: any) => candidata.id.value === this.candidataId.toString());
+      let candidataData = info.adultas.find((candidata: any) => candidata.id === this.candidataId.toString());
       if (!candidataData) {
-        candidataData = info.infantiles.find((candidata: any) => candidata.id.value === this.candidataId.toString());
+        candidataData = info.infantiles.find((candidata: any) => candidata.id === this.candidataId.toString());
       }
       if (candidataData) {
         this.candidataData = candidataData;
@@ -76,23 +76,23 @@ export class CandidataComponent {
         this.isTelefono = state.matches;
       });
 
-    this.currentImage = this.candidataData.documentacion?.fotoBelleza?.value || '';
-    this.alternateImageUrl = this.candidataData.documentacion?.fotoCalle?.value || '';
+    this.currentImage = this.candidataData.documentacion?.fotoBelleza || '';
+    this.alternateImageUrl = this.candidataData.documentacion?.fotoCalle || '';
   }
 
   toggleImage() {
-    this.currentImage = this.currentImage === this.candidataData.documentacion.fotoBelleza.value
-      ? this.candidataData.documentacion.fotoCalle.value
-      : this.candidataData.documentacion.fotoBelleza.value;
+    this.currentImage = this.currentImage === this.candidataData.documentacion.fotoBelleza
+      ? this.candidataData.documentacion.fotoCalle
+      : this.candidataData.documentacion.fotoBelleza;
   }
 
   saveAnotaciones() {
-    this.firebaseStorageService.addAnotation({ candidata: this.candidataData.id.value, anotacion: this.anotaciones }, this.idUsuario, this.candidataData.id.value);
+    this.firebaseStorageService.addAnotation({ candidata: this.candidataData.id, anotacion: this.anotaciones }, this.idUsuario, this.candidataData.id);
   }
 
   loadAnotation() {
     if (localStorage.getItem('candidatasData')) {
-      this.anotaciones = JSON.parse(localStorage.getItem('candidatasData')!).anotaciones.find((anotacion: any) => anotacion.candidata === this.candidataData.id.value)?.anotacion || '';
+      this.anotaciones = JSON.parse(localStorage.getItem('candidatasData')!).anotaciones.find((anotacion: any) => anotacion.candidata === this.candidataData.id)?.anotacion || '';
     }
   }
 
