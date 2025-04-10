@@ -6,14 +6,14 @@ import { Router } from '@angular/router';
 import { FfsjSpinnerComponent } from 'ffsj-web-components';
 import { IRealTimeConfigModel, IRealTimeItem } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
-import { ListadoComponent } from '../libro-candidatas/listado/listado.component';
+import { ItemCardComponent } from '../item-card/item-card.component';
 
 @Component({
   selector: 'app-list',
   standalone: true,
   imports: [
     CommonModule,
-    ListadoComponent,
+    ItemCardComponent,
     FfsjSpinnerComponent,
     MatIconModule,
     ReactiveFormsModule

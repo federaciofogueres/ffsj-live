@@ -16,7 +16,11 @@
     @if (loading) {
     <lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
     }@else {
-    <app-listado [candidatas]="filteredItems"></app-listado>
+    <div class="item-list">
+        @for (item of filteredItems; track $index) {
+        <app-item-card [item]="item"></app-item-card>
+        }
+    </div>
     }
 
 </div>

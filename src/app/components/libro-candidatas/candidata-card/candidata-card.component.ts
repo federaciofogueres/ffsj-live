@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
-import { CandidataData } from '../../../model/candidata-data.model';
+import { IRealTimeItem } from '../../../model/real-time-config.model';
 
 @Component({
   selector: 'app-candidata-card',
@@ -14,7 +14,7 @@ import { CandidataData } from '../../../model/candidata-data.model';
 })
 export class CandidataCardComponent {
 
-  @Input() candidataData!: CandidataData;
+  @Input() candidataData!: IRealTimeItem;
 
   // URL de la imagen alternativa
   alternateImageUrl: string = '';
@@ -40,13 +40,13 @@ export class CandidataCardComponent {
   ngOnInit() {
     this.currentImage = (this.candidataData.documentacion.fotoBelleza === '' || !this.candidataData.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoBelleza;
     this.alternateImageUrl = (this.candidataData.documentacion.fotoCalle === '' || !this.candidataData.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoCalle;
-    this.foguera = this.candidataData.vidaEnFogueres.asociacion_label;
+    this.foguera = this.candidataData.vidaEnFogueres.asociacion_label!;
   }
 
   updateCandidataData() {
     this.currentImage = (this.candidataData.documentacion.fotoBelleza === '' || !this.candidataData.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoBelleza;
     this.alternateImageUrl = (this.candidataData.documentacion.fotoCalle === '' || !this.candidataData.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.candidataData.documentacion.fotoCalle;
-    this.foguera = this.candidataData.vidaEnFogueres.asociacion_label;
+    this.foguera = this.candidataData.vidaEnFogueres.asociacion_label!;
   }
 
   toggleImage() {

@@ -1,1 +1,23 @@
-<p>item-card works!</p>
+<div class="card mb-3">
+    <div class="row g-0 ">
+        <div class="col-md-4 image-candidata">
+            <div class="overlay-circle background-naranja">{{ item.vidaEnFogueres.asociacion_order }}
+            </div>
+            <img [src]="currentImage" class="img-fluid rounded-start animated-image h-100 w-100" alt="Foto bellesa"
+                (click)="toggleImage()" loading="lazy">
+        </div>
+        <div class="col-md-8 data-candidata">
+            <div class="card-body h-100">
+                <div class="d-flex flex-column candidata">
+                    <div class="d-flex flex-column candidata-data">
+                        <span class="nombre h6">{{item.informacionPersonal.nombre| titlecase }} </span>
+                        <span class="asociacion-label">{{(foguera | slice:0:20) + (foguera.length > 20 ? '...' : '') |
+                            titlecase}}</span>
+                    </div>
+                    <button class="details-button mt-2 btn btn-primary btn-foc-naranja" (click)="viewDetails()">Ver
+                        detalles</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
