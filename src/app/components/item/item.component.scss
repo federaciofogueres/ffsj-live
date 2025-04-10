@@ -1,0 +1,16 @@
+@import '../../../variables.scss';
+
+.animated-image {
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
+}
+
+.animated-image.ng-enter,
+.animated-image.ng-leave {
+    opacity: 0;
+}
+
+.scrollable {
+    height: calc(100% - 110px);
+    overflow: auto;
+}

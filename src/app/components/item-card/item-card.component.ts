@@ -57,6 +57,6 @@ export class ItemCardComponent {
 
   viewDetails() {
     localStorage.setItem('item', JSON.stringify(this.item));
-    this.router.navigateByUrl('candidatas/' + this.item.id);
+    this.router.navigateByUrl('list/' + this.item.id);
   }
 }

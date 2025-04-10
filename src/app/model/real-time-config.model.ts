@@ -71,7 +71,7 @@ export interface IRealTimeItem {
 // Live info
 export interface IRealTimeLive {
     descripcion: string;
-    item: string;
+    item: IRealTimeItem;
     tipo: string;
     titulo: string;
 }
@@ -83,4 +83,52 @@ export interface IRealTimeStreaming {
     subtitle: string;
     width: number;
     height: number;
+}
+
+export function createDefaultLiveInfo(): IRealTimeLive {
+    return {
+        descripcion: '',
+        item: {
+            id: '',
+            informacionPersonal: {
+                dni: '',
+                nombre: '',
+                fechaNacimiento: '',
+                ciudad: '',
+                email: '',
+                telefono: '',
+                edad: '',
+                tipoCandidata: ''
+            },
+            vidaEnFogueres: {
+                asociacion_order: undefined,
+                asociacion_label: undefined,
+                asociacion: '',
+                anyosFiesta: 0,
+                curriculum: ''
+            },
+            academico: {
+                formacion: '',
+                situacionLaboral: undefined,
+                observaciones: undefined,
+                aficiones: undefined
+            },
+            documentacion: {
+                autorizacionFoguera: '',
+                compromisoDisponibilidad: '',
+                derechosAutor: '',
+                dniEscaneado: '',
+                fotoBelleza: '',
+                fotoCalle: ''
+            },
+            responsables: {
+                nombreTutor1: undefined,
+                nombreTutor2: undefined,
+                telefonoTutor1: undefined,
+                telefonoTutor2: undefined
+            }
+        },
+        tipo: '',
+        titulo: ''
+    };
 }

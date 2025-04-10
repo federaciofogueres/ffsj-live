@@ -1,26 +1,21 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { IRealTimeLive } from '../../model/real-time-config.model';
+import { createDefaultLiveInfo, IRealTimeLive } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
-import { CandidataComponent } from '../libro-candidatas/candidata/candidata.component';
+import { ItemComponent } from '../item/item.component';
 
 @Component({
   selector: 'app-live',
   standalone: true,
   imports: [
-    CandidataComponent
+    ItemComponent
   ],
   templateUrl: './live.component.html',
   styleUrl: './live.component.scss'
 })
 export class LiveComponent {
 
-  liveInfo: IRealTimeLive = {
-    descripcion: '',
-    item: '',
-    tipo: '',
-    titulo: ''
-  }
+  liveInfo: IRealTimeLive = createDefaultLiveInfo()
   constructor(
     protected router: Router,
     private firebaseStorageService: FirebaseStorageService

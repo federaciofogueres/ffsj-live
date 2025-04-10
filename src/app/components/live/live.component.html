@@ -1,6 +1,6 @@
 <span>{{liveInfo.titulo}}</span>
 @if(liveInfo.tipo === 'candidata') {
-<app-candidata [candidataId]="liveInfo.item"></app-candidata>
+<app-item [itemData]="liveInfo.item"></app-item>
 }
 @if (liveInfo.tipo === 'actuacion') {
 <span>{{liveInfo.descripcion}}</span>
