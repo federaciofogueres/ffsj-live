@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { IRealTimeEventInfo } from '../../model/real-time-event.model';
+import { IRealTimeEvent } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 
 @Component({
@@ -12,7 +12,7 @@ import { FirebaseStorageService } from '../../services/storage.service';
 })
 export class HomeComponent {
 
-  eventInfo: IRealTimeEventInfo = {
+  eventInfo: IRealTimeEvent = {
     title: '',
     horario: '',
     presentadores: [],

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { IRealTimeLiveInfo } from '../../model/real-time-live.model';
+import { IRealTimeLive } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { CandidataComponent } from '../libro-candidatas/candidata/candidata.component';
 
@@ -15,7 +15,7 @@ import { CandidataComponent } from '../libro-candidatas/candidata/candidata.comp
 })
 export class LiveComponent {
 
-  liveInfo: IRealTimeLiveInfo = {
+  liveInfo: IRealTimeLive = {
     descripcion: '',
     item: '',
     tipo: '',

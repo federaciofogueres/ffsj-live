@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { IRealTimeStreaming } from '../../model/real-time-streaming.model';
+import { IRealTimeStreaming } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 
 @Component({
