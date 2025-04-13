@@ -1,7 +1,9 @@
-<span>{{liveInfo.titulo}}</span>
-@if(liveInfo.tipo === 'candidata') {
-<app-item [itemData]="liveInfo.item"></app-item>
-}
-@if (liveInfo.tipo === 'actuacion') {
-<span>{{liveInfo.descripcion}}</span>
-}
+<div class="d-flex flex-column scrollable">
+    <span class="h1 m-2">{{liveInfo.titulo}}</span>
+    @if(liveInfo.tipo === 'candidata') {
+    <app-item [itemData]="liveInfo.item"></app-item>
+    }
+    @if (liveInfo.tipo === 'actuacion') {
+    <span>{{liveInfo.descripcion}}</span>
+    }
+</div>

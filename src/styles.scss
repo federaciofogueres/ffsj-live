@@ -1,6 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 app-streaming,
-app-home {
+app-item,
+app-home,
+app-live,
+app-list {
     height: calc(100vh - 138px);
     display: block;
 }
