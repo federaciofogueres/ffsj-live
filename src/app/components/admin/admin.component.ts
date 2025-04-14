@@ -70,8 +70,13 @@ export class AdminComponent {
 
   ngOnInit() {
     this.loading = true;
-    this.getData();
-    this.prepareForms();
+    this.initializeData();
+  }
+
+  async initializeData() {
+    await this.getData(); // Esperar a que los datos se carguen
+    this.prepareForms(); // Preparar los formularios después de cargar los datos
+    this.loading = false;
   }
 
   async getData() {
@@ -85,18 +90,33 @@ export class AdminComponent {
 
   prepareForms() {
     this.infoForm = this.fb.group({
-      title: [this.config.event?.title],
-      presentadores: this.fb.array(this.config.event?.presentadores || []),
-      horario: [this.config.event?.horario],
-      eventos: this.fb.array(this.config.event?.eventos || []),
+      title: [this.config.event?.title || ''], // Asegurarse de que haya un valor predeterminado
+      horario: [this.config.event?.horario || ''],
+      presentadores: this.fb.array(
+        Array.isArray(this.config.event?.presentadores) // Verificar si es un array
+          ? this.config.event.presentadores.map((presentador: any) =>
+            this.fb.group({
+              nombre: [presentador.nombre || ''],
+              src: [presentador.src || ''],
+              info: [presentador.info || '']
+            })
+          )
+          : [] // Si no es un array, inicializar como vacío
+      ),
+      eventos: this.fb.array(
+        Array.isArray(this.config.event?.eventos) // Verificar si es un array
+          ? this.config.event.eventos.map((evento: string) => this.fb.control(evento))
+          : [] // Si no es un array, inicializar como vacío
+      )
     });
+
     this.nuevoPresentador = this.fb.group({
       nombre: [''],
       src: [''],
       info: ['']
     });
+
     this.nuevoEventoControl = new FormControl('');
-    this.loading = false;
   }
 
   // Añadir un nuevo presentador al FormArray
@@ -127,7 +147,7 @@ export class AdminComponent {
 
   procesar() {
     console.log(this.infoForm.value);
-    this.firebaseStorageService.setRealtimeData('config/evento', this.infoForm.value).then((response) => {
+    this.firebaseStorageService.setRealtimeData('config/event', this.infoForm.value).then((response) => {
       this.ffsjAlertService.success('Información del evento actualizada con éxito!');
       this.resetAll();
     })

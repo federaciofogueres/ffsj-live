@@ -78,15 +78,16 @@
                         (click)="addPresentador()">Añadir</button>
                 </div>
                 <ul class="mt-3">
-                    <li *ngFor="let presentador of presentadores.controls; let i = index"
-                        class="d-flex align-items-center">
+                    @for(presentador of presentadores.controls; track presentador; let i = $index) {
+                    <li class="d-flex align-items-center">
                         <span>
-                            {{ presentador.value.nombre | titlecase }} - {{ presentador.value.info }}
+                            {{ presentador.get('nombre')?.value | titlecase }} - {{ presentador.get('info')?.value }}
                         </span>
                         <button mat-icon-button color="warn" (click)="removePresentador(i)">
                             <i class="bi bi-trash3"></i>
                         </button>
                     </li>
+                    }
                 </ul>
             </div>
 

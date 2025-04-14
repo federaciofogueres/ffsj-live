@@ -31,7 +31,7 @@ export class HomeComponent {
 
   async loadData() {
     const config = await this.firebaseStorageService.getRealtimeData('config');
-    this.eventInfo = config.evento
+    this.eventInfo = config.event
   }
 
   // Alternar la visibilidad de los protagonistas
