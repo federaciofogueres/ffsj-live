@@ -1,5 +1,11 @@
 @import "../../../variables.scss";
 
+.container-item {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .scrollable {
     overflow: auto;
     height: calc(100% - 63px);

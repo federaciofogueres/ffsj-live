@@ -6,8 +6,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { FfsjAlertService } from 'ffsj-web-components';
-import { IRealTimeConfigModel } from '../../model/real-time-config.model';
+import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { ItemCardComponent } from '../item-card/item-card.component';
 
 @Component({
   selector: 'app-admin',
@@ -19,14 +20,23 @@ import { FirebaseStorageService } from '../../services/storage.service';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatIconModule
+    MatIconModule,
+    ItemCardComponent
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
 })
 export class AdminComponent {
+  Array = Array;
   public infoForm!: FormGroup;
   public streamingForm!: FormGroup;
+  public liveForm!: FormGroup;
+
+  public placeHolder!: IRealTimeItem;
+
+  public liveItemId: number = 0;
+  public itemList!: IRealTimeList;
+  public asociacionLive!: FormControl;
 
   protected _selectedView: string = 'info';
   protected loading: boolean = true;
@@ -69,10 +79,22 @@ export class AdminComponent {
   get srcControl(): FormControl {
     return this.nuevoPresentador.get('src') as FormControl;
   }
+  get liveItemControl(): FormControl {
+    return this.liveForm.get('item') as FormControl;
+  }
 
   ngOnInit() {
     this.loading = true;
     this.initializeData();
+  }
+
+  ngOnChanges() {
+    if (this.itemList?.items?.length) {
+      const currentItem = this.liveForm.get('item')?.value;
+      if (!currentItem || !this.itemList.items.some(item => item.id === currentItem.id)) {
+        this.liveForm.get('item')?.setValue(this.itemList.items[0]);
+      }
+    }
   }
 
   async initializeData() {
@@ -121,7 +143,7 @@ export class AdminComponent {
     this.nuevoEventoControl = new FormControl('');
   }
 
-  prepareLiveForm() {
+  prepareStreamingForm() {
     this.streamingForm = this.fb.group({
       title: [this.config.streaming?.title || ''],
       subtitle: [this.config.streaming?.subtitle || ''],
@@ -131,9 +153,27 @@ export class AdminComponent {
     });
   }
 
+  prepareLiveForm() {
+    this.itemList = this.config.list!;
+    // Encuentra el objeto en itemList.items que coincide con el ID del item seleccionado
+    const initialItem = this.itemList.items.find(item => item.id === this.config.live?.item?.id) || this.itemList.items[0];
+
+    this.liveForm = this.fb.group({
+      item: [initialItem] // Establecer el objeto completo como valor inicial
+    });
+
+    this.liveItemId = this.itemList.items.findIndex(item => item.id === this.config.live?.item?.id) ?? 0;
+  }
+
   prepareForms() {
     this.prepareInfoForm();
+    this.prepareStreamingForm();
     this.prepareLiveForm();
+  }
+
+  updateItem(itemId: number) {
+    this.liveItemId = itemId;
+    this.liveForm.get('item')?.setValue(this.config.list?.items[this.liveItemId] ?? {} as IRealTimeItem);
   }
 
   // Añadir un nuevo presentador al FormArray
@@ -193,5 +233,10 @@ export class AdminComponent {
     this.config = {};
 
     console.log('Todos los formularios y datos han sido reseteados.');
+  }
+
+  handleSelect(event: any) {
+    console.log(event.target.value.vidaEnFogueres.asociacion_label);
+
   }
 }

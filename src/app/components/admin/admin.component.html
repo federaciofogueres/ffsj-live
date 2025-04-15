@@ -182,7 +182,25 @@
 </ng-template>
 
 <ng-template #liveTemplate>
-    <h1>Cargando live...</h1>
+    <div class="d-flex flex-column">
+        <div class="container-item mt-3">
+            <app-item-card [item]="liveItemControl.value"></app-item-card>
+        </div>
+
+        <div class="d-flex" [formGroup]="liveForm">
+            <button class="btn btn-primary btn-foc-naranja" (click)="updateItem(liveItemId - 1)">Anterior</button>
+            <select id="item" class="form-control" formControlName="item" required (change)="handleSelect($event)">
+                @for (itemFromList of itemList.items; track $index) {
+                <option [ngValue]="itemFromList">
+                    {{ itemFromList.vidaEnFogueres.asociacion_order }} - {{ itemFromList.vidaEnFogueres.asociacion_label
+                    }}
+                </option>
+                }
+            </select>
+            <button class="btn btn-primary btn-foc-naranja" (click)="updateItem(liveItemId + 1)">Siguiente</button>
+        </div>
+
+    </div>
 </ng-template>
 
 <ng-template #listadoTemplate>
