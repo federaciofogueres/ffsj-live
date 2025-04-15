@@ -159,7 +159,10 @@ export class AdminComponent {
     const initialItem = this.itemList.items.find(item => item.id === this.config.live?.item?.id) || this.itemList.items[0];
 
     this.liveForm = this.fb.group({
-      item: [initialItem] // Establecer el objeto completo como valor inicial
+      item: [initialItem],
+      descripcion: [this.config.live?.descripcion || ''],
+      tipo: [this.config.live?.tipo || ''],
+      titulo: [this.config.live?.titulo || ''],
     });
 
     this.liveItemId = this.itemList.items.findIndex(item => item.id === this.config.live?.item?.id) ?? 0;
@@ -173,7 +176,9 @@ export class AdminComponent {
 
   updateItem(itemId: number) {
     this.liveItemId = itemId;
-    this.liveForm.get('item')?.setValue(this.config.list?.items[this.liveItemId] ?? {} as IRealTimeItem);
+    const item = this.itemList.items[this.liveItemId] || this.itemList.items[0];
+    this.liveForm.get('item')?.setValue(item);
+    this.procesar(this.liveForm, 'live');
   }
 
   // Añadir un nuevo presentador al FormArray
