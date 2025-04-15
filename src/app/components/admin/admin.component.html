@@ -116,7 +116,7 @@
             </div>
 
             <div>
-                <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="procesar()"
+                <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="procesar(infoForm, 'event')"
                     [disabled]="infoForm.invalid">Guardar</button>
             </div>
         </form>
@@ -124,7 +124,61 @@
 </ng-template>
 
 <ng-template #streamingTemplate>
-    <h1>Cargando streaming...</h1>
+    <div class="container scrollable">
+        <h1>Modificar streaming</h1>
+        <form [formGroup]="streamingForm" class="py-3">
+
+            <div class="form-group mb-3">
+                <label for="title" class="text-naranja">Título del streaming</label>
+                <input type="text" id="title" class="form-control" formControlName="title" required>
+                @if(infoForm.get('title')?.errors?.['required'] && infoForm.get('title')?.invalid &&
+                (infoForm.get('title')?.touched || infoForm.get('title')?.dirty)) {
+                <small class="text-danger">El título es obligatorio.</small>
+                }
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="subtitle" class="text-naranja">Subtítulo del streaming</label>
+                <input type="text" id="subtitle" class="form-control" formControlName="subtitle" required>
+                @if(infoForm.get('subtitle')?.errors?.['required'] && infoForm.get('subtitle')?.invalid &&
+                (infoForm.get('subtitle')?.touched || infoForm.get('subtitle')?.dirty)) {
+                <small class="text-danger">El Subtítulo es obligatorio.</small>
+                }
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="src" class="text-naranja">Enlace del streaming</label>
+                <input type="text" id="src" class="form-control" formControlName="src" required>
+                @if(infoForm.get('src')?.errors?.['required'] && infoForm.get('src')?.invalid &&
+                (infoForm.get('src')?.touched || infoForm.get('src')?.dirty)) {
+                <small class="text-danger">El enlace es obligatorio.</small>
+                }
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="height" class="text-naranja">Altura del streaming</label>
+                <input type="text" id="height" class="form-control" formControlName="height" required>
+                @if(infoForm.get('height')?.errors?.['required'] && infoForm.get('height')?.invalid &&
+                (infoForm.get('height')?.touched || infoForm.get('height')?.dirty)) {
+                <small class="text-danger">La altura es obligatoria.</small>
+                }
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="width" class="text-naranja">Anchura del streaming</label>
+                <input type="text" id="width" class="form-control" formControlName="width" required>
+                @if(infoForm.get('width')?.errors?.['required'] && infoForm.get('width')?.invalid &&
+                (infoForm.get('width')?.touched || infoForm.get('width')?.dirty)) {
+                <small class="text-danger">La anchura es obligatoria.</small>
+                }
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary btn-foc-rojo w-100"
+                    (click)="procesar(streamingForm, 'streaming')" [disabled]="streamingForm.invalid">Guardar</button>
+            </div>
+        </form>
+    </div>
 </ng-template>
 
 <ng-template #liveTemplate>

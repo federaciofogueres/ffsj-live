@@ -26,6 +26,8 @@ import { FirebaseStorageService } from '../../services/storage.service';
 })
 export class AdminComponent {
   public infoForm!: FormGroup;
+  public streamingForm!: FormGroup;
+
   protected _selectedView: string = 'info';
   protected loading: boolean = true;
   config: IRealTimeConfigModel = {};
@@ -88,7 +90,7 @@ export class AdminComponent {
     // Aquí puedes agregar lógica para guardar los datos en Firebase u otro servicio
   }
 
-  prepareForms() {
+  prepareInfoForm() {
     this.infoForm = this.fb.group({
       title: [this.config.event?.title || ''], // Asegurarse de que haya un valor predeterminado
       horario: [this.config.event?.horario || ''],
@@ -119,6 +121,21 @@ export class AdminComponent {
     this.nuevoEventoControl = new FormControl('');
   }
 
+  prepareLiveForm() {
+    this.streamingForm = this.fb.group({
+      title: [this.config.streaming?.title || ''],
+      subtitle: [this.config.streaming?.subtitle || ''],
+      src: [this.config.streaming?.src || ''],
+      height: [this.config.streaming?.height || ''],
+      width: [this.config.streaming?.width || '']
+    });
+  }
+
+  prepareForms() {
+    this.prepareInfoForm();
+    this.prepareLiveForm();
+  }
+
   // Añadir un nuevo presentador al FormArray
   addPresentador(): void {
     const presentador = this.nuevoPresentador.value;
@@ -145,9 +162,9 @@ export class AdminComponent {
     this.eventos.removeAt(index);
   }
 
-  procesar() {
+  procesar(form: FormGroup, type: string) {
     console.log(this.infoForm.value);
-    this.firebaseStorageService.setRealtimeData('config/event', this.infoForm.value).then((response) => {
+    this.firebaseStorageService.setRealtimeData('config/' + type, form.value).then((response) => {
       this.ffsjAlertService.success('Información del evento actualizada con éxito!');
       this.resetAll();
     })
