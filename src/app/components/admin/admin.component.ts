@@ -1,3 +1,4 @@
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -21,7 +22,8 @@ import { ItemCardComponent } from '../item-card/item-card.component';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    ItemCardComponent
+    ItemCardComponent,
+    DragDropModule
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
@@ -31,6 +33,7 @@ export class AdminComponent {
   public infoForm!: FormGroup;
   public streamingForm!: FormGroup;
   public liveForm!: FormGroup;
+  public listForm!: FormGroup;
 
   public placeHolder!: IRealTimeItem;
 
@@ -43,6 +46,7 @@ export class AdminComponent {
   config: IRealTimeConfigModel = {};
   nuevoEventoControl!: FormControl;
   nuevoPresentador!: FormGroup;
+  nuevoFilterKey!: FormControl;
 
   constructor(
     private firebaseStorageService: FirebaseStorageService,
@@ -81,6 +85,10 @@ export class AdminComponent {
   }
   get liveItemControl(): FormControl {
     return this.liveForm.get('item') as FormControl;
+  }
+
+  get filterKeys(): FormArray {
+    return this.listForm.get('filterKeys') as FormArray;
   }
 
   ngOnInit() {
@@ -168,10 +176,25 @@ export class AdminComponent {
     this.liveItemId = this.itemList.items.findIndex(item => item.id === this.config.live?.item?.id) ?? 0;
   }
 
+  prepareListForm() {
+    this.listForm = this.fb.group({
+      title: [this.config.list?.title || ''],
+      items: [this.config.list?.items || ''],
+      searching: [this.config.list?.searching || ''],
+      filterKeys: this.fb.array(
+        Array.isArray(this.config.list?.filterKeys) // Verificar si es un array
+          ? this.config.list.filterKeys.map((filter: string) => this.fb.control(filter))
+          : [] // Si no es un array, inicializar como vacío
+      )
+    });
+    this.nuevoFilterKey = new FormControl('');
+  }
+
   prepareForms() {
     this.prepareInfoForm();
     this.prepareStreamingForm();
     this.prepareLiveForm();
+    this.prepareListForm();
   }
 
   updateItem(itemId: number) {
@@ -179,6 +202,20 @@ export class AdminComponent {
     const item = this.itemList.items[this.liveItemId] || this.itemList.items[0];
     this.liveForm.get('item')?.setValue(item);
     this.procesar(this.liveForm, 'live');
+  }
+
+  // Añadir un nuevo presentador al FormArray
+  addFilterKey(): void {
+    const presentador = this.nuevoPresentador.value;
+    if (presentador.nombre.trim() && presentador.src.trim() && presentador.info.trim()) {
+      this.filterKeys.push(this.fb.group(presentador));
+      this.nuevoPresentador.reset(); // Limpiar el formulario del nuevo presentador
+    }
+  }
+
+  // Eliminar un presentador del FormArray
+  removeFilterKey(index: number): void {
+    this.filterKeys.removeAt(index);
   }
 
   // Añadir un nuevo presentador al FormArray
@@ -233,6 +270,7 @@ export class AdminComponent {
 
     // Resetear el control de nuevo evento
     this.nuevoEventoControl.reset('');
+    this.nuevoFilterKey.reset('');
 
     // Limpiar la configuración cargada
     this.config = {};
@@ -243,5 +281,12 @@ export class AdminComponent {
   handleSelect(event: any) {
     console.log(event.target.value.vidaEnFogueres.asociacion_label);
 
+  }
+
+  // Método para manejar el reordenamiento
+  drop(event: CdkDragDrop<any[]>) {
+    moveItemInArray(this.itemList.items, event.previousIndex, event.currentIndex);
+    this.procesar(this.listForm, 'list');
+    console.log(this.listForm);
   }
 }

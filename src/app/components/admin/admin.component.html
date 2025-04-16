@@ -8,6 +8,7 @@
         <option value="streaming">Streaming</option>
         <option value="live">Live</option>
         <option value="listado">Listado</option>
+        <option value="options-listado">Opciones del listado</option>
     </select>
 
     <!-- Contenedor de vistas -->
@@ -30,6 +31,11 @@
     @case ('listado') {
     <ng-container>
         <div [ngTemplateOutlet]="listadoTemplate"></div>
+    </ng-container>
+    }
+    @case ('options-listado') {
+    <ng-container>
+        <div [ngTemplateOutlet]="listadoOptionsTemplate"></div>
     </ng-container>
     }
     }
@@ -233,6 +239,72 @@
     </div>
 </ng-template>
 
+<ng-template #listadoOptionsTemplate>
+    <div class="container scrollable">
+        <h1>Modificar opciones de listado</h1>
+        <form [formGroup]="listForm" class="py-3">
+
+            <div class="form-group mb-3">
+                <label for="title" class="text-naranja">Título del listado</label>
+                <input type="text" id="title" class="form-control" formControlName="title" required>
+                @if(infoForm.get('title')?.errors?.['required'] && infoForm.get('title')?.invalid &&
+                (infoForm.get('title')?.touched || infoForm.get('title')?.dirty)) {
+                <small class="text-danger">El título es obligatorio.</small>
+                }
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="searching" class="text-naranja">Barra de búsqueda</label>
+                <input type="text" id="searching" class="form-control" formControlName="searching" required>
+                @if(infoForm.get('searching')?.errors?.['required'] && infoForm.get('searching')?.invalid &&
+                (infoForm.get('searching')?.touched || infoForm.get('searching')?.dirty)) {
+                <small class="text-danger">La barra de búsqueda es obligatoria.</small>
+                }
+            </div>
+
+            <div formArrayName="filterKeys">
+                <span class=" h3 text-naranja">Filter keys</span>
+                <div class="form-group my-3">
+                    <label for="filterKeys" class="text-naranja">Filtros</label>
+                    <input type="text" id="filterKeys" class="form-control" [formControl]="nuevoFilterKey">
+                </div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <button type="button" style="height: 38px;" class="btn btn-primary"
+                        (click)="addFilterKey()">Añadir</button>
+                </div>
+                <ul class="mt-3">
+                    @for (filterKey of filterKeys.controls; track filterKey; let i = $index) {
+                    <li class="d-flex align-items-center">
+                        <span>
+                            {{ i }} - {{ filterKey.value }}
+                        </span>
+                        <button mat-icon-button color="warn" (click)="removeFilterKey(i)">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </li>
+                    }
+                </ul>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary btn-foc-rojo w-100"
+                    (click)="procesar(streamingForm, 'streaming')" [disabled]="streamingForm.invalid">Guardar</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
 <ng-template #listadoTemplate>
-    <h1>Cargando listado...</h1>
+    <div class="container scrollable">
+        <h1>Listado de Items</h1>
+        <div cdkDropList (cdkDropListDropped)="drop($event)" class="list-group">
+            <div *ngFor="let item of itemList.items" cdkDrag
+                class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    {{ item.vidaEnFogueres.asociacion_order }} - {{ item.vidaEnFogueres.asociacion_label }}
+                </span>
+                <i class="bi bi-grip-vertical"></i> <!-- Icono para indicar que es arrastrable -->
+            </div>
+        </div>
+    </div>
 </ng-template>
