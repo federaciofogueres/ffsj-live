@@ -1,21 +1,29 @@
-import { inject, Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Inject, inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { ref as dbRef, get, getDatabase, onValue, set } from '@angular/fire/database';
 import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class FirebaseStorageService {
 
+    private _realtimeDataSubject = new BehaviorSubject<any>(null); // BehaviorSubject para almacenar los datos
+    public realtimeData$: Observable<any> = this._realtimeDataSubject.asObservable(); // Observable accesible globalmente
+
     private _firestore = inject(Firestore);
     private _firebaseApp = this._firestore.app;
     private _collection = collection(this._firestore, 'candidatas');
     private _storage = getStorage(this._firebaseApp, 'gs://ffsj-form-candidatas.appspot.com');
 
-    constructor() { }
 
-    listenToRealtimeData(path: string, callback: (data: any) => void): void {
+    constructor(
+        @Inject(PLATFORM_ID) private platformId: Object // Inyecta PLATFORM_ID
+    ) { }
+
+    listenToRealtimeData(path: string): void {
         try {
             const database = getDatabase(this._firebaseApp); // Obtén la instancia de Realtime Database
             const reference = dbRef(database, path); // Crea una referencia al path especificado
@@ -23,14 +31,24 @@ export class FirebaseStorageService {
             // Escucha los cambios en tiempo real
             onValue(reference, (snapshot) => {
                 if (snapshot.exists()) {
-                    callback(snapshot.val()); // Llama al callback con los datos actualizados
+                    const data = snapshot.val();
+                    this.updateRealTimeValue(data, path);
                 } else {
                     console.warn(`No data available at path: ${path}`);
-                    callback(null); // Llama al callback con null si no hay datos
+                    this._realtimeDataSubject.next(null); // Actualiza con null si no hay datos
                 }
             });
         } catch (error) {
             console.error(`Error listening to Realtime Database at path: ${path}`, error);
+        }
+    }
+
+    updateRealTimeValue(data: any, path: string) {
+        this._realtimeDataSubject.next(data); // Actualiza el BehaviorSubject con los datos nuevos
+        if (isPlatformBrowser(this.platformId)) { // Verifica si el código se ejecuta en el navegador
+            localStorage.setItem(path, JSON.stringify(data));
+        } else {
+            console.warn('localStorage no está disponible en este entorno.');
         }
     }
 
@@ -113,11 +131,6 @@ export class FirebaseStorageService {
         }
     }
 
-    // async addCandidata(candidata: CandidataData) {
-    //     const candidataValues = this.extractValues(candidata);
-    //     await setDoc(doc(this._firestore, `candidatas/2024/${candidataValues.tipoCandidata}`, candidataValues.asociacion), candidataValues);
-    // }
-
     async getCollection(collectionName: string) {
         const colRef = collection(this._firestore, collectionName);
         const snapshot = await getDocs(colRef);
@@ -137,34 +150,4 @@ export class FirebaseStorageService {
         });
     }
 
-    // extractValues(candidata: CandidataData) {
-    //     return {
-    //         id: candidata.id.value,
-    //         dni: candidata.informacionPersonal.dni.value,
-    //         nombre: candidata.informacionPersonal.nombre.value,
-    //         fechaNacimiento: candidata.informacionPersonal.fechaNacimiento.value,
-    //         ciudad: candidata.informacionPersonal.ciudad.value,
-    //         email: candidata.informacionPersonal.email.value,
-    //         telefono: candidata.informacionPersonal.telefono.value,
-    //         edad: candidata.informacionPersonal.edad.value,
-    //         tipoCandidata: candidata.informacionPersonal.tipoCandidata.value,
-    //         asociacion: candidata.vidaEnFogueres.asociacion.value,
-    //         anyosFiesta: candidata.vidaEnFogueres.anyosFiesta.value,
-    //         curriculum: candidata.vidaEnFogueres.curriculum.value,
-    //         formacion: candidata.academico.formacion.value,
-    //         situacionLaboral: candidata.academico.situacionLaboral.value,
-    //         observaciones: candidata.academico.observaciones.value,
-    //         aficiones: candidata.academico.aficiones.value,
-    //         autorizacionFoguera: candidata.documentacion.autorizacionFoguera.value,
-    //         compromisoDisponibilidad: candidata.documentacion.compromisoDisponibilidad.value,
-    //         derechosAutor: candidata.documentacion.derechosAutor.value,
-    //         dniEscaneado: candidata.documentacion.dniEscaneado.value,
-    //         fotoBelleza: candidata.documentacion.fotoBelleza.value,
-    //         fotoCalle: candidata.documentacion.fotoCalle.value,
-    //         nombreTutor1: candidata.responsables.nombreTutor1.value,
-    //         nombreTutor2: candidata.responsables.nombreTutor2.value,
-    //         telefonoTutor1: candidata.responsables.telefonoTutor1.value,
-    //         telefonoTutor2: candidata.responsables.telefonoTutor2.value
-    //     }
-    // };
 }

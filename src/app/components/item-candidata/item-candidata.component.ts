@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CookieService } from 'ngx-cookie-service';
@@ -25,7 +25,16 @@ import { FfsjSpinnerComponent } from 'ffsj-web-components';
 export class ItemCandidataComponent {
   Object = Object;
 
-  @Input() itemData: IRealTimeItem | null = null;
+  @Input() set itemData(value: IRealTimeItem | null) {
+    this._itemData = value;
+    if (this._itemData) {
+      this.updateImages();
+    }
+  }
+  get itemData(): IRealTimeItem | null {
+    return this._itemData;
+  }
+  private _itemData: IRealTimeItem | null = null;
 
   isLive: boolean = true;
   loading: boolean = false;
@@ -51,7 +60,8 @@ export class ItemCandidataComponent {
     private breakpointObserver: BreakpointObserver,
     private firebaseStorageService: FirebaseStorageService,
     private cookieService: CookieService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) { }
 
   async ngOnInit() {
@@ -63,6 +73,14 @@ export class ItemCandidataComponent {
       });
 
     this.initComponent();
+  }
+
+  private updateImages() {
+    this.currentImage = this._itemData?.documentacion?.fotoBelleza || '';
+    this.alternateImageUrl = this._itemData?.documentacion?.fotoCalle || '';
+
+    // Forzar la detección de cambios si es necesario
+    this.cdr.detectChanges();
   }
 
   private initComponent() {
@@ -97,6 +115,8 @@ export class ItemCandidataComponent {
         ? this.itemData.documentacion.fotoCalle
         : this.itemData.documentacion.fotoBelleza;
     }
+    // Forzar la detección de cambios
+    this.cdr.detectChanges();
   }
 
   saveAnotaciones() {

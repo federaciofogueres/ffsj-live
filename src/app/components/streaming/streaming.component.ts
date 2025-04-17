@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { IRealTimeStreaming } from '../../model/real-time-config.model';
-import { FirebaseStorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-streaming',
@@ -20,23 +20,28 @@ export class StreamingComponent {
     subtitle: 'Testing subtitle'
   };
 
-  safeUrl!: SafeResourceUrl;
-
   constructor(
-    private firebaseStorageService: FirebaseStorageService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    @Inject(PLATFORM_ID) private platformId: Object // Inyecta PLATFORM_ID
   ) { }
 
   ngOnInit(): void {
     this.loadData();
   }
 
-  async loadData() {
-    const config = await this.firebaseStorageService.getRealtimeData('config');
-    this.streaming = config.streaming;
-    this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+  sourceURL() {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
       `https://www.youtube.com/embed/${this.streaming.src}?rel=0&modestbranding=1&playsinline=1`
     );
+  }
+
+  async loadData() {
+    if (isPlatformBrowser(this.platformId)) { // Verifica si el código se ejecuta en el navegador
+      const config = JSON.parse(localStorage.getItem('config') || '{}');
+      this.streaming = config.streaming || this.streaming;
+    } else {
+      console.warn('localStorage no está disponible en este entorno.');
+    }
   }
 
 }

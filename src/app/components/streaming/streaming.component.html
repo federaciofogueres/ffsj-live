@@ -1,7 +1,8 @@
 <div class="streaming-container">
     <h1 class="video-title">{{ streaming.title }}</h1>
-    <iframe [src]="safeUrl" [title]="streaming.title" frameborder="0"
+    <iframe [src]="sourceURL()" [title]="streaming.title" frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+    </iframe>
     <span class="h5 mt-4 p-3 text-center">Estás viendo: {{ streaming.subtitle }}</span>
 </div>

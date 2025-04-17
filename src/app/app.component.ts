@@ -22,18 +22,10 @@ export class AppComponent implements OnInit {
 
   constructor(
     private firebaseStorageService: FirebaseStorageService
-  ) {
-
-  }
+  ) { }
 
   ngOnInit() {
-    this.loadRealTimeDataApp();
+    this.firebaseStorageService.listenToRealtimeData('config');
   }
 
-  async loadRealTimeDataApp() {
-    const config = await this.firebaseStorageService.getRealtimeData('config');
-    if (config) {
-      localStorage.setItem('config', JSON.stringify(config));
-    }
-  }
 }
