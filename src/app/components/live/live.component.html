@@ -1,3 +1,6 @@
+@if(loading) {
+<lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
+} @else {
 <div class="d-flex flex-column scrollable">
     <span class="h1 m-2">{{liveInfo.titulo}}</span>
     @if(liveInfo.tipo === 'listado') {
@@ -7,3 +10,4 @@
     <span>{{liveInfo.descripcion}}</span>
     }
 </div>
+}

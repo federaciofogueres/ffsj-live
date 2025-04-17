@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { FfsjSpinnerComponent } from 'ffsj-web-components';
 import { createDefaultLiveInfo, IRealTimeLive } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { ItemComponent } from '../item/item.component';
@@ -8,14 +10,18 @@ import { ItemComponent } from '../item/item.component';
   selector: 'app-live',
   standalone: true,
   imports: [
-    ItemComponent
+    CommonModule,
+    ItemComponent,
+    FfsjSpinnerComponent
   ],
   templateUrl: './live.component.html',
   styleUrl: './live.component.scss'
 })
 export class LiveComponent {
 
-  liveInfo: IRealTimeLive = createDefaultLiveInfo()
+  liveInfo: IRealTimeLive = createDefaultLiveInfo();
+  loading: boolean = true;
+
   constructor(
     protected router: Router,
     private firebaseStorageService: FirebaseStorageService
@@ -26,7 +32,11 @@ export class LiveComponent {
   }
 
   async loadData() {
-    const config = await this.firebaseStorageService.getRealtimeData('config');
-    this.liveInfo = config.live
+    this.firebaseStorageService.realtimeData$.subscribe((data) => {
+      if (data) {
+        this.liveInfo = data.live;
+        this.loading = false;
+      }
+    });
   }
 }
