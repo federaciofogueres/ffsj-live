@@ -40,12 +40,16 @@ export class ListComponent {
   }
 
   async loadData() {
-    this.config = await this.firebaseStorageService.getRealtimeData('config');
-    this.items = this.config.list?.items || [];
-    this.filteredItems = this.items;
-    this.filterKeys = this.config.list?.filterKeys || [];
+    this.firebaseStorageService.realtimeData$.subscribe((data) => {
+      if (data) {
+        this.config = data;
+        this.items = this.config.list?.items || [];
+        this.filteredItems = this.items;
+        this.filterKeys = this.config.list?.filterKeys || [];
+        this.loading = false;
+      }
+    });
     this.loading = false;
-    console.log(this.config);
   }
 
   filterItems(value: Event): void {

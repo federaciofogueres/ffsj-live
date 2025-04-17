@@ -30,8 +30,12 @@ export class HomeComponent {
   }
 
   async loadData() {
-    const config = await this.firebaseStorageService.getRealtimeData('config');
-    this.eventInfo = config.event
+    this.firebaseStorageService.realtimeData$.subscribe((data) => {
+      if (data) {
+        const config = data;
+        this.eventInfo = config.event
+      }
+    });
   }
 
   // Alternar la visibilidad de los protagonistas

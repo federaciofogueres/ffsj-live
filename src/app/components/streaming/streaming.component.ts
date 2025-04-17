@@ -1,7 +1,7 @@
-import { isPlatformBrowser } from '@angular/common';
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { IRealTimeStreaming } from '../../model/real-time-config.model';
+import { FirebaseStorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-streaming',
@@ -22,6 +22,7 @@ export class StreamingComponent {
 
   constructor(
     private sanitizer: DomSanitizer,
+    private firebaseStorageService: FirebaseStorageService,
     @Inject(PLATFORM_ID) private platformId: Object // Inyecta PLATFORM_ID
   ) { }
 
@@ -36,12 +37,12 @@ export class StreamingComponent {
   }
 
   async loadData() {
-    if (isPlatformBrowser(this.platformId)) { // Verifica si el código se ejecuta en el navegador
-      const config = JSON.parse(localStorage.getItem('config') || '{}');
-      this.streaming = config.streaming || this.streaming;
-    } else {
-      console.warn('localStorage no está disponible en este entorno.');
-    }
+    this.firebaseStorageService.realtimeData$.subscribe((data) => {
+      if (data) {
+        const config = data;
+        this.streaming = config.streaming || this.streaming;
+      }
+    });
   }
 
 }
