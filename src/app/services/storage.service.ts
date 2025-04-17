@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ref as dbRef, get, getDatabase, set } from '@angular/fire/database';
+import { ref as dbRef, get, getDatabase, onValue, set } from '@angular/fire/database';
 import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
 
@@ -14,6 +14,25 @@ export class FirebaseStorageService {
     private _storage = getStorage(this._firebaseApp, 'gs://ffsj-form-candidatas.appspot.com');
 
     constructor() { }
+
+    listenToRealtimeData(path: string, callback: (data: any) => void): void {
+        try {
+            const database = getDatabase(this._firebaseApp); // Obtén la instancia de Realtime Database
+            const reference = dbRef(database, path); // Crea una referencia al path especificado
+
+            // Escucha los cambios en tiempo real
+            onValue(reference, (snapshot) => {
+                if (snapshot.exists()) {
+                    callback(snapshot.val()); // Llama al callback con los datos actualizados
+                } else {
+                    console.warn(`No data available at path: ${path}`);
+                    callback(null); // Llama al callback con null si no hay datos
+                }
+            });
+        } catch (error) {
+            console.error(`Error listening to Realtime Database at path: ${path}`, error);
+        }
+    }
 
     async getRealtimeData(path: string): Promise<any> {
         try {
