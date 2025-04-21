@@ -37,65 +37,12 @@
     </app-list-options-form>
     }
     @case ('anuncios') {
-    <ng-container>
-        <div [ngTemplateOutlet]="anunciosTemplate"></div>
-    </ng-container>
+    <app-anuncios-form [anunciosForm]="anunciosForm" (formSubmit)="procesar($event, 'anuncios')">
+    </app-anuncios-form>
     }
     }
 </div>
 }
-
-<ng-template #anunciosTemplate>
-    <div class="container scrollable">
-        <h1>Anuncios</h1>
-        <form [formGroup]="anunciosForm" class="py-3">
-
-            <div class="form-group mb-3">
-                <label for="timing" class="text-naranja">Timing anuncios</label>
-                <input type="text" id="timing" class="form-control" formControlName="timing" required>
-                @if(infoForm.get('timing')?.errors?.['required'] && infoForm.get('timing')?.invalid &&
-                (infoForm.get('timing')?.touched || infoForm.get('timing')?.dirty)) {
-                <small class="text-danger">El título es obligatorio.</small>
-                }
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="activatedAdds" class="text-naranja me-3">Anuncios activos</label>
-                <mat-slide-toggle formControlName="activatedAdds" color="primary">
-                </mat-slide-toggle>
-            </div>
-
-            <!-- Input para cargar imágenes -->
-            <div class="form-group my-3">
-                <label for="imageUpload" class="text-naranja">Subir imagen</label>
-                <input type="file" id="imageUpload" class="form-control" (change)="onFileSelected($event)">
-            </div>
-
-            <div formArrayName="anuncios">
-                <span class="h3 text-naranja">Anuncios</span>
-                <ul class="mt-3">
-                    @for (addKey of anuncios.controls; track addKey; let i = $index) {
-                    <li class="d-flex align-items-center">
-                        <!-- Muestra una miniatura de la imagen -->
-                        <img [src]="addKey.value" alt="Anuncio {{ i }}" class="img-thumbnail me-3"
-                            style="width: 100px; height: auto;">
-                        <button mat-icon-button color="warn" (click)="removeAdd(i, addKey.value)">
-                            <i class="bi bi-trash3"></i>
-                        </button>
-                    </li>
-                    }
-                </ul>
-            </div>
-
-
-
-            <div>
-                <button type="submit" class="btn btn-primary btn-foc-rojo w-100"
-                    (click)="procesar(anunciosForm, 'anuncios')" [disabled]="anunciosForm.invalid">Guardar</button>
-            </div>
-        </form>
-    </div>
-</ng-template>
 
 <ng-template #listadoTemplate>
     <div class="container scrollable">

@@ -9,8 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
 import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/real-time-config.model';
-import { MappingService } from '../../services/mapping.service';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { AnunciosFormComponent } from '../formularios/anuncios-form/anuncios-form.component';
 import { InfoFormComponent } from '../formularios/info-form/info-form.component';
 import { ListOptionsFormComponent } from '../formularios/list-options-form/list-options-form.component';
 import { LiveFormComponent } from '../formularios/live-form/live-form.component';
@@ -20,6 +20,7 @@ import { StreamingFormComponent } from '../formularios/streaming-form/streaming-
   selector: 'app-admin',
   standalone: true,
   imports: [
+    AnunciosFormComponent,
     InfoFormComponent,
     LiveFormComponent,
     ListOptionsFormComponent,
@@ -61,8 +62,7 @@ export class AdminComponent {
   constructor(
     private firebaseStorageService: FirebaseStorageService,
     private fb: FormBuilder,
-    private ffsjAlertService: FfsjAlertService,
-    private mappingService: MappingService
+    private ffsjAlertService: FfsjAlertService
   ) { }
 
   get selectedView(): string {
@@ -223,32 +223,6 @@ export class AdminComponent {
     this.procesar(this.listForm, 'list');
   }
 
-  onFileSelected(event: Event): void {
-    this.loading = true;
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.firebaseStorageService.uploadImage(file).then((url) => {
-        if (url) {
-          this.anuncios.push(this.fb.control(url));
-          this.loading = false;
-        }
-      }).catch((error) => {
-        this.ffsjAlertService.danger('Error al subir la imagen:', error);
-      });
-    }
-  }
 
-  removeAdd(index: number, url: string): void {
-    this.loading = true;
-    this.anuncios.removeAt(index);
-    this.firebaseStorageService.deleteImage(url).then(() => {
-      this.ffsjAlertService.success(`Imagen eliminada del almacenamiento: ${url}`);
-    }).catch((error) => {
-      this.ffsjAlertService.danger('Error al eliminar la imagen del almacenamiento:', error);
-    }).finally(() => {
-      this.loading = false;
-    })
-  }
 
 }
