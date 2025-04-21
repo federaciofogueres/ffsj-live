@@ -127,27 +127,32 @@ export class AdminComponent {
     })
   }
 
-  prepareInfoForm() {
-    this.infoForm = this.fb.group({
-      title: [this.config.event?.title || ''],
-      horario: [this.config.event?.horario || ''],
-      presentadores: this.fb.array(
-        Array.isArray(this.config.event?.presentadores)
-          ? this.config.event.presentadores.map((presentador: any) =>
-            this.fb.group({
-              nombre: [presentador.nombre || ''],
-              src: [presentador.src || ''],
-              info: [presentador.info || '']
-            })
-          )
-          : []
-      ),
-      eventos: this.fb.array(
-        Array.isArray(this.config.event?.eventos)
-          ? this.config.event.eventos.map((evento: string) => this.fb.control(evento))
-          : []
-      )
+  private initializeFormGroup(config: any, fields: string[]): FormGroup {
+    const group: any = {};
+    fields.forEach(field => {
+      group[field] = [config?.[field] || ''];
     });
+    return this.fb.group(group);
+  }
+
+  prepareInfoForm() {
+    this.infoForm = this.initializeFormGroup(this.config.event, ['title', 'horario']);
+    this.infoForm.addControl('presentadores', this.fb.array(
+      Array.isArray(this.config.event?.presentadores)
+        ? this.config.event.presentadores.map((presentador: any) =>
+          this.fb.group({
+            nombre: [presentador.nombre || ''],
+            src: [presentador.src || ''],
+            info: [presentador.info || '']
+          })
+        )
+        : []
+    ));
+    this.infoForm.addControl('eventos', this.fb.array(
+      Array.isArray(this.config.event?.eventos)
+        ? this.config.event.eventos.map((evento: string) => this.fb.control(evento))
+        : []
+    ));
 
     this.nuevoPresentador = this.fb.group({
       nombre: [''],
@@ -159,55 +164,35 @@ export class AdminComponent {
   }
 
   prepareStreamingForm() {
-    this.streamingForm = this.fb.group({
-      title: [this.config.streaming?.title || ''],
-      subtitle: [this.config.streaming?.subtitle || ''],
-      src: [this.config.streaming?.src || ''],
-      height: [this.config.streaming?.height || ''],
-      width: [this.config.streaming?.width || '']
-    });
+    this.streamingForm = this.initializeFormGroup(this.config.streaming, ['title', 'subtitle', 'src', 'height', 'width']);
   }
 
   prepareLiveForm() {
     this.itemList = this.config.list!;
-
     const initialItem = this.itemList.items.find(item => item.id === this.config.live?.item?.id) || this.itemList.items[0];
-
-    this.liveForm = this.fb.group({
-      item: [initialItem],
-      descripcion: [this.config.live?.descripcion || ''],
-      tipo: [this.config.live?.tipo || ''],
-      titulo: [this.config.live?.titulo || ''],
-    });
-
+    this.liveForm = this.initializeFormGroup(this.config.live, ['descripcion', 'tipo', 'titulo']);
+    this.liveForm.addControl('item', new FormControl(initialItem));
     this.liveItemId = this.itemList.items.findIndex(item => item.id === this.config.live?.item?.id) ?? 0;
   }
 
   prepareListForm() {
-    this.listForm = this.fb.group({
-      title: [this.config.list?.title || ''],
-      items: [this.config.list?.items || ''],
-      searching: [this.config.list?.searching || ''],
-      filterKeys: this.fb.array(
-        Array.isArray(this.config.list?.filterKeys)
-          ? this.config.list.filterKeys.map((filter: string) => this.fb.control(filter))
-          : []
-      )
-    });
+    this.listForm = this.initializeFormGroup(this.config.list, ['title', 'searching']);
+    this.listForm.addControl('items', new FormControl(this.config.list?.items || ''));
+    this.listForm.addControl('filterKeys', this.fb.array(
+      Array.isArray(this.config.list?.filterKeys)
+        ? this.config.list.filterKeys.map((filter: string) => this.fb.control(filter))
+        : []
+    ));
     this.nuevoFilterKey = new FormControl('');
   }
 
   prepareAnunciosForm() {
-    this.anunciosForm = this.fb.group({
-      timing: [this.config.anuncios?.timing || ''],
-      activatedAdds: [this.config.anuncios?.activatedAdds || ''],
-      showAdds: [this.config.anuncios?.showAdds || false],
-      anuncios: this.fb.array(
-        Array.isArray(this.config.anuncios?.anuncios)
-          ? this.config.anuncios.anuncios.map((anuncio: string) => this.fb.control(anuncio))
-          : []
-      )
-    });
+    this.anunciosForm = this.initializeFormGroup(this.config.anuncios, ['timing', 'activatedAdds', 'showAdds']);
+    this.anunciosForm.addControl('anuncios', this.fb.array(
+      Array.isArray(this.config.anuncios?.anuncios)
+        ? this.config.anuncios.anuncios.map((anuncio: string) => this.fb.control(anuncio))
+        : []
+    ));
   }
 
   prepareForms() {
