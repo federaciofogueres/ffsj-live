@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
-import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/real-time-config.model';
+import { IRealTimeConfigModel, IRealTimeList } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { AnunciosFormComponent } from '../formularios/anuncios-form/anuncios-form.component';
 import { InfoFormComponent } from '../formularios/info-form/info-form.component';
@@ -48,18 +48,12 @@ export class AdminComponent {
   public listForm!: FormGroup;
   public anunciosForm!: FormGroup;
 
-  public placeHolder!: IRealTimeItem;
-
   public liveItemId: number = 0;
   public itemList!: IRealTimeList;
-  public asociacionLive!: FormControl;
 
   protected _selectedView: string = 'info';
   protected loading: boolean = true;
   config: IRealTimeConfigModel = {};
-  nuevoEventoControl!: FormControl;
-  nuevoPresentador!: FormGroup;
-  nuevoFilterKey!: FormControl;
 
   constructor(
     private firebaseStorageService: FirebaseStorageService,
@@ -74,18 +68,6 @@ export class AdminComponent {
   set selectedView(value: string) {
     this._selectedView = value;
     this.getData();
-  }
-
-  get liveItemControl(): FormControl {
-    return this.liveForm.get('item') as FormControl;
-  }
-
-  get filterKeys(): FormArray {
-    return this.listForm.get('filterKeys') as FormArray;
-  }
-
-  get anuncios(): FormArray {
-    return this.anunciosForm.get('anuncios') as FormArray;
   }
 
   ngOnInit() {
@@ -144,14 +126,6 @@ export class AdminComponent {
       })
     ));
     this.infoForm.addControl('eventos', this.createControlArray(this.config.event?.eventos || []));
-
-    this.nuevoPresentador = this.fb.group({
-      nombre: [''],
-      src: [''],
-      info: ['']
-    });
-
-    this.nuevoEventoControl = new FormControl('');
   }
 
   prepareStreamingForm() {
@@ -174,7 +148,6 @@ export class AdminComponent {
         ? this.config.list.filterKeys.map((filter: string) => this.fb.control(filter))
         : []
     ));
-    this.nuevoFilterKey = new FormControl('');
   }
 
   prepareAnunciosForm() {
