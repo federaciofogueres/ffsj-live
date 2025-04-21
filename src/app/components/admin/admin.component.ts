@@ -1,4 +1,4 @@
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -12,6 +12,7 @@ import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/
 import { FirebaseStorageService } from '../../services/storage.service';
 import { AnunciosFormComponent } from '../formularios/anuncios-form/anuncios-form.component';
 import { InfoFormComponent } from '../formularios/info-form/info-form.component';
+import { ListFormComponent } from '../formularios/list-form/list-form.component';
 import { ListOptionsFormComponent } from '../formularios/list-options-form/list-options-form.component';
 import { LiveFormComponent } from '../formularios/live-form/live-form.component';
 import { StreamingFormComponent } from '../formularios/streaming-form/streaming-form.component';
@@ -23,6 +24,7 @@ import { StreamingFormComponent } from '../formularios/streaming-form/streaming-
     AnunciosFormComponent,
     InfoFormComponent,
     LiveFormComponent,
+    ListFormComponent,
     ListOptionsFormComponent,
     StreamingFormComponent,
     CommonModule,
@@ -193,36 +195,19 @@ export class AdminComponent {
     this.loading = false;
   }
 
+  onItemListChange(updatedList: IRealTimeList): void {
+    this.itemList = updatedList;
+    this.listForm.controls['items'].setValue(updatedList.items);
+    this.procesar(this.listForm, 'list');
+  }
+
   procesar(form: FormGroup, type: string) {
     if (form.contains('activatedAdds')) {
       this.firebaseStorageService.setShowAdds();
     }
     this.firebaseStorageService.setRealtimeData('config/' + type, form.value).then((response) => {
       this.ffsjAlertService.success('Información del evento actualizada con éxito!');
-      this.resetAll();
     })
   }
-
-  resetAll() {
-    this.nuevoPresentador.reset({
-      nombre: '',
-      src: '',
-      info: ''
-    });
-    this.nuevoEventoControl.reset('');
-    this.nuevoFilterKey.reset('');
-    this.config = {};
-  }
-
-  handleSelect(event: any) {
-    console.log(event.target.value.vidaEnFogueres.asociacion_label);
-  }
-
-  drop(event: CdkDragDrop<any[]>) {
-    moveItemInArray(this.itemList.items, event.previousIndex, event.currentIndex);
-    this.procesar(this.listForm, 'list');
-  }
-
-
 
 }

@@ -28,9 +28,8 @@
     </app-live-form>
     }
     @case ('listado') {
-    <ng-container>
-        <div [ngTemplateOutlet]="listadoTemplate"></div>
-    </ng-container>
+    <app-list-form [itemList]="itemList" (itemListChange)="onItemListChange($event)">
+    </app-list-form>
     }
     @case ('options-listado') {
     <app-list-options-form [listForm]="listForm" [itemList]="itemList" (formSubmit)="procesar($event, 'list')">
@@ -43,18 +42,3 @@
     }
 </div>
 }
-
-<ng-template #listadoTemplate>
-    <div class="container scrollable">
-        <h1>Listado de Items</h1>
-        <div cdkDropList (cdkDropListDropped)="drop($event)" class="list-group">
-            <div *ngFor="let item of itemList.items" cdkDrag
-                class="list-group-item d-flex justify-content-between align-items-center">
-                <span>
-                    {{ item.vidaEnFogueres.asociacion_order }} - {{ item.vidaEnFogueres.asociacion_label }}
-                </span>
-                <i class="bi bi-grip-vertical"></i> <!-- Icono para indicar que es arrastrable -->
-            </div>
-        </div>
-    </div>
-</ng-template>
