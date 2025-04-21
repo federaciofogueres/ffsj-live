@@ -15,9 +15,8 @@
     <!-- Contenedor de vistas -->
     @switch (selectedView) {
     @case ('info') {
-    <ng-container>
-        <div [ngTemplateOutlet]="infoTemplate"></div>
-    </ng-container>
+    <app-info-form [infoForm]="infoForm" (formSubmit)="procesar($event, 'info')">
+    </app-info-form>
     }
     @case ('streaming') {
     <ng-container>
@@ -47,93 +46,6 @@
     }
 </div>
 }
-
-
-<ng-template #infoTemplate>
-    <div class="container scrollable">
-        <h1>Modificar Información Principal</h1>
-        <form [formGroup]="infoForm" class="py-3">
-
-            <div class="form-group mb-3">
-                <label for="title" class="text-naranja">Título del evento</label>
-                <input type="text" id="title" class="form-control" formControlName="title" required>
-                @if(infoForm.get('title')?.errors?.['required'] && infoForm.get('title')?.invalid &&
-                (infoForm.get('title')?.touched || infoForm.get('title')?.dirty)) {
-                <small class="text-danger">El título es obligatorio.</small>
-                }
-            </div>
-            <div class="form-group mb-3">
-                <label for="horario" class="text-naranja">Horario del evento</label>
-                <input type="text" id="horario" class="form-control" formControlName="horario" required>
-                @if(infoForm.get('horario')?.errors?.['required'] && infoForm.get('horario')?.invalid &&
-                (infoForm.get('horario')?.touched || infoForm.get('horario')?.dirty)) {
-                <small class="text-danger">El horario es obligatorio.</small>
-                }
-            </div>
-
-            <div formArrayName="presentadores">
-                <span class="h3 text-naranja">Presentadores</span>
-                <div class="form-group my-3">
-                    <label for="nombre" class="text-naranja">Nombre</label>
-                    <input type="text" id="nombre" class="form-control" [formControl]="nombreControl">
-                </div>
-                <div class="form-group my-3">
-                    <label for="info" class="text-naranja">Información extra</label>
-                    <input type="text" id="info" class="form-control" [formControl]="infoControl">
-                </div>
-                <div class="form-group my-3">
-                    <label for="src" class="text-naranja">Imagen</label>
-                    <input type="text" id="src" class="form-control" [formControl]="srcControl">
-                </div>
-                <div class="d-flex justify-content-between align-items-end">
-                    <button type="button" style="height: 38px;" class="btn btn-primary"
-                        (click)="addPresentador()">Añadir</button>
-                </div>
-                <ul class="mt-3">
-                    @for(presentador of presentadores.controls; track presentador; let i = $index) {
-                    <li class="d-flex align-items-center">
-                        <span>
-                            {{ presentador.get('nombre')?.value | titlecase }} - {{ presentador.get('info')?.value }}
-                        </span>
-                        <button mat-icon-button color="warn" (click)="removePresentador(i)">
-                            <i class="bi bi-trash3"></i>
-                        </button>
-                    </li>
-                    }
-                </ul>
-            </div>
-
-            <div formArrayName="eventos">
-                <span class="h3 text-naranja">Eventos</span>
-                <div class="form-group my-3">
-                    <label for="nuevoEvento" class="text-naranja">Título evento</label>
-                    <input type="text" id="nuevoEvento" class="form-control" [formControl]="nuevoEventoControl">
-                </div>
-                <div class="d-flex justify-content-between align-items-end">
-                    <button type="button" style="height: 38px;" class="btn btn-primary"
-                        (click)="addEvento()">Añadir</button>
-                </div>
-                <ul class="mt-3">
-                    @for (evento of eventos.controls; track evento; let i = $index) {
-                    <li class="d-flex align-items-center">
-                        <span>
-                            {{ i }} - {{ evento.value }}
-                        </span>
-                        <button mat-icon-button color="warn" (click)="removeEvento(i)">
-                            <i class="bi bi-trash3"></i>
-                        </button>
-                    </li>
-                    }
-                </ul>
-            </div>
-
-            <div>
-                <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="procesar(infoForm, 'event')"
-                    [disabled]="infoForm.invalid">Guardar</button>
-            </div>
-        </form>
-    </div>
-</ng-template>
 
 <ng-template #streamingTemplate>
     <div class="container scrollable">
@@ -253,8 +165,8 @@
             <div class="form-group mb-3">
                 <label for="title" class="text-naranja">Título del listado</label>
                 <input type="text" id="title" class="form-control" formControlName="title" required>
-                @if(infoForm.get('title')?.errors?.['required'] && infoForm.get('title')?.invalid &&
-                (infoForm.get('title')?.touched || infoForm.get('title')?.dirty)) {
+                @if(listForm.get('title')?.errors?.['required'] && listForm.get('title')?.invalid &&
+                (listForm.get('title')?.touched || listForm.get('title')?.dirty)) {
                 <small class="text-danger">El título es obligatorio.</small>
                 }
             </div>
@@ -262,8 +174,8 @@
             <div class="form-group mb-3">
                 <label for="searching" class="text-naranja">Barra de búsqueda</label>
                 <input type="text" id="searching" class="form-control" formControlName="searching" required>
-                @if(infoForm.get('searching')?.errors?.['required'] && infoForm.get('searching')?.invalid &&
-                (infoForm.get('searching')?.touched || infoForm.get('searching')?.dirty)) {
+                @if(listForm.get('searching')?.errors?.['required'] && listForm.get('searching')?.invalid &&
+                (listForm.get('searching')?.touched || listForm.get('searching')?.dirty)) {
                 <small class="text-danger">La barra de búsqueda es obligatoria.</small>
                 }
             </div>

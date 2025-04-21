@@ -10,13 +10,16 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
 import * as XLSX from 'xlsx';
 import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/real-time-config.model';
+import { MappingService } from '../../services/mapping.service';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { InfoFormComponent } from '../formularios/info-form/info-form.component';
 import { ItemCardComponent } from '../item-card/item-card.component';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
   imports: [
+    InfoFormComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -55,7 +58,8 @@ export class AdminComponent {
   constructor(
     private firebaseStorageService: FirebaseStorageService,
     private fb: FormBuilder,
-    private ffsjAlertService: FfsjAlertService
+    private ffsjAlertService: FfsjAlertService,
+    private mappingService: MappingService
   ) { }
 
   get selectedView(): string {
@@ -67,25 +71,6 @@ export class AdminComponent {
     this.getData();
   }
 
-  get eventos(): FormArray {
-    return this.infoForm.get('eventos') as FormArray;
-  }
-
-  get presentadores(): FormArray {
-    return this.infoForm.get('presentadores') as FormArray;
-  }
-
-  get nombreControl(): FormControl {
-    return this.nuevoPresentador.get('nombre') as FormControl;
-  }
-
-  get infoControl(): FormControl {
-    return this.nuevoPresentador.get('info') as FormControl;
-  }
-
-  get srcControl(): FormControl {
-    return this.nuevoPresentador.get('src') as FormControl;
-  }
   get liveItemControl(): FormControl {
     return this.liveForm.get('item') as FormControl;
   }
@@ -135,24 +120,25 @@ export class AdminComponent {
     return this.fb.group(group);
   }
 
+  createFormArray(items: any[], createGroupFn: (item: any) => FormGroup): FormArray {
+    return this.fb.array(items.map(createGroupFn));
+  }
+
+  createControlArray(items: any[]): FormArray {
+    return this.fb.array(items.map(item => this.fb.control(item)));
+  }
+
   prepareInfoForm() {
     this.infoForm = this.initializeFormGroup(this.config.event, ['title', 'horario']);
-    this.infoForm.addControl('presentadores', this.fb.array(
-      Array.isArray(this.config.event?.presentadores)
-        ? this.config.event.presentadores.map((presentador: any) =>
-          this.fb.group({
-            nombre: [presentador.nombre || ''],
-            src: [presentador.src || ''],
-            info: [presentador.info || '']
-          })
-        )
-        : []
+    this.infoForm.addControl('presentadores', this.createFormArray(
+      this.config.event?.presentadores || [],
+      (presentador: any) => this.fb.group({
+        nombre: [presentador.nombre || ''],
+        src: [presentador.src || ''],
+        info: [presentador.info || '']
+      })
     ));
-    this.infoForm.addControl('eventos', this.fb.array(
-      Array.isArray(this.config.event?.eventos)
-        ? this.config.event.eventos.map((evento: string) => this.fb.control(evento))
-        : []
-    ));
+    this.infoForm.addControl('eventos', this.createControlArray(this.config.event?.eventos || []));
 
     this.nuevoPresentador = this.fb.group({
       nombre: [''],
@@ -223,31 +209,6 @@ export class AdminComponent {
     this.filterKeys.removeAt(index);
   }
 
-  addPresentador(): void {
-    const presentador = this.nuevoPresentador.value;
-    if (presentador.nombre.trim() && presentador.src.trim() && presentador.info.trim()) {
-      this.presentadores.push(this.fb.group(presentador));
-      this.nuevoPresentador.reset();
-    }
-  }
-
-
-  removePresentador(index: number): void {
-    this.presentadores.removeAt(index);
-  }
-
-  addEvento(): void {
-    const nuevoEvento = this.nuevoEventoControl.value;
-    if (nuevoEvento.trim()) {
-      this.eventos.push(this.fb.control(nuevoEvento));
-      this.nuevoEventoControl.reset();
-    }
-  }
-
-  removeEvento(index: number): void {
-    this.eventos.removeAt(index);
-  }
-
   procesar(form: FormGroup, type: string) {
     if (form.contains('activatedAdds')) {
       this.firebaseStorageService.setShowAdds();
@@ -259,12 +220,6 @@ export class AdminComponent {
   }
 
   resetAll() {
-    this.infoForm.reset({
-      title: '',
-      horario: '',
-      presentadores: [],
-      eventos: []
-    });
     this.nuevoPresentador.reset({
       nombre: '',
       src: '',
@@ -358,7 +313,7 @@ export class AdminComponent {
         items: []
       };
     }
-    this.itemList.items = data.map((item, index) => this.mapToIRealTimeItem(item, index));
+    this.itemList.items = data.map((item, index) => this.mappingService.mapToIRealTimeItem(item, index));
     this.listForm.controls['items'].setValue(this.itemList.items);
     this.loading = false;
     this.ffsjAlertService.success('Listado actualizado desde el Excel correctamente.');
@@ -370,7 +325,7 @@ export class AdminComponent {
       return;
     }
 
-    const data = this.itemList.items.map(item => this.mapItemToExcelRow(item));
+    const data = this.itemList.items.map(item => this.mappingService.mapItemToExcelRow(item));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
@@ -378,82 +333,6 @@ export class AdminComponent {
 
     const excelFileName = 'Listado.xlsx';
     XLSX.writeFile(workbook, excelFileName);
-  }
-
-  private mapToIRealTimeItem(item: any, index: number): IRealTimeItem {
-    return {
-      id: item.id || (index + 1).toString(),
-      informacionPersonal: {
-        dni: item.dni || '',
-        nombre: item.nombre || '',
-        fechaNacimiento: item.fechaNacimiento || '',
-        ciudad: item.ciudad || '',
-        email: item.email || '',
-        telefono: item.telefono || '',
-        edad: item.edad || '',
-        tipoCandidata: item.tipoCandidata || ''
-      },
-      vidaEnFogueres: {
-        asociacion_order: item.asociacion_order || undefined,
-        asociacion_label: item.asociacion_label || '',
-        asociacion: item.asociacion || '',
-        anyosFiesta: item.anyosFiesta || 0,
-        curriculum: item.curriculum || ''
-      },
-      academico: {
-        formacion: item.formacion || '',
-        situacionLaboral: item.situacionLaboral || '',
-        observaciones: item.observaciones || '',
-        aficiones: item.aficiones || ''
-      },
-      documentacion: {
-        autorizacionFoguera: item.autorizacionFoguera || '',
-        compromisoDisponibilidad: item.compromisoDisponibilidad || '',
-        derechosAutor: item.derechosAutor || '',
-        dniEscaneado: item.dniEscaneado || '',
-        fotoBelleza: item.fotoBelleza || '',
-        fotoCalle: item.fotoCalle || ''
-      },
-      responsables: {
-        nombreTutor1: item.nombreTutor1 || '',
-        nombreTutor2: item.nombreTutor2 || '',
-        telefonoTutor1: item.telefonoTutor1 || '',
-        telefonoTutor2: item.telefonoTutor2 || ''
-      }
-    };
-  }
-
-  private mapItemToExcelRow(item: IRealTimeItem): any {
-    return {
-      id: item.id,
-      dni: item.informacionPersonal?.dni || '',
-      nombre: item.informacionPersonal?.nombre || '',
-      fechaNacimiento: item.informacionPersonal?.fechaNacimiento || '',
-      ciudad: item.informacionPersonal?.ciudad || '',
-      email: item.informacionPersonal?.email || '',
-      telefono: item.informacionPersonal?.telefono || '',
-      edad: item.informacionPersonal?.edad || '',
-      tipoCandidata: item.informacionPersonal?.tipoCandidata || '',
-      asociacion_order: item.vidaEnFogueres?.asociacion_order || '',
-      asociacion_label: item.vidaEnFogueres?.asociacion_label || '',
-      asociacion: item.vidaEnFogueres?.asociacion || '',
-      anyosFiesta: item.vidaEnFogueres?.anyosFiesta || '',
-      curriculum: item.vidaEnFogueres?.curriculum || '',
-      formacion: item.academico?.formacion || '',
-      situacionLaboral: item.academico?.situacionLaboral || '',
-      observaciones: item.academico?.observaciones || '',
-      aficiones: item.academico?.aficiones || '',
-      autorizacionFoguera: item.documentacion?.autorizacionFoguera || '',
-      compromisoDisponibilidad: item.documentacion?.compromisoDisponibilidad || '',
-      derechosAutor: item.documentacion?.derechosAutor || '',
-      dniEscaneado: item.documentacion?.dniEscaneado || '',
-      fotoBelleza: item.documentacion?.fotoBelleza || '',
-      fotoCalle: item.documentacion?.fotoCalle || '',
-      nombreTutor1: item.responsables?.nombreTutor1 || '',
-      nombreTutor2: item.responsables?.nombreTutor2 || '',
-      telefonoTutor1: item.responsables?.telefonoTutor1 || '',
-      telefonoTutor2: item.responsables?.telefonoTutor2 || ''
-    };
   }
 
 }
