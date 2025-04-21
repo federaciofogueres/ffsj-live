@@ -13,6 +13,7 @@ import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/
 import { MappingService } from '../../services/mapping.service';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { InfoFormComponent } from '../formularios/info-form/info-form.component';
+import { StreamingFormComponent } from '../formularios/streaming-form/streaming-form.component';
 import { ItemCardComponent } from '../item-card/item-card.component';
 
 @Component({
@@ -20,6 +21,7 @@ import { ItemCardComponent } from '../item-card/item-card.component';
   standalone: true,
   imports: [
     InfoFormComponent,
+    StreamingFormComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
