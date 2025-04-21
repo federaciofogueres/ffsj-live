@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
+import * as XLSX from 'xlsx';
 import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { ItemCardComponent } from '../item-card/item-card.component';
@@ -324,6 +325,150 @@ export class AdminComponent {
     }).finally(() => {
       this.loading = false;
     })
+  }
+
+  onExcelUpload(event: Event): void {
+    this.loading = true;
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // Asume que los datos están en la primera hoja
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        // Convierte los datos de la hoja a JSON
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        if (jsonData && jsonData.length > 0) {
+          this.ffsjAlertService.success('Datos cargados desde el Excel');
+          this.updateListado(jsonData); // Llama a updateListado solo si hay datos
+        } else {
+          this.ffsjAlertService.warning('El archivo Excel no contiene datos válidos.');
+        }
+
+        this.loading = false;
+      };
+
+      reader.onerror = () => {
+        this.ffsjAlertService.danger('Error al leer el archivo Excel.');
+        this.loading = false;
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+  }
+
+  updateListado(data: any[]): void {
+    if (!this.itemList) {
+      this.itemList = {
+        title: '',
+        searching: '',
+        filterKeys: [],
+        items: []
+      };
+    }
+    this.itemList.items = data.map((item, index) => this.mapToIRealTimeItem(item, index));
+    this.listForm.controls['items'].setValue(this.itemList.items);
+    this.loading = false;
+    this.ffsjAlertService.success('Listado actualizado desde el Excel correctamente.');
+  }
+
+  downloadListadoAsExcel(): void {
+    if (!this.itemList || !this.itemList.items || this.itemList.items.length === 0) {
+      this.ffsjAlertService.warning('No hay datos en el listado para descargar.');
+      return;
+    }
+
+    const data = this.itemList.items.map(item => this.mapItemToExcelRow(item));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Listado');
+
+    const excelFileName = 'Listado.xlsx';
+    XLSX.writeFile(workbook, excelFileName);
+  }
+
+  private mapToIRealTimeItem(item: any, index: number): IRealTimeItem {
+    return {
+      id: item.id || (index + 1).toString(),
+      informacionPersonal: {
+        dni: item.dni || '',
+        nombre: item.nombre || '',
+        fechaNacimiento: item.fechaNacimiento || '',
+        ciudad: item.ciudad || '',
+        email: item.email || '',
+        telefono: item.telefono || '',
+        edad: item.edad || '',
+        tipoCandidata: item.tipoCandidata || ''
+      },
+      vidaEnFogueres: {
+        asociacion_order: item.asociacion_order || undefined,
+        asociacion_label: item.asociacion_label || '',
+        asociacion: item.asociacion || '',
+        anyosFiesta: item.anyosFiesta || 0,
+        curriculum: item.curriculum || ''
+      },
+      academico: {
+        formacion: item.formacion || '',
+        situacionLaboral: item.situacionLaboral || '',
+        observaciones: item.observaciones || '',
+        aficiones: item.aficiones || ''
+      },
+      documentacion: {
+        autorizacionFoguera: item.autorizacionFoguera || '',
+        compromisoDisponibilidad: item.compromisoDisponibilidad || '',
+        derechosAutor: item.derechosAutor || '',
+        dniEscaneado: item.dniEscaneado || '',
+        fotoBelleza: item.fotoBelleza || '',
+        fotoCalle: item.fotoCalle || ''
+      },
+      responsables: {
+        nombreTutor1: item.nombreTutor1 || '',
+        nombreTutor2: item.nombreTutor2 || '',
+        telefonoTutor1: item.telefonoTutor1 || '',
+        telefonoTutor2: item.telefonoTutor2 || ''
+      }
+    };
+  }
+
+  private mapItemToExcelRow(item: IRealTimeItem): any {
+    return {
+      id: item.id,
+      dni: item.informacionPersonal?.dni || '',
+      nombre: item.informacionPersonal?.nombre || '',
+      fechaNacimiento: item.informacionPersonal?.fechaNacimiento || '',
+      ciudad: item.informacionPersonal?.ciudad || '',
+      email: item.informacionPersonal?.email || '',
+      telefono: item.informacionPersonal?.telefono || '',
+      edad: item.informacionPersonal?.edad || '',
+      tipoCandidata: item.informacionPersonal?.tipoCandidata || '',
+      asociacion_order: item.vidaEnFogueres?.asociacion_order || '',
+      asociacion_label: item.vidaEnFogueres?.asociacion_label || '',
+      asociacion: item.vidaEnFogueres?.asociacion || '',
+      anyosFiesta: item.vidaEnFogueres?.anyosFiesta || '',
+      curriculum: item.vidaEnFogueres?.curriculum || '',
+      formacion: item.academico?.formacion || '',
+      situacionLaboral: item.academico?.situacionLaboral || '',
+      observaciones: item.academico?.observaciones || '',
+      aficiones: item.academico?.aficiones || '',
+      autorizacionFoguera: item.documentacion?.autorizacionFoguera || '',
+      compromisoDisponibilidad: item.documentacion?.compromisoDisponibilidad || '',
+      derechosAutor: item.documentacion?.derechosAutor || '',
+      dniEscaneado: item.documentacion?.dniEscaneado || '',
+      fotoBelleza: item.documentacion?.fotoBelleza || '',
+      fotoCalle: item.documentacion?.fotoCalle || '',
+      nombreTutor1: item.responsables?.nombreTutor1 || '',
+      nombreTutor2: item.responsables?.nombreTutor2 || '',
+      telefonoTutor1: item.responsables?.telefonoTutor1 || '',
+      telefonoTutor2: item.responsables?.telefonoTutor2 || ''
+    };
   }
 
 }
