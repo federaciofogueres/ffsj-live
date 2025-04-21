@@ -23,6 +23,7 @@ export interface IRealTimePresentador {
 // Anuncios
 export interface IRealTimeAdds {
     timing: number;
+    activatedAdds: boolean;
     showAdds: boolean;
     anuncios: string[];
 }

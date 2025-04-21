@@ -25,6 +25,12 @@ export class AddsComponent {
       next: (newValue) => {
         if (newValue) {
           this.adds = newValue.anuncios;
+          // Verifica el estado de activatedAdds antes de mostrar los anuncios
+          if (newValue.activatedAdds === false) {
+            this.stopCarousel(); // Detiene el carrusel si activatedAdds es false
+            return;
+          }
+
           if (this.adds.showAdds && this.adds.anuncios) {
             this.startCarousel();
           } else if (!this.adds.showAdds && this.intervalId) {
@@ -58,7 +64,6 @@ export class AddsComponent {
       this.currentAdIndex = 0;
       clearInterval(this.intervalId); // Detiene el intervalo
       this.intervalId = null;
-      // this.firebaseStorageService.setRealtimeData('config/anuncios/showAdds', false);
     }
   }
 

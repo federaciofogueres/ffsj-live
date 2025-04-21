@@ -112,32 +112,23 @@ export class AdminComponent {
     }
   }
 
-  ngOnDestroy(): void {
-    // Detiene la alternancia automática de anuncios al destruir el componente
-    // this.firebaseStorageService.stopToggleAds();
-  }
-
   async initializeData() {
     this.getData(); // Esperar a que los datos se carguen
   }
 
   getData() {
-    this.firebaseStorageService.setShowAdds();
     this.firebaseStorageService.realtimeData$.subscribe({
       next: (newValue) => {
         if (newValue) {
           this.config = newValue;
-          // this.firebaseStorageService.toggleAdsAutomatically();
           this.prepareForms();
         }
       }
     })
-    // this.config = await this.firebaseStorageService.getRealtimeData('config');
   }
 
   saveInfo() {
     console.log('Información guardada:', this.config.event);
-    // Aquí puedes agregar lógica para guardar los datos en Firebase u otro servicio
   }
 
   prepareInfoForm() {
@@ -213,7 +204,8 @@ export class AdminComponent {
   prepareAnunciosForm() {
     this.anunciosForm = this.fb.group({
       timing: [this.config.anuncios?.timing || ''],
-      showAdds: [this.config.anuncios?.showAdds || ''],
+      activatedAdds: [this.config.anuncios?.activatedAdds || ''],
+      showAdds: [this.config.anuncios?.showAdds || false],
       anuncios: this.fb.array(
         Array.isArray(this.config.anuncios?.anuncios) // Verificar si es un array
           ? this.config.anuncios.anuncios.map((anuncio: string) => this.fb.control(anuncio))
@@ -279,20 +271,11 @@ export class AdminComponent {
     this.eventos.removeAt(index);
   }
 
-  // setTimingAnuncios() {
-  //   const timing = Number(this.anunciosForm.controls['timing'].value) * 60;
-  //   console.log('Timing: ', timing);
-
-  //   setTimeout(() => {
-  //     console.log('Setting showAdds true');
-
-  //     this.anunciosForm.controls['showAdds'].setValue(true);
-  //     this.procesar(this.anunciosForm, 'anuncios');
-  //   }, timing);
-  // }
-
   procesar(form: FormGroup, type: string) {
     console.log(form.value);
+    if (form.contains('activatedAdds')) {
+      this.firebaseStorageService.setShowAdds();
+    }
     this.firebaseStorageService.setRealtimeData('config/' + type, form.value).then((response) => {
       this.ffsjAlertService.success('Información del evento actualizada con éxito!');
       this.resetAll();
