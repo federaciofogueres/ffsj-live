@@ -25,7 +25,7 @@ export class AddsComponent {
       next: (newValue) => {
         if (newValue) {
           this.adds = newValue.anuncios;
-          if (newValue.activatedAdds === false) {
+          if (newValue.anuncios.activatedAdds === false) {
             this.stopCarousel();
             return;
           }
@@ -65,7 +65,7 @@ export class AddsComponent {
   }
 
   nextAd(): void {
-    if (this.currentAdIndex < this.adds.anuncios.length) {
+    if (this.currentAdIndex < this.adds.anuncios.length - 1) {
       this.currentAdIndex++;
     } else {
       this.stopCarousel();
