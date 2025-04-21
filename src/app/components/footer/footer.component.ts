@@ -26,7 +26,6 @@ export class FooterComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$)
     ).subscribe({
       next: (loggedIn: boolean) => {
-        console.log('User logged in:', loggedIn);
         this.userLogged = loggedIn;
       }
     });

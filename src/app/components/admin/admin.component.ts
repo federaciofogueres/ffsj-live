@@ -63,7 +63,6 @@ export class AdminComponent {
 
   set selectedView(value: string) {
     this._selectedView = value;
-    console.log('Vista seleccionada:', value);
     this.getData();
   }
 
@@ -113,7 +112,7 @@ export class AdminComponent {
   }
 
   async initializeData() {
-    this.getData(); // Esperar a que los datos se carguen
+    this.getData();
   }
 
   getData() {
@@ -127,16 +126,12 @@ export class AdminComponent {
     })
   }
 
-  saveInfo() {
-    console.log('Información guardada:', this.config.event);
-  }
-
   prepareInfoForm() {
     this.infoForm = this.fb.group({
-      title: [this.config.event?.title || ''], // Asegurarse de que haya un valor predeterminado
+      title: [this.config.event?.title || ''],
       horario: [this.config.event?.horario || ''],
       presentadores: this.fb.array(
-        Array.isArray(this.config.event?.presentadores) // Verificar si es un array
+        Array.isArray(this.config.event?.presentadores)
           ? this.config.event.presentadores.map((presentador: any) =>
             this.fb.group({
               nombre: [presentador.nombre || ''],
@@ -144,12 +139,12 @@ export class AdminComponent {
               info: [presentador.info || '']
             })
           )
-          : [] // Si no es un array, inicializar como vacío
+          : []
       ),
       eventos: this.fb.array(
-        Array.isArray(this.config.event?.eventos) // Verificar si es un array
+        Array.isArray(this.config.event?.eventos)
           ? this.config.event.eventos.map((evento: string) => this.fb.control(evento))
-          : [] // Si no es un array, inicializar como vacío
+          : []
       )
     });
 
@@ -174,7 +169,7 @@ export class AdminComponent {
 
   prepareLiveForm() {
     this.itemList = this.config.list!;
-    // Encuentra el objeto en itemList.items que coincide con el ID del item seleccionado
+
     const initialItem = this.itemList.items.find(item => item.id === this.config.live?.item?.id) || this.itemList.items[0];
 
     this.liveForm = this.fb.group({
@@ -193,9 +188,9 @@ export class AdminComponent {
       items: [this.config.list?.items || ''],
       searching: [this.config.list?.searching || ''],
       filterKeys: this.fb.array(
-        Array.isArray(this.config.list?.filterKeys) // Verificar si es un array
+        Array.isArray(this.config.list?.filterKeys)
           ? this.config.list.filterKeys.map((filter: string) => this.fb.control(filter))
-          : [] // Si no es un array, inicializar como vacío
+          : []
       )
     });
     this.nuevoFilterKey = new FormControl('');
@@ -207,12 +202,11 @@ export class AdminComponent {
       activatedAdds: [this.config.anuncios?.activatedAdds || ''],
       showAdds: [this.config.anuncios?.showAdds || false],
       anuncios: this.fb.array(
-        Array.isArray(this.config.anuncios?.anuncios) // Verificar si es un array
+        Array.isArray(this.config.anuncios?.anuncios)
           ? this.config.anuncios.anuncios.map((anuncio: string) => this.fb.control(anuncio))
-          : [] // Si no es un array, inicializar como vacío
+          : []
       )
     });
-    // this.nuevoFilterKey = new FormControl('');
   }
 
   prepareForms() {
@@ -231,7 +225,6 @@ export class AdminComponent {
     this.procesar(this.liveForm, 'live');
   }
 
-  // Añadir un nuevo presentador al FormArray
   addFilterKey(): void {
     const presentador = this.nuevoPresentador.value;
     if (presentador.nombre.trim() && presentador.src.trim() && presentador.info.trim()) {
@@ -240,21 +233,19 @@ export class AdminComponent {
     }
   }
 
-  // Eliminar un presentador del FormArray
   removeFilterKey(index: number): void {
     this.filterKeys.removeAt(index);
   }
 
-  // Añadir un nuevo presentador al FormArray
   addPresentador(): void {
     const presentador = this.nuevoPresentador.value;
     if (presentador.nombre.trim() && presentador.src.trim() && presentador.info.trim()) {
       this.presentadores.push(this.fb.group(presentador));
-      this.nuevoPresentador.reset(); // Limpiar el formulario del nuevo presentador
+      this.nuevoPresentador.reset();
     }
   }
 
-  // Eliminar un presentador del FormArray
+
   removePresentador(index: number): void {
     this.presentadores.removeAt(index);
   }
@@ -272,7 +263,6 @@ export class AdminComponent {
   }
 
   procesar(form: FormGroup, type: string) {
-    console.log(form.value);
     if (form.contains('activatedAdds')) {
       this.firebaseStorageService.setShowAdds();
     }
@@ -283,41 +273,29 @@ export class AdminComponent {
   }
 
   resetAll() {
-    // Resetear el formulario principal
     this.infoForm.reset({
       title: '',
       horario: '',
       presentadores: [],
       eventos: []
     });
-
-    // Resetear el formulario de nuevo presentador
     this.nuevoPresentador.reset({
       nombre: '',
       src: '',
       info: ''
     });
-
-    // Resetear el control de nuevo evento
     this.nuevoEventoControl.reset('');
     this.nuevoFilterKey.reset('');
-
-    // Limpiar la configuración cargada
     this.config = {};
-
-    console.log('Todos los formularios y datos han sido reseteados.');
   }
 
   handleSelect(event: any) {
     console.log(event.target.value.vidaEnFogueres.asociacion_label);
-
   }
 
-  // Método para manejar el reordenamiento
   drop(event: CdkDragDrop<any[]>) {
     moveItemInArray(this.itemList.items, event.previousIndex, event.currentIndex);
     this.procesar(this.listForm, 'list');
-    console.log(this.listForm);
   }
 
   onFileSelected(event: Event): void {
@@ -327,29 +305,22 @@ export class AdminComponent {
       const file = input.files[0];
       this.firebaseStorageService.uploadImage(file).then((url) => {
         if (url) {
-          // Agrega la URL al array de anuncios
           this.anuncios.push(this.fb.control(url));
           this.loading = false;
-          console.log('Imagen subida y URL agregada:', url);
-          console.log(this.anunciosForm);
-
         }
       }).catch((error) => {
-        console.error('Error al subir la imagen:', error);
+        this.ffsjAlertService.danger('Error al subir la imagen:', error);
       });
     }
   }
 
   removeAdd(index: number, url: string): void {
-    // Elimina el anuncio del FormArray
     this.loading = true;
     this.anuncios.removeAt(index);
-
-    // Llama al servicio para eliminar la imagen del almacenamiento de Firebase
     this.firebaseStorageService.deleteImage(url).then(() => {
-      console.log(`Imagen eliminada del almacenamiento: ${url}`);
+      this.ffsjAlertService.success(`Imagen eliminada del almacenamiento: ${url}`);
     }).catch((error) => {
-      console.error('Error al eliminar la imagen del almacenamiento:', error);
+      this.ffsjAlertService.danger('Error al eliminar la imagen del almacenamiento:', error);
     }).finally(() => {
       this.loading = false;
     })

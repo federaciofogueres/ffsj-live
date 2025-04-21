@@ -3,7 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CookieService } from 'ngx-cookie-service';
 import { Subject, takeUntil } from 'rxjs';
-import { AuthService } from '../../../lib/ffsj-web-components';
+import { AuthService, FfsjAlertService } from '../../../lib/ffsj-web-components';
 
 @Component({
   selector: 'app-header',
@@ -24,7 +24,8 @@ export class HeaderComponent {
   constructor(
     protected router: Router,
     protected authService: AuthService,
-    private cookieService: CookieService
+    private cookieService: CookieService,
+    private ffsjAlertService: FfsjAlertService
   ) { }
 
   ngOnInit() {
@@ -33,7 +34,7 @@ export class HeaderComponent {
       takeUntil(this.unsubscribe$)
     ).subscribe({
       next: (loggedIn: boolean) => {
-        console.log('User logged in:', loggedIn);
+        this.ffsjAlertService.success('Bienvenid@! ');
         this.userLogged = loggedIn;
         this.userAdmin = this.authService.getCargos().some((cargo: any) => cargo.idCargo === 16);
       }

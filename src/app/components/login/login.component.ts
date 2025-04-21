@@ -28,10 +28,7 @@ export class LoginComponent {
   ) { }
 
   manageLogin(event: any) {
-    console.log('Login event:', event);
     if (event) {
-      console.log('Login successful');
-
       let token = this.authService.getToken();
       this.getIdUsuario(token);
       this.setTokenConfigurations(token);
@@ -39,7 +36,6 @@ export class LoginComponent {
       this.ffsjAlertService.success('¡Bienvenid@!')
       this.saveDeviceInfo();
     } else {
-      console.log('Login failed');
       this.ffsjAlertService.danger('Hubo un problema al iniciar sesión. Por favor, inténtalo de nuevo o contacta con transformaciondigital@hogueras.es.')
     }
   }

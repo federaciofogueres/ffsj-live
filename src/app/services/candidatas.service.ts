@@ -129,7 +129,6 @@ export class CandidataService {
         }
 
         await this.loadAsociaciones();
-        console.log('Entering here');
 
         if (reload) {
             this.adultas = await this.loadFromBD('candidatas/2024/adultas')

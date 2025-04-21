@@ -12,9 +12,9 @@ import { FirebaseStorageService } from '../../services/storage.service';
 })
 export class AddsComponent {
   public adds!: IRealTimeAdds;
-  public currentAdIndex: number = 0; // Índice de la imagen actual
-  private intervalId!: any; // ID del intervalo para el carrusel automático
-  private subscription!: Subscription; // Suscripción al observable realtimeData$
+  public currentAdIndex: number = 0;
+  private intervalId!: any;
+  private subscription!: Subscription;
 
   constructor(
     private firebaseStorageService: FirebaseStorageService
@@ -25,9 +25,8 @@ export class AddsComponent {
       next: (newValue) => {
         if (newValue) {
           this.adds = newValue.anuncios;
-          // Verifica el estado de activatedAdds antes de mostrar los anuncios
           if (newValue.activatedAdds === false) {
-            this.stopCarousel(); // Detiene el carrusel si activatedAdds es false
+            this.stopCarousel();
             return;
           }
 
@@ -42,7 +41,6 @@ export class AddsComponent {
   }
 
   ngOnDestroy(): void {
-    // Limpia el intervalo al destruir el componente
     this.stopCarousel();
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -50,34 +48,32 @@ export class AddsComponent {
   }
 
   startCarousel(): void {
-    // Evita crear múltiples intervalos
     if (this.intervalId) {
       this.stopCarousel();
     }
     this.intervalId = setInterval(() => {
       this.nextAd();
-    }, 5000); // Cambia de imagen cada 5 segundos
+    }, 5000);
   }
 
   stopCarousel(): void {
     if (this.intervalId) {
       this.currentAdIndex = 0;
-      clearInterval(this.intervalId); // Detiene el intervalo
+      clearInterval(this.intervalId);
       this.intervalId = null;
     }
   }
 
   nextAd(): void {
     if (this.currentAdIndex < this.adds.anuncios.length) {
-      console.log('Entrando en el anuncio ', this.currentAdIndex);
-      this.currentAdIndex++; // Cambia al siguiente anuncio
+      this.currentAdIndex++;
     } else {
-      this.stopCarousel(); // Detiene el carrusel si es la última imagen
+      this.stopCarousel();
     }
   }
 
   closeCarousel(): void {
-    this.adds.showAdds = false; // Oculta el carrusel
-    this.stopCarousel(); // Detiene el carrusel automático
+    this.adds.showAdds = false;
+    this.stopCarousel();
   }
 }
