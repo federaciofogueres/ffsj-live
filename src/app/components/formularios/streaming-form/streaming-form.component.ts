@@ -31,7 +31,4 @@ export class StreamingFormComponent {
 
   constructor(private fb: FormBuilder) { }
 
-  onSubmit(): void {
-    this.formSubmit.emit(this.streamingForm); // Emite el formulario al componente padre
-  }
 }

@@ -23,9 +23,9 @@
     </app-streaming-form>
     }
     @case ('live') {
-    <ng-container>
-        <div [ngTemplateOutlet]="liveTemplate"></div>
-    </ng-container>
+    <app-live-form [liveForm]="liveForm" [itemList]="itemList" [liveItemId]="liveItemId"
+        (formSubmit)="procesar($event, 'live')">
+    </app-live-form>
     }
     @case ('listado') {
     <ng-container>
@@ -45,58 +45,6 @@
     }
 </div>
 }
-
-<ng-template #liveTemplate>
-    <div class="container d-flex flex-column">
-        <form [formGroup]="liveForm">
-
-            <div class="form-group">
-                <label for="tipo">Tipo de evento live</label>
-                <select id="tipo" class="form-control" formControlName="tipo" required (change)="handleSelect($event)">
-                    <option value="evento">Evento</option>
-                    <option value="listado">Listado</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="titulo">Título</label>
-                <input type="text" id="titulo" class="form-control" formControlName="titulo">
-            </div>
-
-            @if(liveForm.controls['tipo'].value === 'listado') {
-            <div class="container-item mt-3">
-                <app-item-card [item]="liveItemControl.value"></app-item-card>
-            </div>
-
-            <div class="d-flex">
-                <button class="btn btn-primary btn-foc-naranja" (click)="updateItem(liveItemId - 1)">Anterior</button>
-                <select id="item" class="form-control" formControlName="item" required (change)="handleSelect($event)">
-                    @for (itemFromList of itemList.items; track $index) {
-                    <option [ngValue]="itemFromList">
-                        {{ itemFromList.vidaEnFogueres.asociacion_order }} - {{
-                        itemFromList.vidaEnFogueres.asociacion_label
-                        }}
-                    </option>
-                    }
-                </select>
-                <button class="btn btn-primary btn-foc-naranja" (click)="updateItem(liveItemId + 1)">Siguiente</button>
-            </div>
-            } @else if (liveForm.controls['tipo'].value === 'evento') {
-            <div class="form-group">
-                <label for="descripcion">Descripción</label>
-                <textarea id="descripcion" class="form-control" formControlName="descripcion"></textarea>
-            </div>
-            }
-
-            <div>
-                <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="procesar(liveForm, 'live')"
-                    [disabled]="liveForm.invalid">Guardar</button>
-            </div>
-
-        </form>
-
-    </div>
-</ng-template>
 
 <ng-template #listadoOptionsTemplate>
     <div class="container scrollable">

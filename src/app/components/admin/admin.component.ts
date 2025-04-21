@@ -13,14 +13,15 @@ import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/
 import { MappingService } from '../../services/mapping.service';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { InfoFormComponent } from '../formularios/info-form/info-form.component';
+import { LiveFormComponent } from '../formularios/live-form/live-form.component';
 import { StreamingFormComponent } from '../formularios/streaming-form/streaming-form.component';
-import { ItemCardComponent } from '../item-card/item-card.component';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
   imports: [
     InfoFormComponent,
+    LiveFormComponent,
     StreamingFormComponent,
     CommonModule,
     FormsModule,
@@ -30,7 +31,6 @@ import { ItemCardComponent } from '../item-card/item-card.component';
     MatInputModule,
     MatIconModule,
     MatSlideToggleModule,
-    ItemCardComponent,
     DragDropModule
   ],
   templateUrl: './admin.component.html',
@@ -190,13 +190,6 @@ export class AdminComponent {
     this.prepareListForm();
     this.prepareAnunciosForm();
     this.loading = false;
-  }
-
-  updateItem(itemId: number) {
-    this.liveItemId = itemId;
-    const item = this.itemList.items[this.liveItemId] || this.itemList.items[0];
-    this.liveForm.get('item')?.setValue(item);
-    this.procesar(this.liveForm, 'live');
   }
 
   addFilterKey(): void {

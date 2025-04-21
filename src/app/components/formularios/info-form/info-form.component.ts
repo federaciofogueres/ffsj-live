@@ -82,8 +82,4 @@ export class InfoFormComponent {
   removeEvento(index: number): void {
     this.eventos.removeAt(index);
   }
-
-  onSubmit(): void {
-    this.formSubmit.emit(this.infoForm);
-  }
 }
