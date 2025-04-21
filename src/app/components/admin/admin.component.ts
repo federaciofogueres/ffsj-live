@@ -8,11 +8,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
-import * as XLSX from 'xlsx';
 import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/real-time-config.model';
 import { MappingService } from '../../services/mapping.service';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { InfoFormComponent } from '../formularios/info-form/info-form.component';
+import { ListOptionsFormComponent } from '../formularios/list-options-form/list-options-form.component';
 import { LiveFormComponent } from '../formularios/live-form/live-form.component';
 import { StreamingFormComponent } from '../formularios/streaming-form/streaming-form.component';
 
@@ -22,6 +22,7 @@ import { StreamingFormComponent } from '../formularios/streaming-form/streaming-
   imports: [
     InfoFormComponent,
     LiveFormComponent,
+    ListOptionsFormComponent,
     StreamingFormComponent,
     CommonModule,
     FormsModule,
@@ -192,18 +193,6 @@ export class AdminComponent {
     this.loading = false;
   }
 
-  addFilterKey(): void {
-    const presentador = this.nuevoPresentador.value;
-    if (presentador.nombre.trim() && presentador.src.trim() && presentador.info.trim()) {
-      this.filterKeys.push(this.fb.group(presentador));
-      this.nuevoPresentador.reset(); // Limpiar el formulario del nuevo presentador
-    }
-  }
-
-  removeFilterKey(index: number): void {
-    this.filterKeys.removeAt(index);
-  }
-
   procesar(form: FormGroup, type: string) {
     if (form.contains('activatedAdds')) {
       this.firebaseStorageService.setShowAdds();
@@ -260,74 +249,6 @@ export class AdminComponent {
     }).finally(() => {
       this.loading = false;
     })
-  }
-
-  onExcelUpload(event: Event): void {
-    this.loading = true;
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      const reader = new FileReader();
-
-      reader.onload = (e: any) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-
-        // Asume que los datos están en la primera hoja
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-
-        // Convierte los datos de la hoja a JSON
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-        if (jsonData && jsonData.length > 0) {
-          this.ffsjAlertService.success('Datos cargados desde el Excel');
-          this.updateListado(jsonData); // Llama a updateListado solo si hay datos
-        } else {
-          this.ffsjAlertService.warning('El archivo Excel no contiene datos válidos.');
-        }
-
-        this.loading = false;
-      };
-
-      reader.onerror = () => {
-        this.ffsjAlertService.danger('Error al leer el archivo Excel.');
-        this.loading = false;
-      };
-
-      reader.readAsArrayBuffer(file);
-    }
-  }
-
-  updateListado(data: any[]): void {
-    if (!this.itemList) {
-      this.itemList = {
-        title: '',
-        searching: '',
-        filterKeys: [],
-        items: []
-      };
-    }
-    this.itemList.items = data.map((item, index) => this.mappingService.mapToIRealTimeItem(item, index));
-    this.listForm.controls['items'].setValue(this.itemList.items);
-    this.loading = false;
-    this.ffsjAlertService.success('Listado actualizado desde el Excel correctamente.');
-  }
-
-  downloadListadoAsExcel(): void {
-    if (!this.itemList || !this.itemList.items || this.itemList.items.length === 0) {
-      this.ffsjAlertService.warning('No hay datos en el listado para descargar.');
-      return;
-    }
-
-    const data = this.itemList.items.map(item => this.mappingService.mapItemToExcelRow(item));
-
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Listado');
-
-    const excelFileName = 'Listado.xlsx';
-    XLSX.writeFile(workbook, excelFileName);
   }
 
 }

@@ -33,9 +33,8 @@
     </ng-container>
     }
     @case ('options-listado') {
-    <ng-container>
-        <div [ngTemplateOutlet]="listadoOptionsTemplate"></div>
-    </ng-container>
+    <app-list-options-form [listForm]="listForm" [itemList]="itemList" (formSubmit)="procesar($event, 'list')">
+    </app-list-options-form>
     }
     @case ('anuncios') {
     <ng-container>
@@ -45,73 +44,6 @@
     }
 </div>
 }
-
-<ng-template #listadoOptionsTemplate>
-    <div class="container scrollable">
-        <h1>Modificar opciones de listado</h1>
-        <form [formGroup]="listForm" class="py-3">
-
-            <div class="form-group mb-3">
-                <label for="title" class="text-naranja">Título del listado</label>
-                <input type="text" id="title" class="form-control" formControlName="title" required>
-                @if(listForm.get('title')?.errors?.['required'] && listForm.get('title')?.invalid &&
-                (listForm.get('title')?.touched || listForm.get('title')?.dirty)) {
-                <small class="text-danger">El título es obligatorio.</small>
-                }
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="searching" class="text-naranja">Barra de búsqueda</label>
-                <input type="text" id="searching" class="form-control" formControlName="searching" required>
-                @if(listForm.get('searching')?.errors?.['required'] && listForm.get('searching')?.invalid &&
-                (listForm.get('searching')?.touched || listForm.get('searching')?.dirty)) {
-                <small class="text-danger">La barra de búsqueda es obligatoria.</small>
-                }
-            </div>
-
-            <div formArrayName="filterKeys">
-                <span class=" h3 text-naranja">Filter keys</span>
-                <div class="form-group my-3">
-                    <label for="filterKeys" class="text-naranja">Filtros</label>
-                    <input type="text" id="filterKeys" class="form-control" [formControl]="nuevoFilterKey">
-                </div>
-                <div class="d-flex justify-content-between align-items-end">
-                    <button type="button" style="height: 38px;" class="btn btn-primary"
-                        (click)="addFilterKey()">Añadir</button>
-                </div>
-                <ul class="mt-3">
-                    @for (filterKey of filterKeys.controls; track filterKey; let i = $index) {
-                    <li class="d-flex align-items-center">
-                        <span>
-                            {{ i }} - {{ filterKey.value }}
-                        </span>
-                        <button mat-icon-button color="warn" (click)="removeFilterKey(i)">
-                            <i class="bi bi-trash3"></i>
-                        </button>
-                    </li>
-                    }
-                </ul>
-            </div>
-
-            <div class="form-group my-3">
-                <button type="button" class="btn btn-success w-100" (click)="downloadListadoAsExcel()">
-                    Descargar listado como Excel
-                </button>
-            </div>
-
-            <div class="form-group my-3">
-                <label for="excelUpload" class="text-naranja">Cargar nuevo listado</label>
-                <input type="file" id="excelUpload" class="form-control" accept=".xlsx, .xls"
-                    (change)="onExcelUpload($event)">
-            </div>
-
-            <div>
-                <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="procesar(listForm, 'list')"
-                    [disabled]="streamingForm.invalid">Guardar</button>
-            </div>
-        </form>
-    </div>
-</ng-template>
 
 <ng-template #anunciosTemplate>
     <div class="container scrollable">
