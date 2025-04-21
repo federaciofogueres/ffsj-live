@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Inject, inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { ref as dbRef, get, getDatabase, onValue, set } from '@angular/fire/database';
 import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { IRealTimeAdds } from '../model/real-time-config.model';
 
@@ -20,7 +20,7 @@ export class FirebaseStorageService {
     private _firestore = inject(Firestore);
     private _firebaseApp = this._firestore.app;
     private _collection = collection(this._firestore, 'candidatas');
-    private _storage = getStorage(this._firebaseApp, 'gs://ffsj-form-candidatas.appspot.com');
+    private _storage = getStorage(this._firebaseApp, 'gs://ffsj-live.firebasestorage.app');
 
 
     constructor(
@@ -298,6 +298,29 @@ export class FirebaseStorageService {
         await setDoc(doc(this._firestore, `/users/${userId}/connections/${timestamp}`), newConnection).then((result) => {
             console.log(result);
         });
+    }
+
+    async uploadImage(file: File): Promise<string | null> {
+        try {
+            const storageRef = ref(this._storage, `anuncios/${file.name}`);
+            const uploadTask = await uploadBytesResumable(storageRef, file);
+            const downloadURL = await getDownloadURL(uploadTask.ref);
+            return downloadURL;
+        } catch (error) {
+            console.error('Error al subir la imagen a Firebase Storage:', error);
+            return null;
+        }
+    }
+
+    async deleteImage(url: string): Promise<void> {
+        try {
+            const storageRef = ref(this._storage, url);
+            await deleteObject(storageRef);
+            console.log('Imagen eliminada correctamente de Firebase Storage.');
+        } catch (error) {
+            console.error('Error al eliminar la imagen de Firebase Storage:', error);
+            throw error;
+        }
     }
 
 }

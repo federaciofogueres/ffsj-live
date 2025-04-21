@@ -336,4 +336,40 @@ export class AdminComponent {
     this.procesar(this.listForm, 'list');
     console.log(this.listForm);
   }
+
+  onFileSelected(event: Event): void {
+    this.loading = true;
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.firebaseStorageService.uploadImage(file).then((url) => {
+        if (url) {
+          // Agrega la URL al array de anuncios
+          this.anuncios.push(this.fb.control(url));
+          this.loading = false;
+          console.log('Imagen subida y URL agregada:', url);
+          console.log(this.anunciosForm);
+
+        }
+      }).catch((error) => {
+        console.error('Error al subir la imagen:', error);
+      });
+    }
+  }
+
+  removeAdd(index: number, url: string): void {
+    // Elimina el anuncio del FormArray
+    this.loading = true;
+    this.anuncios.removeAt(index);
+
+    // Llama al servicio para eliminar la imagen del almacenamiento de Firebase
+    this.firebaseStorageService.deleteImage(url).then(() => {
+      console.log(`Imagen eliminada del almacenamiento: ${url}`);
+    }).catch((error) => {
+      console.error('Error al eliminar la imagen del almacenamiento:', error);
+    }).finally(() => {
+      this.loading = false;
+    })
+  }
+
 }
