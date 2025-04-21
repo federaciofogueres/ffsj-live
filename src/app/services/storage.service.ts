@@ -3,6 +3,7 @@ import { Inject, inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { ref as dbRef, get, getDatabase, onValue, set } from '@angular/fire/database';
 import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
+import { FfsjAlertService } from 'ffsj-web-components';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { IRealTimeAdds } from '../model/real-time-config.model';
 
@@ -24,12 +25,13 @@ export class FirebaseStorageService {
 
 
     constructor(
-        @Inject(PLATFORM_ID) private platformId: Object // Inyecta PLATFORM_ID
+        @Inject(PLATFORM_ID) private platformId: Object,
+        private ffsjAlertService: FfsjAlertService
     ) { }
 
     async setShowAdds(): Promise<void> {
         try {
-            // Verifica si ya hay un timeout activo y lo cancela
+            // Cancela cualquier timeout activo
             if (this.toggleAdsTimeout) {
                 clearTimeout(this.toggleAdsTimeout);
                 this.toggleAdsTimeout = null;
@@ -38,107 +40,91 @@ export class FirebaseStorageService {
             // Obtén la configuración actual de anuncios
             const anunciosConfig: IRealTimeAdds = await this.getRealtimeData('config/anuncios');
             if (!anunciosConfig) {
-                console.warn('No se pudo obtener la configuración de anuncios.');
+                this.ffsjAlertService.warning('No se pudo obtener la configuración de anuncios.');
                 return;
             }
 
             // Verifica el estado de activatedAdds
             if (anunciosConfig.activatedAdds === false) {
-                console.log('Los anuncios están desactivados debido a activatedAdds.');
-                return; // No realiza cambios si activatedAdds es false
+                this.ffsjAlertService.info('Los anuncios están desactivados debido a activatedAdds.');
+                return;
             }
 
-            const currentShowAdds = anunciosConfig.showAdds;
-            const newShowAdds = !currentShowAdds; // Invierte el valor actual
-
-            // Actualiza el valor en Realtime Database
+            // Invierte el valor de showAdds y actualiza en Realtime Database
+            const newShowAdds = !anunciosConfig.showAdds;
             await this.setRealtimeData('config/anuncios/showAdds', newShowAdds);
-            console.log(`Anuncios ${newShowAdds ? 'activados' : 'desactivados'}`);
+            this.ffsjAlertService.info(`Anuncios ${newShowAdds ? 'activados' : 'desactivados'}`);
 
-            if (newShowAdds) {
-                // Si se activan los anuncios, calcula el tiempo para desactivarlos
-                if (anunciosConfig.anuncios && anunciosConfig.anuncios.length > 0) {
-                    const segundosToSetFalse = anunciosConfig.anuncios.length * 5 * 1000; // Convertir a milisegundos
+            // Configura el timeout según el estado de showAdds
+            const timeoutDuration = newShowAdds
+                ? (anunciosConfig.anuncios?.length || 0) * 5 * 1000 // Tiempo para desactivar
+                : (anunciosConfig.timing || 0) * 60 * 1000; // Tiempo para reactivar
 
-                    // Configura un timeout para desactivar los anuncios
-                    this.toggleAdsTimeout = setTimeout(async () => {
-                        await this.setShowAdds(); // Llama al método para desactivar los anuncios
-                    }, segundosToSetFalse);
-                }
-            } else {
-                // Si se desactivan los anuncios, espera el tiempo definido en 'timing' para reactivarlos
-                if (anunciosConfig.timing) {
-                    const timing = anunciosConfig.timing * 60 * 1000; // Convertir minutos a milisegundos
-
-                    // Configura un timeout para reactivar los anuncios
-                    this.toggleAdsTimeout = setTimeout(async () => {
-                        await this.setShowAdds(); // Llama al método para reactivar los anuncios
-                    }, timing);
-                }
+            if (timeoutDuration > 0) {
+                this.toggleAdsTimeout = setTimeout(async () => {
+                    await this.setShowAdds();
+                }, timeoutDuration);
             }
         } catch (error) {
-            console.error('Error al alternar el estado de showAdds:', error);
+            this.ffsjAlertService.danger('Error al alternar el estado de showAdds: ' + String(error));
         }
     }
 
     listenToRealtimeData(path: string): void {
         try {
-            const database = getDatabase(this._firebaseApp); // Obtén la instancia de Realtime Database
-            const reference = dbRef(database, path); // Crea una referencia al path especificado
-
-            // Escucha los cambios en tiempo real
+            const database = getDatabase(this._firebaseApp);
+            const reference = dbRef(database, path);
             onValue(reference, (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     if (JSON.stringify(this._realtimeDataSubject.getValue()) !== JSON.stringify(data)) {
-                        this._realtimeDataSubject.next(data); // Actualiza el BehaviorSubject con los datos nuevos
+                        this._realtimeDataSubject.next(data);
                     }
-                    // this.updateRealTimeValue(data, path);
                 } else {
                     console.warn(`No data available at path: ${path}`);
-                    this._realtimeDataSubject.next(null); // Actualiza con null si no hay datos
+                    this._realtimeDataSubject.next(null);
                 }
             });
         } catch (error) {
-            console.error(`Error listening to Realtime Database at path: ${path}`, error);
+            this.ffsjAlertService.danger(`Error listening to Realtime Database at path: ${path}` + String(error));
         }
     }
 
     updateRealTimeValue(data: any, path: string) {
-        this._realtimeDataSubject.next(data); // Actualiza el BehaviorSubject con los datos nuevos
-        if (isPlatformBrowser(this.platformId)) { // Verifica si el código se ejecuta en el navegador
+        this._realtimeDataSubject.next(data);
+        if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem(path, JSON.stringify(data));
         } else {
-            console.warn('localStorage no está disponible en este entorno.');
+            this.ffsjAlertService.warning('localStorage no está disponible en este entorno.');
         }
     }
 
     async getRealtimeData(path: string): Promise<any> {
         try {
-            const database = getDatabase(this._firebaseApp); // Obtén la instancia de Realtime Database
-            const reference = dbRef(database, path); // Crea una referencia al path especificado
-            const snapshot = await get(reference); // Obtén los datos del path
+            const database = getDatabase(this._firebaseApp);
+            const reference = dbRef(database, path);
+            const snapshot = await get(reference);
 
             if (snapshot.exists()) {
-                return snapshot.val(); // Devuelve los datos si existen
+                return snapshot.val();
             } else {
-                console.warn(`No data available at path: ${path}`);
+                this.ffsjAlertService.danger(`No data available at path: ${path}`);
                 return null;
             }
         } catch (error) {
-            console.error(`Error fetching data from Realtime Database at path: ${path}`, error);
+            this.ffsjAlertService.danger(`Error fetching data from Realtime Database at path: ${path}` + String(error))
             throw error;
         }
     }
 
     async setRealtimeData(path: string, data: any): Promise<void> {
         try {
-            const database = getDatabase(this._firebaseApp); // Obtén la instancia de Realtime Database
-            const reference = dbRef(database, path); // Crea una referencia al path especificado
-            await set(reference, data); // Escribe los datos en la ubicación especificada
-            console.log(`Data written successfully at path: ${path}`);
+            const database = getDatabase(this._firebaseApp);
+            const reference = dbRef(database, path);
+            await set(reference, data);
+            this.ffsjAlertService.success(`Data written successfully at path: ${path}`);
         } catch (error) {
-            console.error(`Error writing data to Realtime Database at path: ${path}`, error);
+            this.ffsjAlertService.danger(`Error writing data to Realtime Database at path: ${path}` + String(error));
             throw error;
         }
     }
@@ -151,17 +137,17 @@ export class FirebaseStorageService {
             task.on('state_changed',
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log(`Upload is ${progress}% done`);
+                    this.ffsjAlertService.info(`Upload is ${progress}% done`);
                     switch (snapshot.state) {
                         case 'paused':
-                            console.log('Upload is paused');
+                            this.ffsjAlertService.info('Upload is paused');
                             break;
                         case 'running':
-                            console.log('Upload is running');
+                            this.ffsjAlertService.info('Upload is running');
                             break;
                     }
                 }, (error) => {
-                    console.error('Error uploading file -> ', error);
+                    this.ffsjAlertService.danger('Error uploading file -> ' + String(error))
                     reject(error);
                 }, () => {
                     getDownloadURL(task.snapshot.ref).then((downloadURL: string) => {
@@ -218,7 +204,7 @@ export class FirebaseStorageService {
             const downloadURL = await getDownloadURL(uploadTask.ref);
             return downloadURL;
         } catch (error) {
-            console.error('Error al subir la imagen a Firebase Storage:', error);
+            this.ffsjAlertService.danger('Error al subir la imagen a Firebase Storage:' + String(error))
             return null;
         }
     }
@@ -227,9 +213,9 @@ export class FirebaseStorageService {
         try {
             const storageRef = ref(this._storage, url);
             await deleteObject(storageRef);
-            console.log('Imagen eliminada correctamente de Firebase Storage.');
+            this.ffsjAlertService.success('Imagen eliminada correctamente de Firebase Storage.')
         } catch (error) {
-            console.error('Error al eliminar la imagen de Firebase Storage:', error);
+            this.ffsjAlertService.danger('Error al eliminar la imagen de Firebase Storage:' + String(error));
             throw error;
         }
     }
