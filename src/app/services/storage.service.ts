@@ -4,6 +4,7 @@ import { ref as dbRef, get, getDatabase, onValue, set } from '@angular/fire/data
 import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { IRealTimeAdds } from '../model/real-time-config.model';
 
 @Injectable({
     providedIn: 'root'
@@ -12,6 +13,9 @@ export class FirebaseStorageService {
 
     private _realtimeDataSubject = new BehaviorSubject<any>(null); // BehaviorSubject para almacenar los datos
     public realtimeData$: Observable<any> = this._realtimeDataSubject.asObservable(); // Observable accesible globalmente
+    // private toggleAdsSubscription!: Subscription; // Suscripción para alternar anuncios
+    private toggleAdsTimeout!: any; // Timeout para manejar el tiempo de espera
+    private isToggling: boolean = false; // Bandera para controlar la ejecución simultánea
 
     private _firestore = inject(Firestore);
     private _firebaseApp = this._firestore.app;
@@ -23,6 +27,149 @@ export class FirebaseStorageService {
         @Inject(PLATFORM_ID) private platformId: Object // Inyecta PLATFORM_ID
     ) { }
 
+    async setShowAdds(): Promise<void> {
+        try {
+            // Verifica si ya hay un timeout activo y lo cancela
+            if (this.toggleAdsTimeout) {
+                clearTimeout(this.toggleAdsTimeout);
+                this.toggleAdsTimeout = null;
+            }
+
+            // Obtén la configuración actual de anuncios
+            const anunciosConfig: IRealTimeAdds = await this.getRealtimeData('config/anuncios');
+            if (!anunciosConfig) {
+                console.warn('No se pudo obtener la configuración de anuncios.');
+                return;
+            }
+
+            const currentShowAdds = anunciosConfig.showAdds;
+            const newShowAdds = !currentShowAdds; // Invierte el valor actual
+
+            // Actualiza el valor en Realtime Database
+            await this.setRealtimeData('config/anuncios/showAdds', newShowAdds);
+            console.log(`Anuncios ${newShowAdds ? 'activados' : 'desactivados'}`);
+
+            if (newShowAdds) {
+                // Si se activan los anuncios, calcula el tiempo para desactivarlos
+                if (anunciosConfig.anuncios && anunciosConfig.anuncios.length > 0) {
+                    const segundosToSetFalse = anunciosConfig.anuncios.length * 5 * 1000; // Convertir a milisegundos
+
+                    // Configura un timeout para desactivar los anuncios
+                    this.toggleAdsTimeout = setTimeout(async () => {
+                        await this.setShowAdds(); // Llama al método para desactivar los anuncios
+                    }, segundosToSetFalse);
+                }
+            } else {
+                // Si se desactivan los anuncios, espera el tiempo definido en 'timing' para reactivarlos
+                if (anunciosConfig.timing) {
+                    const timing = anunciosConfig.timing * 60 * 1000; // Convertir minutos a milisegundos
+
+                    // Configura un timeout para reactivar los anuncios
+                    this.toggleAdsTimeout = setTimeout(async () => {
+                        await this.setShowAdds(); // Llama al método para reactivar los anuncios
+                    }, timing);
+                }
+            }
+        } catch (error) {
+            console.error('Error al alternar el estado de showAdds:', error);
+        }
+    }
+
+    // async setShowAdds(): Promise<void> {
+    //     try {
+    //         if (this.isToggling) {
+    //             console.warn('El método setShowAdds ya está en ejecución. Ignorando llamada duplicada.');
+    //             return; // Evita llamadas duplicadas
+    //         }
+
+    //         this.isToggling = true; // Marca el inicio de la ejecución
+
+    //         // Obtén la configuración actual de anuncios
+    //         const anunciosConfig: IRealTimeAdds = await this.getRealtimeData('config/anuncios');
+    //         const currentShowAdds = anunciosConfig.showAdds;
+
+    //         // Invierte el valor actual de showAdds
+    //         const newShowAdds = !currentShowAdds;
+
+    //         // Actualiza el valor en Realtime Database
+    //         await this.setRealtimeData('config/anuncios/showAdds', newShowAdds);
+    //         console.log(`Anuncios ${newShowAdds ? 'activados' : 'desactivados'}`);
+
+    //         if (newShowAdds) {
+    //             // Si se activan los anuncios, calcula el tiempo para desactivarlos
+    //             if (anunciosConfig.anuncios && anunciosConfig.anuncios.length > 0) {
+    //                 const segundosToSetFalse = anunciosConfig.anuncios.length * 5 * 1000; // Convertir a milisegundos
+
+    //                 // Limpia cualquier timeout previo
+    //                 if (this.toggleAdsTimeout) {
+    //                     clearTimeout(this.toggleAdsTimeout);
+    //                 }
+
+    //                 // Configura un timeout para desactivar los anuncios
+    //                 this.toggleAdsTimeout = setTimeout(async () => {
+    //                     await this.setShowAdds(); // Llama al método para desactivar los anuncios
+    //                 }, segundosToSetFalse);
+    //             }
+    //         } else {
+    //             // Si se desactivan los anuncios, espera el tiempo definido en 'timing' para reactivarlos
+    //             if (anunciosConfig.timing) {
+    //                 const timing = anunciosConfig.timing * 60 * 1000; // Convertir minutos a milisegundos
+
+    //                 // Limpia cualquier timeout previo
+    //                 if (this.toggleAdsTimeout) {
+    //                     clearTimeout(this.toggleAdsTimeout);
+    //                 }
+
+    //                 // Configura un timeout para reactivar los anuncios
+    //                 this.toggleAdsTimeout = setTimeout(async () => {
+    //                     await this.setShowAdds(); // Llama al método para reactivar los anuncios
+    //                 }, timing);
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.error('Error al alternar el estado de showAdds:', error);
+    //     } finally {
+    //         this.isToggling = false; // Marca el final de la ejecución
+    //     }
+    // }
+
+    // toggleAdsAutomatically(): void {
+    //     this.getRealtimeData('config/anuncios').then((anunciosConfig) => {
+    //         if (anunciosConfig && anunciosConfig.timing) {
+    //             const timing = anunciosConfig.timing * 60000; // Convertir a milisegundos
+
+    //             // Detener cualquier suscripción previa
+    //             if (this.toggleAdsSubscription) {
+    //                 this.toggleAdsSubscription.unsubscribe();
+    //             }
+
+    //             // Alternar el estado de los anuncios cada 'timing' segundos
+    //             this.toggleAdsSubscription = interval(timing).subscribe(async () => {
+    //                 const currentShowAdds = anunciosConfig.showAdds || false;
+    //                 const newShowAdds = !currentShowAdds;
+
+    //                 // Actualizar el valor en Realtime Database
+    //                 await this.setRealtimeData('config/anuncios/showAdds', newShowAdds);
+    //                 console.log(`Anuncios ${newShowAdds ? 'activados' : 'desactivados'}`);
+
+    //                 // Actualizar el valor localmente
+    //                 anunciosConfig.showAdds = newShowAdds;
+    //             });
+    //         } else {
+    //             console.warn('No se encontró la configuración de anuncios o el valor de timing.');
+    //         }
+    //     }).catch((error) => {
+    //         console.error('Error al obtener la configuración de anuncios:', error);
+    //     });
+    // }
+
+    // stopToggleAds(): void {
+    //     if (this.toggleAdsSubscription) {
+    //         this.toggleAdsSubscription.unsubscribe();
+    //         console.log('Alternancia de anuncios detenida.');
+    //     }
+    // }
+
     listenToRealtimeData(path: string): void {
         try {
             const database = getDatabase(this._firebaseApp); // Obtén la instancia de Realtime Database
@@ -32,7 +179,10 @@ export class FirebaseStorageService {
             onValue(reference, (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    this.updateRealTimeValue(data, path);
+                    if (JSON.stringify(this._realtimeDataSubject.getValue()) !== JSON.stringify(data)) {
+                        this._realtimeDataSubject.next(data); // Actualiza el BehaviorSubject con los datos nuevos
+                    }
+                    // this.updateRealTimeValue(data, path);
                 } else {
                     console.warn(`No data available at path: ${path}`);
                     this._realtimeDataSubject.next(null); // Actualiza con null si no hay datos

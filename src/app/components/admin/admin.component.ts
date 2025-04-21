@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
 import { IRealTimeConfigModel, IRealTimeItem, IRealTimeList } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
@@ -22,6 +23,7 @@ import { ItemCardComponent } from '../item-card/item-card.component';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatSlideToggleModule,
     ItemCardComponent,
     DragDropModule
   ],
@@ -34,6 +36,7 @@ export class AdminComponent {
   public streamingForm!: FormGroup;
   public liveForm!: FormGroup;
   public listForm!: FormGroup;
+  public anunciosForm!: FormGroup;
 
   public placeHolder!: IRealTimeItem;
 
@@ -91,6 +94,10 @@ export class AdminComponent {
     return this.listForm.get('filterKeys') as FormArray;
   }
 
+  get anuncios(): FormArray {
+    return this.anunciosForm.get('anuncios') as FormArray;
+  }
+
   ngOnInit() {
     this.loading = true;
     this.initializeData();
@@ -105,14 +112,27 @@ export class AdminComponent {
     }
   }
 
-  async initializeData() {
-    await this.getData(); // Esperar a que los datos se carguen
-    this.prepareForms(); // Preparar los formularios después de cargar los datos
-    this.loading = false;
+  ngOnDestroy(): void {
+    // Detiene la alternancia automática de anuncios al destruir el componente
+    // this.firebaseStorageService.stopToggleAds();
   }
 
-  async getData() {
-    this.config = await this.firebaseStorageService.getRealtimeData('config');
+  async initializeData() {
+    this.getData(); // Esperar a que los datos se carguen
+  }
+
+  getData() {
+    this.firebaseStorageService.setShowAdds();
+    this.firebaseStorageService.realtimeData$.subscribe({
+      next: (newValue) => {
+        if (newValue) {
+          this.config = newValue;
+          // this.firebaseStorageService.toggleAdsAutomatically();
+          this.prepareForms();
+        }
+      }
+    })
+    // this.config = await this.firebaseStorageService.getRealtimeData('config');
   }
 
   saveInfo() {
@@ -190,11 +210,26 @@ export class AdminComponent {
     this.nuevoFilterKey = new FormControl('');
   }
 
+  prepareAnunciosForm() {
+    this.anunciosForm = this.fb.group({
+      timing: [this.config.anuncios?.timing || ''],
+      showAdds: [this.config.anuncios?.showAdds || ''],
+      anuncios: this.fb.array(
+        Array.isArray(this.config.anuncios?.anuncios) // Verificar si es un array
+          ? this.config.anuncios.anuncios.map((anuncio: string) => this.fb.control(anuncio))
+          : [] // Si no es un array, inicializar como vacío
+      )
+    });
+    // this.nuevoFilterKey = new FormControl('');
+  }
+
   prepareForms() {
     this.prepareInfoForm();
     this.prepareStreamingForm();
     this.prepareLiveForm();
     this.prepareListForm();
+    this.prepareAnunciosForm();
+    this.loading = false;
   }
 
   updateItem(itemId: number) {
@@ -244,8 +279,20 @@ export class AdminComponent {
     this.eventos.removeAt(index);
   }
 
+  // setTimingAnuncios() {
+  //   const timing = Number(this.anunciosForm.controls['timing'].value) * 60;
+  //   console.log('Timing: ', timing);
+
+  //   setTimeout(() => {
+  //     console.log('Setting showAdds true');
+
+  //     this.anunciosForm.controls['showAdds'].setValue(true);
+  //     this.procesar(this.anunciosForm, 'anuncios');
+  //   }, timing);
+  // }
+
   procesar(form: FormGroup, type: string) {
-    console.log(this.infoForm.value);
+    console.log(form.value);
     this.firebaseStorageService.setRealtimeData('config/' + type, form.value).then((response) => {
       this.ffsjAlertService.success('Información del evento actualizada con éxito!');
       this.resetAll();

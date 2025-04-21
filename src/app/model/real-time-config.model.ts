@@ -3,6 +3,7 @@ export interface IRealTimeConfigModel {
     list?: IRealTimeList;
     live?: IRealTimeLive;
     streaming?: IRealTimeStreaming;
+    anuncios?: IRealTimeAdds;
 }
 
 // Eventos
@@ -17,6 +18,13 @@ export interface IRealTimePresentador {
     nombre: string;
     info: string;
     src: string;
+}
+
+// Anuncios
+export interface IRealTimeAdds {
+    timing: number;
+    showAdds: boolean;
+    anuncios: string[];
 }
 
 // Listados

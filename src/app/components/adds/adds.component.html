@@ -1,0 +1,10 @@
+@if (adds.showAdds) {
+<div class="carousel-container">
+    <div class="carousel">
+        @if (adds.anuncios) {
+        <img [src]="adds.anuncios[currentAdIndex]" alt="Publicidad" class="ad-image" />
+        }
+        <button class="close-button" (click)="closeCarousel()">X</button>
+    </div>
+</div>
+}

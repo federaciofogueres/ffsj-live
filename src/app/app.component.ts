@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FfsjAlertComponent } from '../lib/ffsj-web-components';
+import { AddsComponent } from './components/adds/adds.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { FirebaseStorageService } from './services/storage.service';
@@ -9,6 +10,7 @@ import { FirebaseStorageService } from './services/storage.service';
   selector: 'app-root',
   standalone: true,
   imports: [
+    AddsComponent,
     RouterOutlet,
     HeaderComponent,
     FooterComponent,
