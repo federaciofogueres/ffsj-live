@@ -4,6 +4,12 @@
     <form [formGroup]="infoForm" class="py-3">
 
         <div class="form-group mb-3">
+            <label for="demo" class="text-naranja me-3">Acceso restringido</label>
+            <mat-slide-toggle formControlName="demo" color="primary">
+            </mat-slide-toggle>
+        </div>
+
+        <div class="form-group mb-3">
             <label for="title" class="text-naranja">Título del evento</label>
             <input type="text" id="title" class="form-control" formControlName="title" required>
             @if(infoForm.get('title')?.errors?.['required'] && infoForm.get('title')?.invalid &&

@@ -116,7 +116,7 @@ export class AdminComponent {
   }
 
   prepareInfoForm() {
-    this.infoForm = this.initializeFormGroup(this.config.event, ['title', 'horario']);
+    this.infoForm = this.initializeFormGroup(this.config.event, ['title', 'horario', 'demo']);
     this.infoForm.addControl('presentadores', this.createFormArray(
       this.config.event?.presentadores || [],
       (presentador: any) => this.fb.group({

@@ -1,5 +1,11 @@
 <app-adds></app-adds>
 <app-header></app-header>
+@if (demo) {
+<div class="container">
+    <div class="h1">No estamos en directo!</div>
+</div>
+} @else {
 <router-outlet></router-outlet>
+}
 <app-footer></app-footer>
 <lib-ffsj-alert></lib-ffsj-alert>

@@ -15,7 +15,7 @@
     <!-- Contenedor de vistas -->
     @switch (selectedView) {
     @case ('info') {
-    <app-info-form [infoForm]="infoForm" (formSubmit)="procesar($event, 'info')">
+    <app-info-form [infoForm]="infoForm" (formSubmit)="procesar($event, 'event')">
     </app-info-form>
     }
     @case ('streaming') {
