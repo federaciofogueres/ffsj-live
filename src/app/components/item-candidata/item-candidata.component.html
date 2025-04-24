@@ -59,7 +59,9 @@
                         <div class="d-flex flex-column p-3 bg-light rounded shadow-sm">
                             <span class="h4 text-rojo mb-3">Información Académica y Laboral</span>
                             <span class="mb-2"><b>Estudios:</b> {{itemData.academico.formacion}}</span>
+                            @if(itemData.academico.situacionLaboral) {
                             <span class="mb-2"><b>Situación laboral:</b> {{itemData.academico.situacionLaboral}}</span>
+                            }
                             <span class="mb-2"><b>Aficiones:</b> {{itemData.academico.aficiones}}</span>
                         </div>
                     </div>
