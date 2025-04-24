@@ -56,6 +56,7 @@ export class ItemCandidataComponent {
 
   idUsuario: string = '';
   parsedCurriculum: any[] = [];
+  itemsList: IRealTimeItem[] = [];
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -85,6 +86,12 @@ export class ItemCandidataComponent {
   }
 
   private initComponent() {
+    this.firebaseStorageService.realtimeData$.subscribe((data) => {
+      if (data) {
+        const config = data;
+        this.itemsList = config.list;
+      }
+    });
     if (this.itemData === null) {
       this.isLive = false;
       const itemId = this.activatedRoute.snapshot.paramMap.get('id') || '';
@@ -101,14 +108,8 @@ export class ItemCandidataComponent {
 
   // Método para cargar itemData desde la URL
   private loadItemData(itemId: string): IRealTimeItem | null {
-    const itemsListData = JSON.parse(localStorage.getItem('config') || '').list.items;
-
-    if (itemsListData) {
-      const itemData = Object.values(itemsListData).flat().find((item: any) => item.id === itemId) as IRealTimeItem;
-      return itemData || null;
-    }
-
-    return null;
+    const itemData = Object.values(this.itemsList).flat().find((item: any) => item.id === itemId) as IRealTimeItem;
+    return itemData || null;
   }
 
   parseCurriculum() {
