@@ -1,8 +1,11 @@
 <app-adds></app-adds>
 <app-header></app-header>
 @if (demo) {
-<div class="container">
-    <div class="h1">No estamos en directo!</div>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="text-center">
+        <h1 class="display-4 text-danger">¡No estamos en directo!</h1>
+        <p class="lead text-muted">Por favor, vuelve más tarde para disfrutar del contenido en vivo.</p>
+    </div>
 </div>
 } @else {
 <router-outlet></router-outlet>
