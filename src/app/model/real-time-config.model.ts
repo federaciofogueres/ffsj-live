@@ -80,6 +80,7 @@ export interface IRealTimeItem {
 // Live info
 export interface IRealTimeLive {
     descripcion: string;
+    imagenes: string[];
     item: IRealTimeItem;
     tipo: string;
     titulo: string;
@@ -97,6 +98,7 @@ export interface IRealTimeStreaming {
 export function createDefaultLiveInfo(): IRealTimeLive {
     return {
         descripcion: '',
+        imagenes: [],
         item: {
             id: '',
             informacionPersonal: {

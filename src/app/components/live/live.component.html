@@ -8,6 +8,20 @@
     }
     @if (liveInfo.tipo === 'evento') {
     <span>{{liveInfo.descripcion}}</span>
+    <div class="gallery mt-3 d-flex flex-wrap">
+        @for(imagen of liveInfo.imagenes; track imagen) {
+        <div class="p-2" style="flex: 1 1 calc(33.33% - 1rem); max-width: calc(33.33% - 1rem);">
+            <img [src]="imagen" alt="Imagen del evento" class="img-fluid rounded shadow-sm" (click)="openImage(imagen)">
+        </div>
+        }
+    </div>
     }
 </div>
+
+<!-- Modal para mostrar la imagen en pantalla completa -->
+@if(selectedImage) {
+<div class="modal d-flex justify-content-center align-items-center" (click)="closeImage()">
+    <img [src]="selectedImage" alt="Imagen en grande" class="img-fluid rounded shadow-lg">
+</div>
+}
 }

@@ -39,4 +39,14 @@ export class LiveComponent {
       }
     });
   }
+
+  selectedImage: string | null = null; // Almacena la imagen seleccionada
+
+  openImage(image: string): void {
+    this.selectedImage = image; // Establece la imagen seleccionada
+  }
+
+  closeImage(): void {
+    this.selectedImage = null; // Cierra el modal al hacer clic
+  }
 }

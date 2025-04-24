@@ -136,6 +136,11 @@ export class AdminComponent {
     this.itemList = this.config.list!;
     const initialItem = this.itemList.items.find(item => item.id === this.config.live?.item?.id) || this.itemList.items[0];
     this.liveForm = this.initializeFormGroup(this.config.live, ['descripcion', 'tipo', 'titulo']);
+    this.liveForm.addControl('imagenes', this.fb.array(
+      Array.isArray(this.config.live?.imagenes)
+        ? this.config.live.imagenes.map((anuncio: string) => this.fb.control(anuncio))
+        : []
+    ));
     this.liveForm.addControl('item', new FormControl(initialItem));
     this.liveItemId = this.itemList.items.findIndex(item => item.id === this.config.live?.item?.id) ?? 0;
   }
