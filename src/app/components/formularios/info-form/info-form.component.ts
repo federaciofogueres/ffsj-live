@@ -7,6 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FfsjAlertService } from 'ffsj-web-components';
+import { FirebaseStorageService } from '../../../services/storage.service';
 
 @Component({
   selector: 'app-info-form',
@@ -37,7 +39,11 @@ export class InfoFormComponent {
 
   nuevoEventoControl = new FormControl('');
 
-  constructor(private fb: FormBuilder) { }
+  constructor(
+    private fb: FormBuilder,
+    private firebaseStorageService: FirebaseStorageService,
+    private ffsjAlertService: FfsjAlertService
+  ) { }
 
   get presentadores(): FormArray {
     return this.infoForm.get('presentadores') as FormArray;
@@ -59,16 +65,36 @@ export class InfoFormComponent {
     return this.nuevoPresentador.get('src') as FormControl;
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.firebaseStorageService.uploadImage(file, 'presentadores').then((url) => {
+        if (url) {
+          this.srcControl.setValue(url);
+          input.value = '';
+        }
+      }).catch((error) => {
+        this.ffsjAlertService.danger('Error al subir la imagen:', error);
+      });
+    }
+  }
+
+  removePresentador(index: number, url: string): void {
+    this.presentadores.removeAt(index);
+    this.firebaseStorageService.deleteImage(url).then(() => {
+      this.ffsjAlertService.success(`Imagen eliminada del almacenamiento: ${url}`);
+    }).catch((error) => {
+      this.ffsjAlertService.danger('Error al eliminar la imagen del almacenamiento:', error);
+    });
+  }
+
   addPresentador(): void {
     const presentador = this.nuevoPresentador.value;
     if (presentador.nombre?.trim() && presentador.src?.trim() && presentador.info?.trim()) {
       this.presentadores.push(this.fb.group(presentador));
       this.nuevoPresentador.reset();
     }
-  }
-
-  removePresentador(index: number): void {
-    this.presentadores.removeAt(index);
   }
 
   addEvento(): void {
@@ -82,4 +108,5 @@ export class InfoFormComponent {
   removeEvento(index: number): void {
     this.eventos.removeAt(index);
   }
+
 }

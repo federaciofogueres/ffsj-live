@@ -197,9 +197,9 @@ export class FirebaseStorageService {
         });
     }
 
-    async uploadImage(file: File): Promise<string | null> {
+    async uploadImage(file: File, path: string): Promise<string | null> {
         try {
-            const storageRef = ref(this._storage, `anuncios/${file.name}`);
+            const storageRef = ref(this._storage, `${path}/${file.name}`);
             const uploadTask = await uploadBytesResumable(storageRef, file);
             const downloadURL = await getDownloadURL(uploadTask.ref);
             return downloadURL;

@@ -37,8 +37,8 @@
                 <input type="text" id="info" class="form-control" [formControl]="infoControl">
             </div>
             <div class="form-group my-3">
-                <label for="src" class="text-naranja">Imagen</label>
-                <input type="text" id="src" class="form-control" [formControl]="srcControl">
+                <label for="src" class="text-naranja">Subir imagen</label>
+                <input type="file" id="src" class="form-control" (change)="onFileSelected($event)">
             </div>
             <div class="d-flex justify-content-between align-items-end">
                 <button type="button" style="height: 38px;" class="btn btn-primary"
@@ -47,10 +47,12 @@
             <ul class="mt-3">
                 @for(presentador of presentadores.controls; track presentador; let i = $index) {
                 <li class="d-flex align-items-center">
+                    <img [src]="presentador.get('src')?.value" alt="Anuncio {{ i }}" class="img-thumbnail me-3"
+                        style="width: 100px; height: auto;">
                     <span>
                         {{ presentador.get('nombre')?.value | titlecase }} - {{ presentador.get('info')?.value }}
                     </span>
-                    <button mat-icon-button color="warn" (click)="removePresentador(i)">
+                    <button mat-icon-button color="warn" (click)="removePresentador(i, presentador.get('src')?.value)">
                         <i class="bi bi-trash3"></i>
                     </button>
                 </li>

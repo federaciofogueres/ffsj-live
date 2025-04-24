@@ -57,7 +57,7 @@ export class AnunciosFormComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      this.firebaseStorageService.uploadImage(file).then((url) => {
+      this.firebaseStorageService.uploadImage(file, 'anuncios').then((url) => {
         if (url) {
           this.anuncios.push(this.fb.control(url));
         }
