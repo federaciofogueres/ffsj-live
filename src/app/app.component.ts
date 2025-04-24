@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
     this.firebaseStorageService.listenToRealtimeData('config');
     this.firebaseStorageService.realtimeData$.subscribe({
       next: (value) => {
-        if (value.event.demo && !this.authService.getCargos().some((cargo: { idCargo: number }) => cargo.idCargo === 16)) {
+        if (value && value.event.demo && !this.authService.getCargos().some((cargo: { idCargo: number }) => cargo.idCargo === 16)) {
           console.log(this.authService.getCargos());
           this.demo = true;
         } else {
