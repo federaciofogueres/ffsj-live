@@ -27,28 +27,40 @@
     <div class="row g-0">
         <div class="col-md-12">
             <mat-tab-group>
+                <!-- Información Personal -->
                 <mat-tab label="Información personal">
                     <div class="card-body">
-                        <div class="d-flex flex-column">
-                            <span class="h2">Información personal</span>
-                            <span><b>Fecha nacimiento:
-                                </b>{{itemData.informacionPersonal.fechaNacimiento}}</span>
-                            <span><b>Edad: </b>{{itemData.informacionPersonal.edad}} años</span>
-                            <span><b>Ciudad: </b>{{itemData.informacionPersonal.ciudad}}</span>
+                        <div class="d-flex flex-column p-3 bg-light rounded shadow-sm">
+                            <span class="h4 text-rojo mb-3">Información Personal</span>
+                            <span class="mb-2"><b>Edad:</b> {{itemData.informacionPersonal.edad}} años</span>
+                            <span class="mb-2"><b>Ciudad:</b> {{itemData.informacionPersonal.ciudad}}</span>
                         </div>
                         <hr>
-                        <div class="d-flex flex-column">
-                            <span class="h2">Información de la fiesta</span>
-                            <span><b>Años en la fiesta: </b>{{itemData.vidaEnFogueres.anyosFiesta}}
+                        <!-- Información de la Fiesta -->
+                        <div class="d-flex flex-column p-3 bg-light rounded shadow-sm">
+                            <span class="h4 text-rojo mb-3">Información de la Fiesta</span>
+                            <span class="mb-2"><b>Años en la fiesta:</b> {{itemData.vidaEnFogueres.anyosFiesta}}
                                 años</span>
-                            <span><b>Curriculum festero: </b>{{itemData.vidaEnFogueres.curriculum}}</span>
+                            <span class="mb-2"><b>Asociación:</b> {{itemData.vidaEnFogueres.asociacion_label}}</span>
+                            <span class="h5 text-secondary mt-3">Curriculum Festero:</span>
+                            <ul class="list-group mt-2">
+                                @for(cargo of parsedCurriculum; track cargo) {
+                                <li class="list-group-item">
+                                    <b>{{cargo.cargo}}</b>
+                                    @if(cargo.comienzo) {
+                                    <span>({{cargo.comienzo}} - {{cargo.final || 'Actualidad'}})</span>
+                                    }
+                                </li>
+                                }
+                            </ul>
                         </div>
                         <hr>
-                        <div class="d-flex flex-column">
-                            <span class="h2">Información académica y laboral</span>
-                            <span><b>Estudios: </b>{{itemData.academico.formacion}}</span>
-                            <span><b>Situación laboral: </b>{{itemData.academico.situacionLaboral}}</span>
-                            <span><b>Aficiones: </b>{{itemData.academico.aficiones}}</span>
+                        <!-- Información Académica y Laboral -->
+                        <div class="d-flex flex-column p-3 bg-light rounded shadow-sm">
+                            <span class="h4 text-rojo mb-3">Información Académica y Laboral</span>
+                            <span class="mb-2"><b>Estudios:</b> {{itemData.academico.formacion}}</span>
+                            <span class="mb-2"><b>Situación laboral:</b> {{itemData.academico.situacionLaboral}}</span>
+                            <span class="mb-2"><b>Aficiones:</b> {{itemData.academico.aficiones}}</span>
                         </div>
                     </div>
                 </mat-tab>

@@ -14,3 +14,25 @@
     height: calc(100% - 63px);
     overflow: auto;
 }
+
+/* filepath: g:\Proyectos\FFSJ\ffsj-live\src\app\components\item-candidata\item-candidata.component.scss */
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.list-group-item {
+    border: none;
+    padding: 0.5rem 0;
+}
+
+.list-group-item:not(:last-child) {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.text-primary {
+    color: #007bff !important;
+}
+
+.text-secondary {
+    color: #6c757d !important;
+}

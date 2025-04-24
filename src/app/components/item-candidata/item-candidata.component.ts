@@ -55,6 +55,7 @@ export class ItemCandidataComponent {
   isTelefono: boolean = false;
 
   idUsuario: string = '';
+  parsedCurriculum: any[] = [];
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -92,6 +93,7 @@ export class ItemCandidataComponent {
     } else {
       this.isLive = true;
     }
+    this.parseCurriculum();
     this.currentImage = this.itemData?.documentacion?.fotoBelleza || '';
     this.alternateImageUrl = this.itemData?.documentacion?.fotoCalle || '';
     this.loading = false;
@@ -107,6 +109,16 @@ export class ItemCandidataComponent {
     }
 
     return null;
+  }
+
+  parseCurriculum() {
+    if (this.itemData?.vidaEnFogueres?.curriculum) {
+      try {
+        this.parsedCurriculum = JSON.parse(this.itemData.vidaEnFogueres.curriculum);
+      } catch (error) {
+        console.error('Error al parsear el curriculum festero:', error);
+      }
+    }
   }
 
   toggleImage() {
