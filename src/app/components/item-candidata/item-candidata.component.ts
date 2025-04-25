@@ -89,21 +89,21 @@ export class ItemCandidataComponent {
     this.firebaseStorageService.realtimeData$.subscribe((data) => {
       if (data) {
         const config = data;
-        this.itemsList = config.list;
+        this.itemsList = config.list.items;
+        if (this.itemData === null) {
+          this.isLive = false;
+          const itemId = this.activatedRoute.snapshot.paramMap.get('id') || '';
+          const item = this.loadItemData(itemId);
+          this.itemData = item ? item : {} as IRealTimeItem;
+        } else {
+          this.isLive = true;
+        }
+        this.parseCurriculum();
+        this.currentImage = this.itemData?.documentacion?.fotoBelleza || '';
+        this.alternateImageUrl = this.itemData?.documentacion?.fotoCalle || '';
+        this.loading = false;
       }
     });
-    if (this.itemData === null) {
-      this.isLive = false;
-      const itemId = this.activatedRoute.snapshot.paramMap.get('id') || '';
-      const item = this.loadItemData(itemId);
-      this.itemData = item ? item : {} as IRealTimeItem;
-    } else {
-      this.isLive = true;
-    }
-    this.parseCurriculum();
-    this.currentImage = this.itemData?.documentacion?.fotoBelleza || '';
-    this.alternateImageUrl = this.itemData?.documentacion?.fotoCalle || '';
-    this.loading = false;
   }
 
   // Método para cargar itemData desde la URL

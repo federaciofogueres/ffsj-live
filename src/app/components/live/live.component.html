@@ -7,7 +7,7 @@
     <app-item [itemData]="liveInfo.item"></app-item>
     }
     @if (liveInfo.tipo === 'evento') {
-    <span>{{liveInfo.descripcion}}</span>
+    <span class="ms-2">{{liveInfo.descripcion}}</span>
     <div class="gallery mt-3 d-flex flex-wrap">
         @for(imagen of liveInfo.imagenes; track imagen) {
         <div class="p-2" style="flex: 1 1 calc(33.33% - 1rem); max-width: calc(33.33% - 1rem);">

@@ -12,33 +12,34 @@
         <option value="anuncios">Anuncios</option>
     </select>
 
-    <!-- Contenedor de vistas -->
-    @switch (selectedView) {
-    @case ('info') {
-    <app-info-form [infoForm]="infoForm" (formSubmit)="procesar($event, 'event')">
-    </app-info-form>
-    }
-    @case ('streaming') {
-    <app-streaming-form [streamingForm]="streamingForm" (formSubmit)="procesar($event, 'streaming')">
-    </app-streaming-form>
-    }
-    @case ('live') {
-    <app-live-form [liveForm]="liveForm" [itemList]="itemList" [liveItemId]="liveItemId"
-        (formSubmit)="procesar($event, 'live')">
-    </app-live-form>
-    }
-    @case ('listado') {
-    <app-list-form [itemList]="itemList" (itemListChange)="onItemListChange($event)">
-    </app-list-form>
-    }
-    @case ('options-listado') {
-    <app-list-options-form [listForm]="listForm" [itemList]="itemList" (formSubmit)="procesar($event, 'list')">
-    </app-list-options-form>
-    }
-    @case ('anuncios') {
-    <app-anuncios-form [anunciosForm]="anunciosForm" (formSubmit)="procesar($event, 'anuncios')">
-    </app-anuncios-form>
-    }
-    }
+    <div class="scrollable">
+        @switch (selectedView) {
+        @case ('info') {
+        <app-info-form [infoForm]="infoForm" (formSubmit)="procesar($event, 'event')">
+        </app-info-form>
+        }
+        @case ('streaming') {
+        <app-streaming-form [streamingForm]="streamingForm" (formSubmit)="procesar($event, 'streaming')">
+        </app-streaming-form>
+        }
+        @case ('live') {
+        <app-live-form [liveForm]="liveForm" [itemList]="itemList" [liveItemId]="liveItemId"
+            (formSubmit)="procesar($event, 'live')">
+        </app-live-form>
+        }
+        @case ('listado') {
+        <app-list-form [itemList]="itemList" (itemListChange)="onItemListChange($event)">
+        </app-list-form>
+        }
+        @case ('options-listado') {
+        <app-list-options-form [listForm]="listForm" [itemList]="itemList" (formSubmit)="procesar($event, 'list')">
+        </app-list-options-form>
+        }
+        @case ('anuncios') {
+        <app-anuncios-form [anunciosForm]="anunciosForm" (formSubmit)="procesar($event, 'anuncios')">
+        </app-anuncios-form>
+        }
+        }
+    </div>
 </div>
 }
