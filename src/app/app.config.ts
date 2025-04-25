@@ -34,6 +34,7 @@ export const appConfig: ApplicationConfig = {
     provideAuth(() => getAuth()),
     provideAnalytics(() => getAnalytics()),
     provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage())
+    provideStorage(() => getStorage()),
+    provideAuth(() => getAuth()),
   ]
 };

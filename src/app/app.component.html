@@ -1,5 +1,9 @@
+@if(loading) {
+<lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
+} @else {
 <app-adds></app-adds>
 <app-header></app-header>
+
 @if (demo) {
 <div class="container d-flex justify-content-center align-items-center vh-100">
     <div class="text-center">
@@ -12,3 +16,4 @@
 }
 <app-footer></app-footer>
 <lib-ffsj-alert></lib-ffsj-alert>
+}
