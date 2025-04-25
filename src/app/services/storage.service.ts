@@ -1,4 +1,3 @@
-import { isPlatformBrowser } from '@angular/common';
 import { Inject, inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { ref as dbRef, get, getDatabase, onValue, set } from '@angular/fire/database';
 import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
@@ -90,15 +89,6 @@ export class FirebaseStorageService {
         }
     }
 
-    updateRealTimeValue(data: any, path: string) {
-        this._realtimeDataSubject.next(data);
-        if (isPlatformBrowser(this.platformId)) {
-            localStorage.setItem(path, JSON.stringify(data));
-        } else {
-            this.ffsjAlertService.warning('localStorage no está disponible en este entorno.');
-        }
-    }
-
     async getRealtimeData(path: string): Promise<any> {
         try {
             const database = getDatabase(this._firebaseApp);
@@ -156,26 +146,6 @@ export class FirebaseStorageService {
                 }
             );
         });
-    }
-
-    async addAnotation(anotation: any, anotador: string, candidata: string): Promise<void> {
-        const path = 'candidatas/2024/anotaciones/' + anotador + '/anotaciones/' + candidata;
-        try {
-            const anotationData = { anotation, timestamp: new Date() };
-            await setDoc(doc(this._firestore, path), anotationData).then((result) => {
-                if (localStorage.getItem('candidatasData')) {
-                    let storageItem = JSON.parse(localStorage.getItem('candidatasData')!);
-                    const anotacionIndex = storageItem.anotaciones.findIndex((anotacion: any) => anotacion.candidata === candidata);
-                    if (anotacionIndex !== -1) {
-                        storageItem.anotaciones[anotacionIndex] = anotation;
-                    }
-                    localStorage.setItem('candidatasData', JSON.stringify(storageItem));
-                }
-            });
-            console.log(`Anotation saved at ${path}`);
-        } catch (error) {
-            console.error(`Failed to save anotation at ${path}:`, error);
-        }
     }
 
     async getCollection(collectionName: string) {

@@ -56,7 +56,7 @@ export class ItemCardComponent {
   }
 
   viewDetails() {
-    localStorage.setItem('item', JSON.stringify(this.item));
+    // localStorage.setItem('item', JSON.stringify(this.item));
     this.router.navigateByUrl('list/' + this.item.id);
   }
 }

@@ -15,13 +15,13 @@ export class AuthFirebaseService {
                 // Si no hay un usuario autenticado, inicia sesión anónima
                 signInAnonymously(this.auth)
                     .then(() => {
-                        console.log('Usuario autenticado anónimamente');
+                        // console.log('Usuario autenticado anónimamente');
                     })
                     .catch((error) => {
-                        console.error('Error al autenticar anónimamente:', error);
+                        // console.error('Error al autenticar anónimamente:', error);
                     });
             } else {
-                console.log('Usuario ya autenticado:', user);
+                // console.log('Usuario ya autenticado:', user);
             }
         });
     }

@@ -119,59 +119,6 @@ export class CandidataService {
         return arrayData;
     }
 
-    async getCandidatas(reload: boolean = false) {
-
-        const candidatasData = localStorage?.getItem('candidatasData');
-        this.loadAsociaciones();
-
-        if (candidatasData && !reload) {
-            return JSON.parse(candidatasData);
-        }
-
-        await this.loadAsociaciones();
-
-        if (reload) {
-            this.adultas = await this.loadFromBD('candidatas/2024/adultas')
-            this.infantiles = await this.loadFromBD('candidatas/2024/infantiles')
-        } else if (candidatasData) {
-            const dataParsed = JSON.parse(candidatasData);
-            this.adultas = dataParsed.adultas ? dataParsed.adultas : await this.loadFromBD('candidatas/2024/adultas')
-            this.infantiles = dataParsed.infantiles ? dataParsed.infantiles : await this.loadFromBD('candidatas/2024/infantiles')
-        }
-
-        ({ nuevasColumnasText: this.columnasAdultasText, nuevasColumnas: this.columnasAdultas, infoTabla: this.adultasData } = this.agrupaColumnas('adultas', this.adultas));
-        ({ nuevasColumnasText: this.columnasInfantilesText, nuevasColumnas: this.columnasInfantiles, infoTabla: this.infantilesData } = this.agrupaColumnas('infantiles', this.infantiles));
-
-        this.updateAsociacionValues(this.adultas, this.adultasData);
-        this.updateAsociacionValues(this.infantiles, this.infantilesData);
-
-        this.adultas = this.sortCandidatasByOrder(this.adultas);
-        this.infantiles = this.sortCandidatasByOrder(this.infantiles);
-
-        // const data = await this.firebaseStorageService.getCollection('candidatas/2024/anotaciones/' + this.cookieService.get('idUsuario') + '/anotaciones');
-        // if (data) {
-        //     this.anotaciones = [];
-        //     for (let anotation of data) {
-        //         this.anotaciones.push(anotation['anotation'])
-        //     }
-        // }
-
-        const returnObject = {
-            adultas: this.adultas,
-            infantiles: this.infantiles,
-            adultasData: this.adultasData,
-            infantilesData: this.infantilesData,
-            columnasAdultas: this.columnasAdultas,
-            columnasInfantiles: this.columnasInfantiles,
-            columnasAdultasText: this.columnasAdultasText,
-            columnasInfantilesText: this.columnasInfantilesText,
-            anotaciones: this.anotaciones
-        }
-
-        localStorage.setItem('candidatasData', JSON.stringify(returnObject));
-
-        return returnObject;
-    }
 
     sortCandidatasByOrder(candidatas: CandidataData[]) {
         return candidatas.sort((a: CandidataData, b: CandidataData) => {

@@ -132,21 +132,4 @@ export class ItemCandidataComponent {
     this.cdr.detectChanges();
   }
 
-  saveAnotaciones() {
-    if (this.itemData) {
-      this.firebaseStorageService.addAnotation({ candidata: this.itemData.id, anotacion: this.anotaciones }, this.idUsuario, this.itemData.id);
-    }
-  }
-
-  loadAnotation() {
-    if (localStorage.getItem('itemsListData')) {
-      const itemsListData = localStorage.getItem('itemsListData');
-      if (itemsListData) {
-        const parsedData = JSON.parse(itemsListData);
-        this.anotaciones = parsedData.anotaciones?.find((anotacion: any) => anotacion.candidata === this.itemData?.id)?.anotacion || '';
-      } else {
-        this.anotaciones = '';
-      }
-    }
-  }
 }
