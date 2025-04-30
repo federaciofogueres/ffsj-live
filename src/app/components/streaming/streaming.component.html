@@ -1,8 +1,17 @@
 <div class="streaming-container">
+    @if(streaming && streaming.title !== ' ') {
     <h1 class="video-title">{{ streaming.title }}</h1>
     <iframe [src]="sourceURL()" [title]="streaming.title" frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
     </iframe>
     <span class="h5 mt-4 p-3 text-center">Estás viendo: {{ streaming.subtitle }}</span>
+    } @else {
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="text-center">
+            <h1 class="display-4 text-danger">¡En estos momentos no hay ninguna emisión de vídeo!</h1>
+            <p class="lead text-muted">Puedes seguir disfrutando del resto de opciones de la plataforma.</p>
+        </div>
+    </div>
+    }
 </div>
