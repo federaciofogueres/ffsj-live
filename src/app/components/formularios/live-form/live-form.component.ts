@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
+import { interval, Subscription } from 'rxjs';
 import { IRealTimeList } from '../../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../../services/storage.service';
 import { ItemCardComponent } from '../../item-card/item-card.component';
@@ -37,6 +38,11 @@ export class LiveFormComponent {
   @Output() formSubmit = new EventEmitter<FormGroup>();
   @Output() itemChange = new EventEmitter<number>();
 
+  updateInterval: number = 5;
+  isAutoUpdating: boolean = false;
+  private autoUpdateSubscription: Subscription | null = null;
+
+
   constructor(
     private fb: FormBuilder,
     private firebaseStorageService: FirebaseStorageService,
@@ -56,6 +62,37 @@ export class LiveFormComponent {
     const item = this.itemList.items[this.liveItemId] || this.itemList.items[0];
     this.liveForm.get('item')?.setValue(item);
     this.formSubmit.emit(this.liveForm);
+  }
+
+  toggleAutoUpdate(): void {
+    if (this.isAutoUpdating) {
+      this.stopAutoUpdate();
+    } else {
+      this.startAutoUpdate();
+    }
+  }
+
+  startAutoUpdate(): void {
+    this.updateInterval = this.liveForm.get('updateInterval')?.value;
+    if (this.updateInterval < 1) {
+      this.ffsjAlertService.danger('El intervalo debe ser al menos de 1 segundo.');
+      return;
+    }
+
+    this.isAutoUpdating = true;
+    this.autoUpdateSubscription = interval(this.updateInterval * 1000).subscribe(() => {
+      this.updateItem(this.liveItemId + 1);
+    });
+    this.ffsjAlertService.success(`Actualización automática iniciada cada ${this.updateInterval} segundos.`);
+  }
+
+  stopAutoUpdate(): void {
+    if (this.autoUpdateSubscription) {
+      this.autoUpdateSubscription.unsubscribe();
+      this.autoUpdateSubscription = null;
+    }
+    this.isAutoUpdating = false;
+    this.ffsjAlertService.success('Actualización automática detenida.');
   }
 
   handleSelect(event: any) {

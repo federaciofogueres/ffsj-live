@@ -142,6 +142,7 @@ export class AdminComponent {
         : []
     ));
     this.liveForm.addControl('item', new FormControl(initialItem));
+    this.liveForm.addControl('updateInterval', new FormControl(''));
     this.liveItemId = this.itemList.items.findIndex(item => item.id === this.config.live?.item?.id) ?? 0;
   }
 

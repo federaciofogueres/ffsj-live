@@ -16,6 +16,18 @@
         </div>
 
         @if(liveForm.controls['tipo'].value === 'listado') {
+        <div class="form-group mt-3">
+            <label for="interval">Intervalo de actualización (segundos)</label>
+            <input type="number" id="interval" class="form-control" formControlName="updateInterval" min="1"
+                placeholder="Introduce el intervalo">
+        </div>
+
+        <div class="form-group mt-3">
+            <button class="btn btn-success me-2" (click)="toggleAutoUpdate()"
+                [ngClass]="isAutoUpdating ? ['btn-foc-rojo'] : []">
+                {{ isAutoUpdating ? 'Stop' : 'Start' }}
+            </button>
+        </div>
         <div class="container-item mt-3">
             <app-item-card [item]="liveItemControl.value"></app-item-card>
         </div>
