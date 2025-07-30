@@ -7,6 +7,14 @@
 .fila-candidatura {
     display: flex;
     flex-direction: column;
+    transition: background-color 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.fila-candidatura.ganador {
+    border: 2px solid #27ae60;
+    background-color: #eafaf1;
 }
 
 .info {

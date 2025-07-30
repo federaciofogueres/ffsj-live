@@ -12,6 +12,15 @@
             }
         </div>
 
+        <div class="form-group mb-3">
+            <label for="totalVotes" class="text-naranja">Votos emitidos</label>
+            <input type="text" id="totalVotes" class="form-control" formControlName="totalVotes" required>
+            @if(votacionesForm.get('totalVotes')?.errors?.['required'] && votacionesForm.get('totalVotes')?.invalid &&
+            (votacionesForm.get('totalVotes')?.touched || votacionesForm.get('totalVotes')?.dirty)) {
+            <small class="text-danger">El título es obligatorio.</small>
+            }
+        </div>
+
         <div formArrayName="candidaturas">
             <span class="h3 text-naranja">Opciones</span>
             <div class="form-group my-3">

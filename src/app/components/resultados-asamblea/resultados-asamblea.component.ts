@@ -19,6 +19,7 @@ export class ResultadosAsambleaComponent {
   candidaturas: Candidatura[] = [];
   title: string = 'Sin votaciones';
   totalVotos = 0;
+  votosEmitidos = 0;
   loading: boolean = false;
 
   constructor(
@@ -36,6 +37,7 @@ export class ResultadosAsambleaComponent {
         this.title = data.votaciones.title
         this.candidaturas = data.votaciones.candidaturas || [];
         this.totalVotos = this.candidaturas.reduce((acc, c) => acc + c.votes, 0);
+        this.votosEmitidos = data.votaciones.totalVotes || 0;
       }
     });
     this.loading = false;
@@ -46,14 +48,25 @@ export class ResultadosAsambleaComponent {
   }
 
   porcentaje(votos: number): number {
-    return this.totalVotos > 0 ? (votos / this.totalVotos) * 100 : 0;
+    return this.votosEmitidos > 0 ? (votos / this.votosEmitidos) * 100 : 0;
+  }
+
+  get mayoriaAbsoluta(): number {
+    return Math.floor(this.votosEmitidos / 2) + 1;
+  }
+
+  get ganador(): Candidatura | null {
+    const ordenadas = this.candidaturasOrdenadas;
+    if (ordenadas.length === 0) return null;
+    const top = ordenadas[0];
+    return top.votes >= this.mayoriaAbsoluta ? top : null;
   }
 
   color(votos: number): string {
     const p = this.porcentaje(votos);
-    if (p >= 75) return '#27ae60'; // verde
-    if (p >= 50) return '#f1c40f'; // amarillo
-    if (p >= 25) return '#e67e22'; // naranja
+    if (p >= 50) return '#27ae60'; // verde
+    if (p >= 25) return '#f1c40f'; // amarillo
+    if (p >= 10) return '#e67e22'; // naranja
     return '#e74c3c';              // rojo
   }
 

@@ -169,7 +169,7 @@ export class AdminComponent {
   }
 
   prepareVotacionesForm() {
-    this.votacionesForm = this.initializeFormGroup(this.config.votaciones, ['title']);
+    this.votacionesForm = this.initializeFormGroup(this.config.votaciones, ['title', 'totalVotes']);
     this.votacionesForm.addControl('candidaturas', this.createFormArray(
       this.config.votaciones?.candidaturas || [],
       (candidatura: any) => this.fb.group({
