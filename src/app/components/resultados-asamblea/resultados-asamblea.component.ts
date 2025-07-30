@@ -53,23 +53,39 @@ export class ResultadosAsambleaComponent {
   }
 
   get ganador(): Candidatura | null {
-    const ordenadas = this.candidaturasOrdenadas;
-    if (ordenadas.length === 0) return null;
-    const top = ordenadas[0];
-    return top.votes >= this.mayoriaAbsoluta ? top : null;
+    const votosAsignados = this.totalVotosActuales();
+    const votosRestantes = this.votosEmitidos - votosAsignados;
+
+    return this.candidaturas.find(c => {
+      const votosCandidato = c.votes || 0;
+      // Verificamos si hay algún rival que podría alcanzar o superar sus votos
+      const algunRivalPuedeSuperar = this.candidaturas.some(rival => {
+        if (rival === c) return false;
+        const votosRivalActuales = rival.votes || 0;
+        const votosRivalMaximos = votosRivalActuales + votosRestantes;
+        return votosRivalMaximos >= votosCandidato;
+      });
+
+      return !algunRivalPuedeSuperar;
+    }) || null;
   }
+
 
   porcentajeSobreMaximo(c: Candidatura): number {
     return c.maxVotes > 0 ? (c.votes / c.maxVotes) * 100 : 0;
   }
 
   color(votos: number): string {
-    const p = this.porcentaje(votos);
-    if (p >= 50) return '#27ae60'; // verde
-    if (p >= 25) return '#f1c40f'; // amarillo
-    if (p >= 10) return '#e67e22'; // naranja
+    const maxVotos = Math.max(...this.candidaturas.map(c => c.votes || 0));
+    const p = (votos / maxVotos) * 100;
+
+    if (p >= 90) return '#27ae60'; // verde fuerte
+    if (p >= 70) return '#2ecc71'; // verde claro
+    if (p >= 50) return '#f1c40f'; // amarillo
+    if (p >= 30) return '#e67e22'; // naranja
     return '#e74c3c';              // rojo
   }
+
 
   colorPorPorcentaje(p: number): string {
     if (p >= 75) return '#27ae60';
@@ -109,10 +125,27 @@ export class ResultadosAsambleaComponent {
     return -1;
   }
 
-
-
-
   totalVotosActuales(): number {
     return this.candidaturas.reduce((acc, c) => acc + (c.votes || 0), 0);
   }
+
+  get maxVotosNecesariosParaGanar(): number {
+    return Math.max(
+      ...this.candidaturas
+        .map(c => this.votosNecesariosParaGanar(c))
+        .filter(n => n > 0)
+    );
+  }
+
+  get umbralMinimoDeVictoria(): number {
+    return Math.min(
+      ...this.candidaturas
+        .map(c => {
+          const necesarios = this.votosNecesariosParaGanar(c);
+          return necesarios === -1 ? Infinity : (c.votes || 0) + necesarios;
+        })
+    );
+  }
+
+
 }
