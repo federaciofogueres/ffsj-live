@@ -38,3 +38,25 @@
     transition: width 0.5s ease-in-out, background-color 0.5s ease;
     border-radius: 8px;
 }
+
+.fila-candidatura.candidatura-imposible .barra-grafico {
+    position: relative;
+    background-color: #eee;
+}
+
+.fila-candidatura.candidatura-imposible .barra-grafico::after {
+    content: "❌ Sin opciones de ganar";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #c0392b;
+    font-weight: bold;
+    font-size: 0.9rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.fila-candidatura.candidatura-imposible .barra-rellena {
+    opacity: 0.3;
+}

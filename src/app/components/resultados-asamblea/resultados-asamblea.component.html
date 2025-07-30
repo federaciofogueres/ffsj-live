@@ -2,7 +2,6 @@
     <h2 class="mb-4 text-center">{{ title }}</h2>
 
     <!-- Mensaje de mayoría -->
-
     <div *ngIf="ganador" class="text-success text-center mb-3 fs-5">
         ✅ Mayoría alcanzada por <strong>{{ ganador.label }}</strong> con {{ ganador.votes }} votos
     </div>
@@ -12,27 +11,32 @@
 
     <div class="grafico-horizontal">
         @for (c of candidaturasOrdenadas; track $index) {
-        <div class="fila-candidatura" [class.ganador]="c.label === ganador?.label">
+        <div class="fila-candidatura" [class.ganador]="c.label === ganador?.label"
+            [class.candidatura-imposible]="votosNecesariosParaGanar(c) === -1">
+
             <div class="info">
                 <span class="label">{{ c.label }}</span>
                 <span class="votes">
                     {{ c.votes }} / {{ c.maxVotes }} votos
                 </span>
             </div>
+
             <div class="barra-grafico">
                 <div class="barra-rellena" [style.width.%]="porcentaje(c.votes)"
                     [style.backgroundColor]="color(c.votes)">
                 </div>
             </div>
-            <div class="info">
+
+            @if (votosNecesariosParaGanar(c) !== -1) {
+            <div class="info mt-1">
                 <span class="label"></span>
-                <span class="votes">
-                    necesita {{ votosNecesariosParaGanar(c) }} votos para asegurar la victoria
+                <span class="votes text-muted">
+                    Se necesitan {{ votosNecesariosParaGanar(c) }} votos más para ganar
                 </span>
             </div>
+            }
 
         </div>
         }
     </div>
-
 </div>
