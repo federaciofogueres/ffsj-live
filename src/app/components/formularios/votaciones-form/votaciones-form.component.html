@@ -1,0 +1,59 @@
+@if (votacionesForm) {
+<div class="container scrollable">
+    <h1>Modificar Información Principal</h1>
+    <form [formGroup]="votacionesForm" class="py-3">
+
+        <div class="form-group mb-3">
+            <label for="title" class="text-naranja">Título de la votación</label>
+            <input type="text" id="title" class="form-control" formControlName="title" required>
+            @if(votacionesForm.get('title')?.errors?.['required'] && votacionesForm.get('title')?.invalid &&
+            (votacionesForm.get('title')?.touched || votacionesForm.get('title')?.dirty)) {
+            <small class="text-danger">El título es obligatorio.</small>
+            }
+        </div>
+
+        <div formArrayName="candidaturas">
+            <span class="h3 text-naranja">Opciones</span>
+            <div class="form-group my-3">
+                <label for="nombre" class="text-naranja">Candidatura</label>
+                <input type="text" id="label" class="form-control" [formControl]="labelControl">
+            </div>
+            <div class="form-group my-3">
+                <label for="info" class="text-naranja">Votos</label>
+                <input type="number" id="votes" class="form-control" [formControl]="votesControl">
+            </div>
+            <div class="d-flex justify-content-between align-items-end">
+                <button type="button" style="height: 38px;" class="btn btn-primary"
+                    (click)="addCandidatura()">Añadir</button>
+            </div>
+            <ul class="mt-3">
+                @for(candidatura of candidaturas.controls; track candidatura; let i = $index) {
+                <li class="d-flex align-items-center mb-3">
+                    <button [disabled]="(candidatura.get('votes')?.value || 0) <= 0"
+                        class="btn btn-danger btn-lg rounded-circle d-flex align-items-center justify-content-center"
+                        (click)="changeVotes(candidatura, (candidatura.get('votes')?.value || 0) - 1)">
+                        <i class="bi bi-dash-circle fs-4"></i>
+                    </button>
+                    <span class="fs-5 mx-3">
+                        {{ candidatura.get('label')?.value | titlecase }} - {{ candidatura.get('votes')?.value }}
+                    </span>
+                    <button
+                        class="btn btn-success btn-lg rounded-circle d-flex align-items-center justify-content-center"
+                        (click)="changeVotes(candidatura, (candidatura.get('votes')?.value || 0) + 1)">
+                        <i class="bi bi-plus-circle fs-4"></i>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="removeCandidatura(i)">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </li>
+                }
+            </ul>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="formSubmit.emit(votacionesForm)"
+                [disabled]="votacionesForm.invalid">Guardar</button>
+        </div>
+    </form>
+</div>
+}

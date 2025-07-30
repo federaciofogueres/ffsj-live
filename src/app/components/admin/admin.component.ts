@@ -16,6 +16,7 @@ import { ListFormComponent } from '../formularios/list-form/list-form.component'
 import { ListOptionsFormComponent } from '../formularios/list-options-form/list-options-form.component';
 import { LiveFormComponent } from '../formularios/live-form/live-form.component';
 import { StreamingFormComponent } from '../formularios/streaming-form/streaming-form.component';
+import { VotacionesFormComponent } from '../formularios/votaciones-form/votaciones-form.component';
 
 @Component({
   selector: 'app-admin',
@@ -26,6 +27,7 @@ import { StreamingFormComponent } from '../formularios/streaming-form/streaming-
     LiveFormComponent,
     ListFormComponent,
     ListOptionsFormComponent,
+    VotacionesFormComponent,
     StreamingFormComponent,
     CommonModule,
     FormsModule,
@@ -47,11 +49,12 @@ export class AdminComponent {
   public liveForm!: FormGroup;
   public listForm!: FormGroup;
   public anunciosForm!: FormGroup;
+  public votacionesForm!: FormGroup;
 
   public liveItemId: number = 0;
   public itemList!: IRealTimeList;
 
-  protected _selectedView: string = 'info';
+  protected _selectedView: string = 'votaciones';
   protected loading: boolean = true;
   config: IRealTimeConfigModel = {};
 
@@ -165,12 +168,26 @@ export class AdminComponent {
     ));
   }
 
+  prepareVotacionesForm() {
+    this.votacionesForm = this.initializeFormGroup(this.config.votaciones, ['title']);
+    this.votacionesForm.addControl('candidaturas', this.createFormArray(
+      this.config.votaciones?.candidaturas || [],
+      (candidatura: any) => this.fb.group({
+        label: [candidatura.label || ''],
+        votes: [candidatura.votes || 0],
+      })
+    ));
+    console.log(this.votacionesForm);
+
+  }
+
   prepareForms() {
     this.prepareInfoForm();
     this.prepareStreamingForm();
     this.prepareLiveForm();
     this.prepareListForm();
     this.prepareAnunciosForm();
+    this.prepareVotacionesForm();
     this.loading = false;
   }
 

@@ -4,6 +4,18 @@ export interface IRealTimeConfigModel {
     live?: IRealTimeLive;
     streaming?: IRealTimeStreaming;
     anuncios?: IRealTimeAdds;
+    votaciones?: IRealTimeVotacion;
+}
+
+// Votaciones
+export interface IRealTimeVotacion {
+    title: string;
+    candidaturas: IRealTimeCandidatura[]
+}
+
+export interface IRealTimeCandidatura {
+    nombre: string;
+    votes: number;
 }
 
 // Eventos

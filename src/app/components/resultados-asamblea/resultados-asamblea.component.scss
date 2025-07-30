@@ -1,0 +1,29 @@
+.resultados-container {
+    max-width: 75%;
+    margin: auto;
+    font-family: sans-serif;
+}
+
+.candidatura {
+    margin-bottom: 20px;
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.barra {
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.relleno {
+    height: 100%;
+    background-color: #2196f3;
+    transition: width 0.5s ease-in-out;
+}

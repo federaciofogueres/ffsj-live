@@ -10,6 +10,7 @@
         <option value="listado">Listado</option>
         <option value="options-listado">Opciones del listado</option>
         <option value="anuncios">Anuncios</option>
+        <option value="votaciones">Votaciones</option>
     </select>
 
     <div class="scrollable">
@@ -38,6 +39,10 @@
         @case ('anuncios') {
         <app-anuncios-form [anunciosForm]="anunciosForm" (formSubmit)="procesar($event, 'anuncios')">
         </app-anuncios-form>
+        }
+        @case ('votaciones') {
+        <app-votaciones-form [votacionesForm]="votacionesForm" (formSubmit)="procesar($event, 'votaciones')">
+        </app-votaciones-form>
         }
         }
     </div>
