@@ -35,18 +35,26 @@ export class ResultadosAsambleaComponent {
         console.log(data);
         this.title = data.votaciones.title
         this.candidaturas = data.votaciones.candidaturas || [];
+        this.totalVotos = this.candidaturas.reduce((acc, c) => acc + c.votes, 0);
       }
     });
     this.loading = false;
-    // this.candidaturas$ = this.votacionesService.getCandidaturas().pipe(
-    //   map(candidaturas => {
-    //     this.totalVotos = candidaturas.reduce((acc, c) => acc + c.votes, 0);
-    //     return candidaturas.sort((a, b) => b.votes - a.votes);
-    //   })
-    // );
+  }
+
+  get candidaturasOrdenadas() {
+    return [...this.candidaturas].sort((a, b) => b.votes - a.votes);
   }
 
   porcentaje(votos: number): number {
     return this.totalVotos > 0 ? (votos / this.totalVotos) * 100 : 0;
   }
+
+  color(votos: number): string {
+    const p = this.porcentaje(votos);
+    if (p >= 75) return '#27ae60'; // verde
+    if (p >= 50) return '#f1c40f'; // amarillo
+    if (p >= 25) return '#e67e22'; // naranja
+    return '#e74c3c';              // rojo
+  }
+
 }

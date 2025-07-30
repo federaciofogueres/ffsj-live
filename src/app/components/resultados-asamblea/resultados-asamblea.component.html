@@ -1,16 +1,17 @@
 <div class="container">
-    <span class="h1">
-        {{title}}
-    </span>
-    <div class="resultados-container">
-        @for (c of candidaturas; track $index) {
-        <div class="candidatura">
+    <h2 class="mb-4 text-center">{{ title }}</h2>
+
+    <div class="grafico-horizontal">
+        @for (c of candidaturasOrdenadas; track $index) {
+        <div class="fila-candidatura">
             <div class="info">
                 <span class="label">{{ c.label }}</span>
                 <span class="votes">{{ c.votes }} votos</span>
             </div>
-            <div class="barra">
-                <div class="relleno" [style.width.%]="porcentaje(c.votes)"></div>
+            <div class="barra-grafico">
+                <div class="barra-rellena" [style.width.%]="porcentaje(c.votes)"
+                    [style.backgroundColor]="color(c.votes)">
+                </div>
             </div>
         </div>
         }
