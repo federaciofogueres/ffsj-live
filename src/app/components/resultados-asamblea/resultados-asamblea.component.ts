@@ -52,24 +52,42 @@ export class ResultadosAsambleaComponent {
     return Math.floor(this.votosEmitidos / 2) + 1;
   }
 
-  get ganador(): Candidatura | null {
+  get ganadores(): Candidatura[] {
+    if (!this.candidaturas || this.candidaturas.length === 0) return [];
+
     const votosAsignados = this.totalVotosActuales();
     const votosRestantes = this.votosEmitidos - votosAsignados;
 
-    return this.candidaturas.find(c => {
-      const votosCandidato = c.votes || 0;
-      // Verificamos si hay algún rival que podría alcanzar o superar sus votos
-      const algunRivalPuedeSuperar = this.candidaturas.some(rival => {
-        if (rival === c) return false;
-        const votosRivalActuales = rival.votes || 0;
-        const votosRivalMaximos = votosRivalActuales + votosRestantes;
-        return votosRivalMaximos >= votosCandidato;
-      });
+    const maxVotos = Math.max(...this.candidaturas.map(c => c.votes || 0));
+    const empatados = this.candidaturas.filter(c => (c.votes || 0) === maxVotos);
 
-      return !algunRivalPuedeSuperar;
-    }) || null;
+    // Si hay más de un empatado y aún quedan votos por contar, el empate puede romperse
+    if (empatados.length > 1 && votosRestantes > 0) {
+      return [];
+    }
+
+    // Ver si algún otro candidato aún puede superar o empatar al actual líder
+    const maxPotencialOtro = this.candidaturas
+      .filter(c => (c.votes || 0) < maxVotos)
+      .map(c => (c.votes || 0) + votosRestantes)
+      .reduce((max, val) => Math.max(max, val), 0);
+
+    if (maxPotencialOtro >= maxVotos) {
+      return [];
+    }
+
+    return empatados;
   }
 
+
+
+
+
+
+
+  esGanador(c: Candidatura): boolean {
+    return this.ganadores.some(g => g.label === c.label);
+  }
 
   porcentajeSobreMaximo(c: Candidatura): number {
     return c.maxVotes > 0 ? (c.votes / c.maxVotes) * 100 : 0;
@@ -99,29 +117,33 @@ export class ResultadosAsambleaComponent {
     const votosAsignados = this.totalVotosActuales();
     const votosRestantes = this.votosEmitidos - votosAsignados;
 
-    // Si ya ha ganado por mayoría absoluta
-    if (votosActuales >= this.mayoriaAbsoluta) {
-      return 0;
+    const maxVotos = Math.max(...this.candidaturas.map(cand => cand.votes || 0));
+
+    // Si no puede alcanzar el máximo, ni siquiera empatando
+    if (votosActuales + votosRestantes < maxVotos) return -1;
+
+    // Si ya está por encima de todos y nadie puede empatarle
+    const puedeEmpatar = this.candidaturas.some(r => {
+      if (r === c) return false;
+      const rVotos = r.votes || 0;
+      return rVotos + votosRestantes >= votosActuales;
+    });
+
+    if (!puedeEmpatar) return 0;
+
+    // Si puede empatar o superar, buscamos el mínimo número de votos que aseguran victoria
+    for (let extraVotos = 1; extraVotos <= votosRestantes; extraVotos++) {
+      const posiblesVotos = votosActuales + extraVotos;
+      const rivalesPuedenIgualar = this.candidaturas.some(r => {
+        if (r === c) return false;
+        const rVotos = r.votes || 0;
+        return rVotos + (votosRestantes - extraVotos) >= posiblesVotos;
+      });
+
+      if (!rivalesPuedenIgualar) return extraVotos;
     }
 
-    // Si no puede llegar nunca a la mayoría absoluta, calculamos por mayoría simple
-    for (let extraVotos = 0; extraVotos <= votosRestantes; extraVotos++) {
-      const votosParaCandidato = votosActuales + extraVotos;
-      const votosRestantesSimulados = votosRestantes - extraVotos;
-
-      // Calcular el máximo que podrían alcanzar los rivales
-      const maxVotosRival = this.candidaturas
-        .filter(r => r !== c)
-        .map(r => (r.votes || 0) + votosRestantesSimulados)
-        .reduce((a, b) => Math.max(a, b), 0);
-
-      // Si el candidato supera a cualquier posible rival
-      if (votosParaCandidato > maxVotosRival) {
-        return extraVotos;
-      }
-    }
-
-    // No puede asegurar victoria con los votos restantes
+    // No puede asegurarlo con ningún reparto
     return -1;
   }
 
