@@ -62,11 +62,22 @@ export class ResultadosAsambleaComponent {
     return top.votes >= this.mayoriaAbsoluta ? top : null;
   }
 
+  porcentajeSobreMaximo(c: Candidatura): number {
+    return c.maxVotes > 0 ? (c.votes / c.maxVotes) * 100 : 0;
+  }
+
   color(votos: number): string {
     const p = this.porcentaje(votos);
     if (p >= 50) return '#27ae60'; // verde
     if (p >= 25) return '#f1c40f'; // amarillo
     if (p >= 10) return '#e67e22'; // naranja
+    return '#e74c3c';              // rojo
+  }
+
+  colorPorPorcentaje(p: number): string {
+    if (p >= 75) return '#27ae60'; // verde
+    if (p >= 50) return '#f1c40f'; // amarillo
+    if (p >= 25) return '#e67e22'; // naranja
     return '#e74c3c';              // rojo
   }
 

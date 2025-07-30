@@ -15,7 +15,9 @@
         <div class="fila-candidatura" [class.ganador]="c.label === ganador?.label">
             <div class="info">
                 <span class="label">{{ c.label }}</span>
-                <span class="votes">{{ c.votes }} votos</span>
+                <span class="votes">
+                    {{ c.votes }} / {{ c.maxVotes }} votos
+                </span>
             </div>
             <div class="barra-grafico">
                 <div class="barra-rellena" [style.width.%]="porcentaje(c.votes)"
@@ -25,4 +27,5 @@
         </div>
         }
     </div>
+
 </div>

@@ -33,7 +33,8 @@ export class VotacionesFormComponent {
 
   nuevaCandidatura = this.fb.group({
     label: [''],
-    votes: [0]
+    votes: [0],
+    maxVotes: [0]
   });
 
   constructor(
@@ -54,15 +55,33 @@ export class VotacionesFormComponent {
     return this.nuevaCandidatura.get('votes') as FormControl;
   }
 
+  private recalcularMaxVotes(): void {
+    const totalEmitidos = this.votacionesForm.get('totalVotes')?.value || 0;
+
+    const votosContados = this.candidaturas.controls.reduce((acc, c) => {
+      return acc + (c.get('votes')?.value || 0);
+    }, 0);
+
+    const votosRestantes = Math.max(0, totalEmitidos - votosContados);
+
+    this.candidaturas.controls.forEach(c => {
+      const votosActuales = c.get('votes')?.value || 0;
+      const maxVotes = votosActuales + votosRestantes;
+      c.get('maxVotes')?.setValue(maxVotes);
+    });
+  }
+
 
   removeCandidatura(index: number): void {
     this.candidaturas.removeAt(index);
+    this.recalcularMaxVotes();
     this.formSubmit.emit(this.votacionesForm);
   }
 
   changeVotes(candidatura: any, votes: number): void {
     const newVotes = Math.max(0, votes);
     candidatura.get('votes')?.setValue(newVotes);
+    this.recalcularMaxVotes();
     this.formSubmit.emit(this.votacionesForm);
   }
 
@@ -70,6 +89,8 @@ export class VotacionesFormComponent {
     const candidatura = this.nuevaCandidatura.value;
     if (candidatura.label?.trim()) {
       this.candidaturas.push(this.fb.group(candidatura));
+      this.recalcularMaxVotes();
+      this.formSubmit.emit(this.votacionesForm);
       this.nuevaCandidatura.reset();
     }
   }

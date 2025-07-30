@@ -175,6 +175,7 @@ export class AdminComponent {
       (candidatura: any) => this.fb.group({
         label: [candidatura.label || ''],
         votes: [candidatura.votes || 0],
+        maxVotes: [candidatura.maxVotes || 0],
       })
     ));
     console.log(this.votacionesForm);
