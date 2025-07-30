@@ -1,44 +1,74 @@
 .grafico-horizontal {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
 .fila-candidatura {
     display: flex;
     flex-direction: column;
     transition: background-color 0.3s ease;
-    padding: 0.5rem;
-    border-radius: 8px;
+    padding: 1.2rem;
+    border-radius: 10px;
+    font-size: 1.8rem;
+
+    .info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+    }
+
+    .barra-grafico {
+        width: 100%;
+        height: 3.2rem;
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        overflow: hidden;
+
+        .barra-rellena {
+            height: 100%;
+            width: 0;
+            transition: width 0.5s ease-in-out, background-color 0.5s ease;
+            border-radius: 8px;
+        }
+    }
 }
 
 .fila-candidatura.ganador {
-    border: 2px solid #27ae60;
+    border: 3px solid #27ae60;
     background-color: #eafaf1;
 }
 
-.info {
+.fila-candidatura.destacada {
+    font-size: 2rem;
+
+    .barra-grafico {
+        height: 3.5rem;
+    }
+}
+
+.fila-candidatura.secundaria {
+    font-size: 1.4rem;
+    opacity: 0.8;
+
+    .barra-grafico {
+        height: 2.4rem;
+    }
+}
+
+.agrupadas {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.3rem;
-    font-weight: 600;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+
+    .fila-candidatura {
+        flex: 1 1 calc(50% - 1rem); // dos por fila
+        min-width: 300px;
+    }
 }
 
-.barra-grafico {
-    width: 100%;
-    height: 32px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.barra-rellena {
-    height: 100%;
-    width: 0;
-    transition: width 0.5s ease-in-out, background-color 0.5s ease;
-    border-radius: 8px;
-}
-
+// Candidaturas imposibles
 .fila-candidatura.candidatura-imposible .barra-grafico {
     position: relative;
     background-color: #eee;
@@ -52,7 +82,7 @@
     transform: translate(-50%, -50%);
     color: #c0392b;
     font-weight: bold;
-    font-size: 0.9rem;
+    font-size: 1.2rem;
     pointer-events: none;
     z-index: 2;
 }

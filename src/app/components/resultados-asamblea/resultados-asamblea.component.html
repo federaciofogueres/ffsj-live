@@ -2,7 +2,7 @@
     <h2 class="mb-4 text-center">{{ title }}</h2>
 
     <!-- Mensaje de mayoría -->
-    <div *ngIf="ganadores.length > 0" class="text-success text-center mb-3 fs-5">
+    <div *ngIf="ganadores.length > 0" class="text-success text-center mb-3 fs-4">
         ✅ Gana
         <ng-container *ngFor="let g of ganadores; let last = last">
             <strong>{{ g.label }}</strong>{{ last ? '' : ', ' }}
@@ -10,39 +10,58 @@
         con {{ ganadores[0].votes }} votos
     </div>
 
-    <div *ngIf="ganadores.length === 0 && votosEmitidos > 0" class="text-warning text-center mb-3 fs-5">
+    <div *ngIf="ganadores.length === 0 && votosEmitidos > 0" class="text-warning text-center mb-3 fs-4">
         ⚠️ No hay ganador — se necesitan al menos
         <strong>{{ umbralMinimoDeVictoria }}</strong> votos para asegurar la victoria
     </div>
 
     <div class="grafico-horizontal">
-        @for (c of candidaturasOrdenadas; track $index) {
-        <div class="fila-candidatura" [class.ganador]="esGanador(c)"
-            [class.candidatura-imposible]="!esGanador(c) && votosNecesariosParaGanar(c) === -1">
-
+        <!-- Destacadas -->
+        @for (c of topCandidaturas; track $index) {
+        <div class="fila-candidatura destacada" [class.ganador]="esGanador(c)"
+            [class.candidatura-imposible]="votosNecesariosParaGanar(c) === -1">
             <div class="info">
                 <span class="label">{{ c.label }}</span>
-                <span class="votes">
-                    {{ c.votes }} / {{ c.maxVotes }} votos
-                </span>
+                <span class="votes">{{ c.votes }} / {{ c.maxVotes }} votos</span>
             </div>
 
             <div class="barra-grafico">
                 <div class="barra-rellena" [style.width.%]="porcentaje(c.votes)"
-                    [style.backgroundColor]="color(c.votes)">
-                </div>
+                    [style.backgroundColor]="color(c.votes)"></div>
             </div>
 
             @if (votosNecesariosParaGanar(c) > 0) {
             <div class="info mt-1">
-                <span class="label"></span>
-                <span class="votes text-muted">
-                    Se necesitan {{ votosNecesariosParaGanar(c) }} votos más para ganar
-                </span>
+                <span class="votes text-muted">Se necesitan {{ votosNecesariosParaGanar(c) }} votos más para
+                    ganar</span>
             </div>
             }
-
         </div>
         }
+
+        <!-- Agrupadas -->
+        <div class="agrupadas">
+            @for (c of otrasCandidaturas; track $index) {
+            <div class="fila-candidatura secundaria" [class.ganador]="esGanador(c)"
+                [class.candidatura-imposible]="votosNecesariosParaGanar(c) === -1">
+                <div class="info">
+                    <span class="label">{{ c.label }}</span>
+                    <span class="votes">{{ c.votes }} / {{ c.maxVotes }} votos</span>
+                </div>
+
+                <div class="barra-grafico">
+                    <div class="barra-rellena" [style.width.%]="porcentaje(c.votes)"
+                        [style.backgroundColor]="color(c.votes)"></div>
+                </div>
+
+                @if (votosNecesariosParaGanar(c) > 0) {
+                <div class="info mt-1">
+                    <span class="votes text-muted">Se necesitan {{ votosNecesariosParaGanar(c) }} votos más para
+                        ganar</span>
+                </div>
+                }
+            </div>
+            }
+        </div>
     </div>
 </div>

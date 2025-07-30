@@ -181,5 +181,13 @@ export class ResultadosAsambleaComponent {
     );
   }
 
+  get topCandidaturas(): Candidatura[] {
+    return this.candidaturasOrdenadas.slice(0, 3);
+  }
+
+  get otrasCandidaturas(): Candidatura[] {
+    return this.candidaturasOrdenadas.slice(3);
+  }
+
 
 }
