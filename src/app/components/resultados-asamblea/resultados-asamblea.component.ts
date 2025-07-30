@@ -7,14 +7,11 @@ import { FirebaseStorageService } from '../../services/storage.service';
 @Component({
   selector: 'app-resultados-asamblea',
   standalone: true,
-  imports: [
-    CommonModule
-  ],
+  imports: [CommonModule],
   templateUrl: './resultados-asamblea.component.html',
   styleUrl: './resultados-asamblea.component.scss'
 })
 export class ResultadosAsambleaComponent {
-
   candidaturas$!: Observable<Candidatura[]>;
   candidaturas: Candidatura[] = [];
   title: string = 'Sin votaciones';
@@ -34,9 +31,9 @@ export class ResultadosAsambleaComponent {
     this.firebaseStorageService.realtimeData$.subscribe((data) => {
       if (data) {
         console.log(data);
-        this.title = data.votaciones.title
+        this.title = data.votaciones.title;
         this.candidaturas = data.votaciones.candidaturas || [];
-        this.totalVotos = this.candidaturas.reduce((acc, c) => acc + c.votes, 0);
+        this.totalVotos = this.totalVotosActuales();
         this.votosEmitidos = data.votaciones.totalVotes || 0;
       }
     });
@@ -75,10 +72,47 @@ export class ResultadosAsambleaComponent {
   }
 
   colorPorPorcentaje(p: number): string {
-    if (p >= 75) return '#27ae60'; // verde
-    if (p >= 50) return '#f1c40f'; // amarillo
-    if (p >= 25) return '#e67e22'; // naranja
-    return '#e74c3c';              // rojo
+    if (p >= 75) return '#27ae60';
+    if (p >= 50) return '#f1c40f';
+    if (p >= 25) return '#e67e22';
+    return '#e74c3c';
   }
 
+  votosNecesariosParaGanar(c: Candidatura): number {
+    const votosActuales = c.votes || 0;
+    const votosAsignados = this.totalVotosActuales();
+    const votosRestantes = this.votosEmitidos - votosAsignados;
+
+    // Si ya ha ganado por mayoría absoluta
+    if (votosActuales >= this.mayoriaAbsoluta) {
+      return 0;
+    }
+
+    // Si no puede llegar nunca a la mayoría absoluta, calculamos por mayoría simple
+    for (let extraVotos = 0; extraVotos <= votosRestantes; extraVotos++) {
+      const votosParaCandidato = votosActuales + extraVotos;
+      const votosRestantesSimulados = votosRestantes - extraVotos;
+
+      // Calcular el máximo que podrían alcanzar los rivales
+      const maxVotosRival = this.candidaturas
+        .filter(r => r !== c)
+        .map(r => (r.votes || 0) + votosRestantesSimulados)
+        .reduce((a, b) => Math.max(a, b), 0);
+
+      // Si el candidato supera a cualquier posible rival
+      if (votosParaCandidato > maxVotosRival) {
+        return extraVotos;
+      }
+    }
+
+    // No puede asegurar victoria con los votos restantes
+    return -1;
+  }
+
+
+
+
+  totalVotosActuales(): number {
+    return this.candidaturas.reduce((acc, c) => acc + (c.votes || 0), 0);
+  }
 }
