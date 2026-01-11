@@ -87,6 +87,19 @@ describe('VotacionesFormComponent', () => {
     expect(component.getCandidaturaLabel(group)).toBe('Luis - Centro');
   });
 
+  it('updates an existing candidatura when editing', () => {
+    component.typeControl.setValue('simple');
+    component.labelControl.setValue('Opcion A');
+    component.addCandidatura();
+
+    const first = component.candidaturas.at(0);
+    component.editCandidatura(first, 0);
+    component.labelControl.setValue('Opcion B');
+    component.addCandidatura();
+
+    expect(component.candidaturas.at(0).get('label')?.value).toBe('Opcion B');
+  });
+
   it('keeps candidaturas when type change is cancelled', () => {
     component.labelControl.setValue('Opcion A');
     component.addCandidatura();

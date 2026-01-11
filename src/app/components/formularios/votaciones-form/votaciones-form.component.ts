@@ -52,6 +52,7 @@ export class VotacionesFormComponent {
   currentTypeControl = new FormControl('simple', { nonNullable: true });
   private currentType: 'simple' | 'multiple' | 'jurado' = 'simple';
   showCandidaturas = true;
+  editingIndex: number | null = null;
 
   nuevaCandidatura = this.fb.group({
     type: ['simple', Validators.required],
@@ -182,6 +183,12 @@ export class VotacionesFormComponent {
 
   removeCandidatura(index: number): void {
     this.candidaturas.removeAt(index);
+    if (this.editingIndex === index) {
+      this.editingIndex = null;
+      this.resetNuevaCandidatura();
+    } else if (this.editingIndex !== null && index < this.editingIndex) {
+      this.editingIndex -= 1;
+    }
     this.recalcularMaxVotes();
     this.formSubmit.emit(this.votacionesForm);
   }
@@ -196,6 +203,15 @@ export class VotacionesFormComponent {
   addCandidatura(): void {
     const candidatura = this.nuevaCandidatura.value;
     const type = this.currentType;
+
+    if (this.editingIndex !== null) {
+      this.updateCandidatura(this.editingIndex, candidatura);
+      this.recalcularMaxVotes();
+      this.formSubmit.emit(this.votacionesForm);
+      this.editingIndex = null;
+      this.resetNuevaCandidatura();
+      return;
+    }
 
     if (type === 'simple' && !candidatura.label?.trim()) {
       return;
@@ -247,6 +263,36 @@ export class VotacionesFormComponent {
     this.recalcularMaxVotes();
     this.formSubmit.emit(this.votacionesForm);
     this.resetNuevaCandidatura();
+  }
+
+  editCandidatura(candidatura: AbstractControl, index: number): void {
+    const group = candidatura as FormGroup;
+    this.editingIndex = index;
+    this.activeTab = 'opciones';
+
+    this.nuevaCandidatura.patchValue({
+      type: this.currentType,
+      label: group.get('label')?.value || '',
+      votes: group.get('votes')?.value || 0,
+      maxVotes: group.get('maxVotes')?.value || 0
+    });
+
+    this.fieldsControls.clear();
+    const fields = (group.get('fields')?.value || []) as any[];
+    fields.forEach(field => {
+      this.fieldsControls.push(this.fb.group({
+        key: [field.key || '', Validators.required],
+        value: [field.value ?? '', Validators.required],
+        inputType: [field.inputType || 'text']
+      }));
+    });
+
+    const jurado = group.get('jurado')?.value || {};
+    this.juradoGroup.patchValue({
+      nombre: jurado.nombre || '',
+      foguera: jurado.foguera || '',
+      imagen: jurado.imagen || ''
+    });
   }
 
   addField(): void {
@@ -360,6 +406,7 @@ export class VotacionesFormComponent {
       }
 
       this.clearCandidaturas();
+      this.editingIndex = null;
       this.recalcularMaxVotes();
       this.formSubmit.emit(this.votacionesForm);
     }
@@ -388,6 +435,30 @@ export class VotacionesFormComponent {
     while (this.candidaturas.length) {
       this.candidaturas.removeAt(0);
     }
+  }
+
+  private updateCandidatura(index: number, candidatura: any): void {
+    const group = this.candidaturas.at(index) as FormGroup;
+    group.get('label')?.setValue(candidatura.label || '');
+    group.get('type')?.setValue(this.currentType);
+
+    const existingFields = group.get('fields') as FormArray;
+    existingFields.clear();
+    const fields = this.fieldsControls.value || [];
+    fields.forEach((field: any) => {
+      existingFields.push(this.fb.group({
+        key: [field.key || '', Validators.required],
+        value: [field.value ?? '', Validators.required],
+        inputType: [field.inputType || 'text']
+      }));
+    });
+
+    const juradoGroup = group.get('jurado') as FormGroup;
+    juradoGroup.patchValue({
+      nombre: this.juradoGroup.get('nombre')?.value || '',
+      foguera: this.juradoGroup.get('foguera')?.value || '',
+      imagen: this.juradoGroup.get('imagen')?.value || ''
+    });
   }
 
   private resetNuevaCandidaturaForType(): void {

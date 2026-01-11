@@ -170,7 +170,7 @@
 
             <div class="d-flex justify-content-between align-items-end">
                 <button type="button" style="height: 38px;" class="btn btn-primary"
-                    (click)="addCandidatura()">Añadir</button>
+                    (click)="addCandidatura()">{{ editingIndex === null ? 'Añadir' : 'Guardar' }}</button>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mt-4">
@@ -201,10 +201,16 @@
                     <div class="candidatura-content">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="candidatura-title">{{ getCandidaturaLabel(candidatura) | titlecase }}</div>
-                            <button type="button" class="btn btn-link p-0 text-danger"
-                                (click)="removeCandidatura(i)">
-                                <i class="bi bi-trash3"></i>
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-link p-0 text-primary"
+                                    (click)="editCandidatura(candidatura, i)">
+                                    <i class="bi bi-pencil"></i> editar
+                                </button>
+                                <button type="button" class="btn btn-link p-0 text-danger"
+                                    (click)="removeCandidatura(i)">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
                         </div>
 
                         @if (getCandidaturaType(candidatura) === 'simple') {
