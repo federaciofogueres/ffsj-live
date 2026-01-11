@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
-import { IRealTimeConfigModel, IRealTimeList } from '../../model/real-time-config.model';
+import { IRealTimeConfigModel, IRealTimeList, IRealTimeVotacion } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { AnunciosFormComponent } from '../formularios/anuncios-form/anuncios-form.component';
 import { InfoFormComponent } from '../formularios/info-form/info-form.component';
@@ -50,6 +50,8 @@ export class AdminComponent {
   public listForm!: FormGroup;
   public anunciosForm!: FormGroup;
   public votacionesForm!: FormGroup;
+  public votacionesList: IRealTimeVotacion[] = [];
+  public selectedVotacionId: string = '';
 
   public liveItemId: number = 0;
   public itemList!: IRealTimeList;
@@ -99,7 +101,7 @@ export class AdminComponent {
           this.prepareForms();
         }
       }
-    })
+    });
   }
 
   private initializeFormGroup(config: any, fields: string[]): FormGroup {
@@ -169,19 +171,30 @@ export class AdminComponent {
   }
 
   prepareVotacionesForm() {
-    this.votacionesForm = this.initializeFormGroup(this.config.votaciones, [
+    this.votacionesList = normalizeVotaciones(this.config.votaciones);
+    if (!this.selectedVotacionId) {
+      this.selectedVotacionId = this.votacionesList[0]?.id || '';
+    }
+
+    const selected = this.votacionesList.find(v => v.id === this.selectedVotacionId) ?? this.votacionesList[0];
+    if (!selected) {
+      this.votacionesForm = this.fb.group({});
+      return;
+    }
+
+    this.votacionesForm = this.initializeFormGroup(selected, [
       'title',
       'totalVotes',
       'winnersCount',
       'voteOptions'
     ]);
     this.votacionesForm.patchValue({
-      totalVotes: this.config.votaciones?.totalVotes ?? 0,
-      winnersCount: this.config.votaciones?.winnersCount ?? 1,
-      voteOptions: this.config.votaciones?.voteOptions ?? 1
+      totalVotes: selected.totalVotes ?? 0,
+      winnersCount: selected.winnersCount ?? 1,
+      voteOptions: selected.voteOptions ?? 1
     });
     this.votacionesForm.addControl('candidaturas', this.createFormArray(
-      this.config.votaciones?.candidaturas || [],
+      selected.candidaturas || [],
       (candidatura: any) => this.fb.group({
         type: [candidatura.type || 'simple'],
         label: [candidatura.label || candidatura.nombre || ''],
@@ -203,7 +216,6 @@ export class AdminComponent {
       })
     ));
     console.log(this.votacionesForm);
-
   }
 
   prepareForms() {
@@ -226,9 +238,69 @@ export class AdminComponent {
     if (form.contains('activatedAdds')) {
       this.firebaseStorageService.setShowAdds();
     }
-    this.firebaseStorageService.setRealtimeData('config/' + type, form.value).then((response) => {
-      this.ffsjAlertService.success('Información del evento actualizada con éxito!');
-    })
+
+    if (type === 'votaciones') {
+      const index = this.votacionesList.findIndex(v => v.id === this.selectedVotacionId);
+      const payload: IRealTimeVotacion = {
+        id: this.selectedVotacionId || generateVotacionId(form.get('title')?.value || ''),
+        ...form.value
+      };
+
+      if (index >= 0) {
+        this.votacionesList[index] = payload;
+      } else {
+        this.votacionesList.push(payload);
+      }
+
+      this.firebaseStorageService.setRealtimeData('config/votaciones', this.votacionesList).then(() => {
+        this.ffsjAlertService.success('Informacion del evento actualizada con exito!');
+      });
+      return;
+    }
+
+    this.firebaseStorageService.setRealtimeData('config/' + type, form.value).then(() => {
+      this.ffsjAlertService.success('Informacion del evento actualizada con exito!');
+    });
   }
 
+  onVotacionSelected(votacionId: string) {
+    this.selectedVotacionId = votacionId;
+    this.prepareVotacionesForm();
+  }
+
+  createVotacion() {
+    const newVotacion = createEmptyVotacion();
+    this.votacionesList = [...this.votacionesList, newVotacion];
+    this.selectedVotacionId = newVotacion.id;
+    this.firebaseStorageService.setRealtimeData('config/votaciones', this.votacionesList).then(() => {
+      this.ffsjAlertService.success('Nueva votacion creada.');
+      this.prepareVotacionesForm();
+    });
+  }
+}
+
+function normalizeVotaciones(
+  votaciones: IRealTimeVotacion[] | IRealTimeVotacion | undefined
+): IRealTimeVotacion[] {
+  if (!votaciones) return [];
+  if (Array.isArray(votaciones)) {
+    return votaciones.map(v => ({ ...v, id: v.id || generateVotacionId(v.title) }));
+  }
+  return [{ ...votaciones, id: votaciones.id || generateVotacionId(votaciones.title) }];
+}
+
+function generateVotacionId(title: string): string {
+  const base = (title || 'votacion').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  return `${base}-${Date.now()}`;
+}
+
+function createEmptyVotacion(): IRealTimeVotacion {
+  return {
+    id: generateVotacionId('votacion'),
+    title: 'Nueva votacion',
+    totalVotes: 0,
+    winnersCount: 1,
+    voteOptions: 1,
+    candidaturas: []
+  };
 }

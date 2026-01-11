@@ -1,6 +1,6 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Input, Output, SimpleChanges, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
@@ -20,6 +20,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
 import { FirebaseStorageService } from '../../../services/storage.service';
 import { merge } from 'rxjs';
+import { IRealTimeVotacion } from '../../../model/real-time-config.model';
 
 @Component({
   selector: 'app-votaciones-form',
@@ -40,7 +41,11 @@ import { merge } from 'rxjs';
 })
 export class VotacionesFormComponent {
   @Input() votacionesForm!: FormGroup;
+  @Input() votacionesList: IRealTimeVotacion[] = [];
+  @Input() selectedVotacionId: string = '';
   @Output() formSubmit = new EventEmitter<FormGroup>();
+  @Output() votacionSelected = new EventEmitter<string>();
+  @Output() createVotacion = new EventEmitter<void>();
 
   private readonly destroyRef = inject(DestroyRef);
   activeTab: 'info' | 'opciones' | 'votacion' = 'info';
@@ -95,6 +100,14 @@ export class VotacionesFormComponent {
     this.activeTab = tab;
   }
 
+  onVotacionChange(value: string): void {
+    this.votacionSelected.emit(value);
+  }
+
+  onCreateVotacion(): void {
+    this.createVotacion.emit();
+  }
+
   toggleCandidaturas(): void {
     this.showCandidaturas = !this.showCandidaturas;
   }
@@ -140,6 +153,13 @@ export class VotacionesFormComponent {
       .subscribe(value => this.handleTipoCandidaturaChange(value));
 
     this.recalcularMaxVotes();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['votacionesForm'] && this.votacionesForm) {
+      this.initializeTipoCandidatura();
+      this.recalcularMaxVotes();
+    }
   }
 
   private recalcularMaxVotes(): void {

@@ -33,17 +33,20 @@ describe('ResultadosAsambleaComponent', () => {
     const component = fixture.componentInstance;
 
     storageMock.emit({
-      votaciones: {
-        title: 'Asamblea',
-        totalVotes: 10,
-        winnersCount: 1,
-        voteOptions: 1,
-        candidaturas: [
-          { label: 'A', votes: 6, maxVotes: 10 },
-          { label: 'B', votes: 2, maxVotes: 10 },
-          { label: 'C', votes: 0, maxVotes: 10 }
-        ]
-      }
+      votaciones: [
+        {
+          id: 'v1',
+          title: 'Asamblea',
+          totalVotes: 10,
+          winnersCount: 1,
+          voteOptions: 1,
+          candidaturas: [
+            { label: 'A', votes: 6, maxVotes: 10 },
+            { label: 'B', votes: 2, maxVotes: 10 },
+            { label: 'C', votes: 0, maxVotes: 10 }
+          ]
+        }
+      ]
     });
 
     fixture.detectChanges();
@@ -58,16 +61,19 @@ describe('ResultadosAsambleaComponent', () => {
     const component = fixture.componentInstance;
 
     storageMock.emit({
-      votaciones: {
-        title: 'Asamblea',
-        totalVotes: 10,
-        winnersCount: 1,
-        voteOptions: 1,
-        candidaturas: [
-          { label: 'A', votes: 4, maxVotes: 10 },
-          { label: 'B', votes: 4, maxVotes: 10 }
-        ]
-      }
+      votaciones: [
+        {
+          id: 'v1',
+          title: 'Asamblea',
+          totalVotes: 10,
+          winnersCount: 1,
+          voteOptions: 1,
+          candidaturas: [
+            { label: 'A', votes: 4, maxVotes: 10 },
+            { label: 'B', votes: 4, maxVotes: 10 }
+          ]
+        }
+      ]
     });
 
     fixture.detectChanges();
@@ -81,17 +87,20 @@ describe('ResultadosAsambleaComponent', () => {
     const component = fixture.componentInstance;
 
     storageMock.emit({
-      votaciones: {
-        title: 'Asamblea',
-        totalVotes: 90,
-        winnersCount: 1,
-        voteOptions: 3,
-        candidaturas: [
-          { label: 'A', votes: 90, maxVotes: 90 },
-          { label: 'B', votes: 80, maxVotes: 90 },
-          { label: 'C', votes: 10, maxVotes: 90 }
-        ]
-      }
+      votaciones: [
+        {
+          id: 'v1',
+          title: 'Asamblea',
+          totalVotes: 90,
+          winnersCount: 1,
+          voteOptions: 3,
+          candidaturas: [
+            { label: 'A', votes: 90, maxVotes: 90 },
+            { label: 'B', votes: 80, maxVotes: 90 },
+            { label: 'C', votes: 10, maxVotes: 90 }
+          ]
+        }
+      ]
     });
 
     fixture.detectChanges();
@@ -104,24 +113,61 @@ describe('ResultadosAsambleaComponent', () => {
     const component = fixture.componentInstance;
 
     storageMock.emit({
-      votaciones: {
-        title: 'Asamblea',
-        totalVotes: 2,
-        winnersCount: 1,
-        voteOptions: 1,
-        candidaturas: [
-          {
-            type: 'jurado',
-            votes: 1,
-            maxVotes: 2,
-            jurado: { nombre: 'Laura', foguera: 'Centro', imagen: '' }
-          }
-        ]
-      }
+      votaciones: [
+        {
+          id: 'v1',
+          title: 'Asamblea',
+          totalVotes: 2,
+          winnersCount: 1,
+          voteOptions: 1,
+          candidaturas: [
+            {
+              type: 'jurado',
+              votes: 1,
+              maxVotes: 2,
+              jurado: { nombre: 'Laura', foguera: 'Centro', imagen: '' }
+            }
+          ]
+        }
+      ]
     });
 
     fixture.detectChanges();
 
     expect(component.candidaturasVM()[0].displayLabel).toBe('Laura - Centro');
+  });
+
+  it('selects a votacion from the list', () => {
+    const fixture = TestBed.createComponent(ResultadosAsambleaComponent);
+    const component = fixture.componentInstance;
+
+    storageMock.emit({
+      votaciones: [
+        {
+          id: 'v1',
+          title: 'Votacion 1',
+          totalVotes: 3,
+          winnersCount: 1,
+          voteOptions: 1,
+          candidaturas: [{ label: 'A', votes: 1, maxVotes: 3 }]
+        },
+        {
+          id: 'v2',
+          title: 'Votacion 2',
+          totalVotes: 5,
+          winnersCount: 1,
+          voteOptions: 1,
+          candidaturas: [{ label: 'B', votes: 2, maxVotes: 5 }]
+        }
+      ]
+    });
+
+    fixture.detectChanges();
+    expect(component.title()).toBe('Votacion 1');
+
+    component.selectVotacion('v2');
+    fixture.detectChanges();
+
+    expect(component.title()).toBe('Votacion 2');
   });
 });

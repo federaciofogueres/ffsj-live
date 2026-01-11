@@ -41,7 +41,10 @@
         </app-anuncios-form>
         }
         @case ('votaciones') {
-        <app-votaciones-form [votacionesForm]="votacionesForm" (formSubmit)="procesar($event, 'votaciones')">
+        <app-votaciones-form [votacionesForm]="votacionesForm" [votacionesList]="votacionesList"
+            [selectedVotacionId]="selectedVotacionId" (votacionSelected)="onVotacionSelected($event)"
+            (createVotacion)="createVotacion()"
+            (formSubmit)="procesar($event, 'votaciones')">
         </app-votaciones-form>
         }
         }

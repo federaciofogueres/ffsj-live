@@ -4,6 +4,29 @@
     gap: 2rem;
 }
 
+.votaciones-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: center;
+}
+
+.votacion-chip {
+    border: 1px solid #d0d0d0;
+    background: #fff;
+    color: #333;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    font-size: 1.2rem;
+}
+
+.votacion-chip-active {
+    border-color: #c0392b;
+    background: #fcebea;
+    color: #c0392b;
+    font-weight: 600;
+}
+
 .fila-candidatura {
     display: flex;
     flex-direction: column;

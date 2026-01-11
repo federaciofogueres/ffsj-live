@@ -4,11 +4,12 @@ export interface IRealTimeConfigModel {
     live?: IRealTimeLive;
     streaming?: IRealTimeStreaming;
     anuncios?: IRealTimeAdds;
-    votaciones?: IRealTimeVotacion;
+    votaciones?: IRealTimeVotacion[] | IRealTimeVotacion;
 }
 
 // Votaciones
 export interface IRealTimeVotacion {
+    id: string;
     title: string;
     totalVotes: number;
     winnersCount?: number;

@@ -1,4 +1,14 @@
 <div class="container">
+    @if (votacionesList().length > 0) {
+    <div class="votaciones-list mb-4">
+        @for (votacion of votacionesList(); track votacion.id) {
+        <button type="button" class="btn votacion-chip"
+            [class.votacion-chip-active]="votacion.id === selectedVotacionId()" (click)="selectVotacion(votacion.id)">
+            {{ votacion.title }}
+        </button>
+        }
+    </div>
+    }
     <h2 class="mb-4 text-center">{{ title() }}</h2>
 
     @if (ganadoresVM().length > 0) {

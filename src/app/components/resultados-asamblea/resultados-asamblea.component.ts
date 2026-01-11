@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Candidatura } from '../../model/candidatura.model';
+import { IRealTimeVotacion } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 
 @Component({
@@ -16,11 +17,19 @@ export class ResultadosAsambleaComponent {
   private readonly firebaseStorageService = inject(FirebaseStorageService);
   private readonly realtimeData = toSignal(this.firebaseStorageService.realtimeData$, { initialValue: null });
 
-  readonly title = computed(() => this.realtimeData()?.votaciones?.title ?? 'Sin votaciones');
-  readonly candidaturas = computed<Candidatura[]>(() => this.realtimeData()?.votaciones?.candidaturas ?? []);
-  readonly totalPapeletas = computed(() => this.realtimeData()?.votaciones?.totalVotes ?? 0);
-  readonly winnersCount = computed(() => Math.max(1, this.realtimeData()?.votaciones?.winnersCount ?? 1));
-  readonly voteOptions = computed(() => Math.max(1, this.realtimeData()?.votaciones?.voteOptions ?? 1));
+  readonly votacionesList = computed(() =>
+    normalizeVotaciones(this.realtimeData()?.votaciones)
+  );
+  readonly selectedVotacionId = signal<string>('');
+  readonly selectedVotacion = computed(() =>
+    this.votacionesList().find(v => v.id === this.selectedVotacionId()) ?? this.votacionesList()[0]
+  );
+
+  readonly title = computed(() => this.selectedVotacion()?.title ?? 'Sin votaciones');
+  readonly candidaturas = computed<Candidatura[]>(() => this.selectedVotacion()?.candidaturas ?? []);
+  readonly totalPapeletas = computed(() => this.selectedVotacion()?.totalVotes ?? 0);
+  readonly winnersCount = computed(() => Math.max(1, this.selectedVotacion()?.winnersCount ?? 1));
+  readonly voteOptions = computed(() => Math.max(1, this.selectedVotacion()?.voteOptions ?? 1));
   readonly totalVotosPosibles = computed(() => this.totalPapeletas() * this.voteOptions());
 
   private readonly totalVotosActuales = computed(() =>
@@ -91,6 +100,24 @@ export class ResultadosAsambleaComponent {
   readonly topCandidaturas = computed(() => this.candidaturasOrdenadas().slice(0, 3));
   readonly otrasCandidaturas = computed(() => this.candidaturasOrdenadas().slice(3));
   readonly ganadoresVM = computed(() => this.candidaturasVM().filter(c => c.esGanador));
+
+  constructor() {
+    effect(() => {
+      const list = this.votacionesList();
+      if (!list.length) {
+        this.selectedVotacionId.set('');
+        return;
+      }
+      const current = this.selectedVotacionId();
+      if (!current || !list.some(v => v.id === current)) {
+        this.selectedVotacionId.set(list[0].id);
+      }
+    });
+  }
+
+  selectVotacion(id: string) {
+    this.selectedVotacionId.set(id);
+  }
 }
 
 interface CandidaturaVM extends Candidatura {
@@ -212,6 +239,21 @@ function candidaturaKey(candidatura: Candidatura): string {
 
   const legacyLabel = (candidatura as any).nombre || '';
   return `simple:${candidatura.label || legacyLabel || ''}`;
+}
+
+function normalizeVotaciones(
+  votaciones: IRealTimeVotacion[] | IRealTimeVotacion | undefined
+): IRealTimeVotacion[] {
+  if (!votaciones) return [];
+  if (Array.isArray(votaciones)) {
+    return votaciones.map(v => ({ ...v, id: v.id || generateVotacionId(v.title) }));
+  }
+  return [{ ...votaciones, id: votaciones.id || generateVotacionId(votaciones.title) }];
+}
+
+function generateVotacionId(title: string): string {
+  const base = (title || 'votacion').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  return `${base}-${Date.now()}`;
 }
 
 function isGuaranteedWinner(
