@@ -1,8 +1,23 @@
 @if (votacionesForm) {
 <div class="container scrollable">
     <h1>Modificar Información Principal</h1>
-    <form [formGroup]="votacionesForm" class="py-3">
+    <div class="btn-group w-100 mb-4" role="group" aria-label="Secciones de votaciones">
+        <button type="button" class="btn" [class.btn-primary]="activeTab === 'info'"
+            [class.btn-outline-primary]="activeTab !== 'info'" (click)="setTab('info')">
+            Información
+        </button>
+        <button type="button" class="btn" [class.btn-primary]="activeTab === 'opciones'"
+            [class.btn-outline-primary]="activeTab !== 'opciones'" (click)="setTab('opciones')">
+            Opciones de voto
+        </button>
+        <button type="button" class="btn" [class.btn-primary]="activeTab === 'votacion'"
+            [class.btn-outline-primary]="activeTab !== 'votacion'" (click)="setTab('votacion')">
+            Votación
+        </button>
+    </div>
 
+    <form [formGroup]="votacionesForm" class="py-3">
+        @if (activeTab === 'info') {
         <div class="form-group mb-3">
             <label for="title" class="text-naranja">Título de la votación</label>
             <input type="text" id="title" class="form-control" formControlName="title" required>
@@ -13,30 +28,210 @@
         </div>
 
         <div class="form-group mb-3">
-            <label for="totalVotes" class="text-naranja">Votos emitidos</label>
-            <input type="text" id="totalVotes" class="form-control" formControlName="totalVotes" required>
+            <label for="totalVotes" class="text-naranja">Papeletas emitidas</label>
+            <input type="number" id="totalVotes" class="form-control" formControlName="totalVotes" min="0" required>
             @if(votacionesForm.get('totalVotes')?.errors?.['required'] && votacionesForm.get('totalVotes')?.invalid &&
             (votacionesForm.get('totalVotes')?.touched || votacionesForm.get('totalVotes')?.dirty)) {
-            <small class="text-danger">El título es obligatorio.</small>
+            <small class="text-danger">Las papeletas emitidas son obligatorias.</small>
             }
         </div>
 
+        <div class="form-group mb-3">
+            <label for="winnersCount" class="text-naranja">Ganadores</label>
+            <input type="number" id="winnersCount" class="form-control" formControlName="winnersCount" min="1" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="voteOptions" class="text-naranja">Opciones de voto</label>
+            <input type="number" id="voteOptions" class="form-control" formControlName="voteOptions" min="1" required>
+            <small class="text-muted">Votos posibles por persona.</small>
+        </div>
+        }
+
+        @if (activeTab === 'opciones') {
         <div formArrayName="candidaturas">
-            <span class="h3 text-naranja">Opciones</span>
             <div class="form-group my-3">
-                <label for="nombre" class="text-naranja">Candidatura</label>
+                <label for="tipo" class="text-naranja">Tipo de candidatura</label>
+                <select id="tipo" class="form-select" [formControl]="typeControl">
+                    <option value="simple">Simple</option>
+                    <option value="multiple">Múltiple</option>
+                    <option value="jurado">Jurado</option>
+                </select>
+            </div>
+
+            <span class="h3 text-naranja d-block mt-4">Formulario candidaturas</span>
+            @if (typeControl.value === 'simple') {
+            <div class="form-group my-3">
+                <label for="label" class="text-naranja">Candidatura</label>
                 <input type="text" id="label" class="form-control" [formControl]="labelControl">
+                @if (labelControl.touched && !labelControl.value?.trim()) {
+                <small class="text-danger">El nombre es obligatorio.</small>
+                }
             </div>
+            }
+
+            @if (typeControl.value === 'multiple') {
             <div class="form-group my-3">
-                <label for="votes" class="text-naranja">Votos</label>
-                <input type="number" id="votes" class="form-control" [formControl]="votesControl">
+                <label for="labelMultiple" class="text-naranja">Etiqueta (opcional)</label>
+                <input type="text" id="labelMultiple" class="form-control" [formControl]="labelControl">
             </div>
+            <div class="d-flex justify-content-between align-items-end mb-2">
+                <span class="text-naranja">Campos</span>
+                <button type="button" class="btn btn-outline-primary btn-sm" (click)="addField()">Añadir campo</button>
+            </div>
+            <div [formGroup]="nuevaCandidatura">
+                <div formArrayName="fields">
+                    @for(field of fieldsControls.controls; track field; let i = $index) {
+                    <div class="border rounded p-3 mb-3" [formGroupName]="i">
+                        <div class="form-group mb-2">
+                            <label class="text-naranja">Clave</label>
+                            <input type="text" class="form-control" formControlName="key">
+                            @if (field.get('key')?.invalid && field.get('key')?.touched) {
+                            <small class="text-danger">La clave es obligatoria.</small>
+                            }
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="text-naranja">Tipo</label>
+                            <select class="form-select" formControlName="inputType">
+                                <option value="text">Texto</option>
+                                <option value="number">Número</option>
+                                <option value="image">Imagen</option>
+                            </select>
+                        </div>
+                        @if (field.get('inputType')?.value === 'image') {
+                        <div class="form-group mb-2">
+                            <label class="text-naranja">Subir imagen</label>
+                            <input type="file" class="form-control" (change)="onFieldImageSelected($event, field)">
+                            @if (field.get('value')?.value) {
+                            <img class="img-thumbnail mt-2" [src]="field.get('value')?.value" alt="Imagen subida">
+                            }
+                        </div>
+                        } @else {
+                        <div class="form-group mb-2">
+                            <label class="text-naranja">Valor</label>
+                            <input [type]="field.get('inputType')?.value" class="form-control"
+                                formControlName="value">
+                            @if (field.get('value')?.invalid && field.get('value')?.touched) {
+                            <small class="text-danger">El valor es obligatorio.</small>
+                            }
+                        </div>
+                        }
+                        <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeField(i)">
+                            Quitar campo
+                        </button>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+
+            @if (typeControl.value === 'jurado') {
+            <div [formGroup]="juradoGroup">
+                <div class="form-group my-3">
+                    <label class="text-naranja">Nombre</label>
+                    <input type="text" class="form-control" formControlName="nombre">
+                    @if (juradoGroup.get('nombre')?.touched && !juradoGroup.get('nombre')?.value?.trim()) {
+                    <small class="text-danger">El nombre es obligatorio.</small>
+                    }
+                </div>
+                <div class="form-group my-3">
+                    <label class="text-naranja">Foguera</label>
+                    <input type="text" class="form-control" formControlName="foguera">
+                    @if (juradoGroup.get('foguera')?.touched && !juradoGroup.get('foguera')?.value?.trim()) {
+                    <small class="text-danger">La foguera es obligatoria.</small>
+                    }
+                </div>
+                <div class="form-group my-3">
+                    <label class="text-naranja">Imagen</label>
+                    <input type="file" class="form-control" (change)="onJuradoImageSelected($event)">
+                    @if (juradoGroup.get('imagen')?.value) {
+                    <img class="img-thumbnail mt-2" [src]="juradoGroup.get('imagen')?.value" alt="Imagen jurado">
+                    }
+                </div>
+            </div>
+            }
+
             <div class="d-flex justify-content-between align-items-end">
                 <button type="button" style="height: 38px;" class="btn btn-primary"
                     (click)="addCandidatura()">Añadir</button>
             </div>
-            <ul class="mt-3">
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <span class="h5 m-0">Candidaturas añadidas</span>
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="toggleCandidaturas()">
+                    {{ showCandidaturas ? 'Ocultar candidaturas presentadas' : 'Ver candidaturas presentadas' }}
+                </button>
+            </div>
+
+            @if (showCandidaturas) {
+            <div class="mt-3 candidaturas-grid">
                 @for(candidatura of candidaturas.controls; track candidatura; let i = $index) {
+                <div class="candidatura-card">
+                    <div class="candidatura-media">
+                        @if (getCandidaturaType(candidatura) === 'jurado' &&
+                        getCandidaturaJurado(candidatura).get('imagen')?.value) {
+                        <img [src]="getCandidaturaJurado(candidatura).get('imagen')?.value" alt="Foto jurado">
+                        } @else if (getCandidaturaType(candidatura) === 'multiple') {
+                        @for(field of getCandidaturaFields(candidatura).controls; track field) {
+                        @if (field.get('inputType')?.value === 'image' && field.get('value')?.value) {
+                        <img [src]="field.get('value')?.value" alt="Campo imagen">
+                        }
+                        }
+                        } @else {
+                        <div class="candidatura-placeholder">Sin imagen</div>
+                        }
+                    </div>
+                    <div class="candidatura-content">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="candidatura-title">{{ getCandidaturaLabel(candidatura) | titlecase }}</div>
+                            <button type="button" class="btn btn-link p-0 text-danger"
+                                (click)="removeCandidatura(i)">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
+
+                        @if (getCandidaturaType(candidatura) === 'simple') {
+                        <div class="candidatura-subtitle">Nombre: {{ getCandidaturaLabel(candidatura) }}</div>
+                        }
+
+                        @if (getCandidaturaType(candidatura) === 'multiple') {
+                        <div class="candidatura-fields">
+                            @for(field of getCandidaturaFields(candidatura).controls; track field) {
+                            <div class="candidatura-field">
+                                <span class="field-key">{{ field.get('key')?.value }}</span>
+                                <span class="field-value">
+                                    @if (field.get('inputType')?.value === 'image') {
+                                    Imagen
+                                    } @else {
+                                    {{ field.get('value')?.value }}
+                                    }
+                                </span>
+                            </div>
+                            }
+                        </div>
+                        }
+
+                        @if (getCandidaturaType(candidatura) === 'jurado') {
+                        <div class="candidatura-subtitle">
+                            {{ getCandidaturaJurado(candidatura).get('nombre')?.value }}
+                        </div>
+                        <div class="candidatura-subtitle text-muted">
+                            {{ getCandidaturaJurado(candidatura).get('foguera')?.value }}
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+        }
+
+        @if (activeTab === 'votacion') {
+        <div formArrayName="candidaturas">
+            <span class="h3 text-naranja">Votación</span>
+            <ul class="mt-3">
+                @for(candidatura of candidaturas.controls; track candidatura) {
                 <li class="d-flex align-items-center mb-3">
                     <button [disabled]="(candidatura.get('votes')?.value || 0) <= 0"
                         class="btn btn-danger btn-lg rounded-circle d-flex align-items-center justify-content-center"
@@ -44,20 +239,18 @@
                         <i class="bi bi-dash-circle fs-4"></i>
                     </button>
                     <span class="fs-5 mx-3">
-                        {{ candidatura.get('label')?.value | titlecase }} - {{ candidatura.get('votes')?.value }}
+                        {{ getCandidaturaLabel(candidatura) | titlecase }} - {{ candidatura.get('votes')?.value }}
                     </span>
                     <button
                         class="btn btn-success btn-lg rounded-circle d-flex align-items-center justify-content-center"
                         (click)="changeVotes(candidatura, (candidatura.get('votes')?.value || 0) + 1)">
                         <i class="bi bi-plus-circle fs-4"></i>
                     </button>
-                    <button mat-icon-button color="warn" (click)="removeCandidatura(i)">
-                        <i class="bi bi-trash3"></i>
-                    </button>
                 </li>
                 }
             </ul>
         </div>
+        }
 
         <div>
             <button type="submit" class="btn btn-primary btn-foc-rojo w-100" (click)="formSubmit.emit(votacionesForm)"

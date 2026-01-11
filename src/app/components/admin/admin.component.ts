@@ -169,13 +169,37 @@ export class AdminComponent {
   }
 
   prepareVotacionesForm() {
-    this.votacionesForm = this.initializeFormGroup(this.config.votaciones, ['title', 'totalVotes']);
+    this.votacionesForm = this.initializeFormGroup(this.config.votaciones, [
+      'title',
+      'totalVotes',
+      'winnersCount',
+      'voteOptions'
+    ]);
+    this.votacionesForm.patchValue({
+      totalVotes: this.config.votaciones?.totalVotes ?? 0,
+      winnersCount: this.config.votaciones?.winnersCount ?? 1,
+      voteOptions: this.config.votaciones?.voteOptions ?? 1
+    });
     this.votacionesForm.addControl('candidaturas', this.createFormArray(
       this.config.votaciones?.candidaturas || [],
       (candidatura: any) => this.fb.group({
-        label: [candidatura.label || ''],
+        type: [candidatura.type || 'simple'],
+        label: [candidatura.label || candidatura.nombre || ''],
         votes: [candidatura.votes || 0],
         maxVotes: [candidatura.maxVotes || 0],
+        fields: this.createFormArray(
+          candidatura.fields || [],
+          (field: any) => this.fb.group({
+            key: [field.key || ''],
+            value: [field.value ?? ''],
+            inputType: [field.inputType || 'text']
+          })
+        ),
+        jurado: this.fb.group({
+          nombre: [candidatura.jurado?.nombre || ''],
+          foguera: [candidatura.jurado?.foguera || ''],
+          imagen: [candidatura.jurado?.imagen || '']
+        })
       })
     ));
     console.log(this.votacionesForm);

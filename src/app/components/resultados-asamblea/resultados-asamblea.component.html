@@ -1,63 +1,103 @@
 <div class="container">
-    <h2 class="mb-4 text-center">{{ title }}</h2>
+    <h2 class="mb-4 text-center">{{ title() }}</h2>
 
-    <!-- Mensaje de mayoría -->
-    <div *ngIf="ganadores.length > 0" class="text-success text-center mb-3 fs-4">
-        ✅ Gana
-        <ng-container *ngFor="let g of ganadores; let last = last">
-            <strong>{{ g.label }}</strong>{{ last ? '' : ', ' }}
-        </ng-container>
-        con {{ ganadores[0].votes }} votos
+    @if (ganadoresVM().length > 0) {
+    <div class="text-success text-center mb-3 fs-4">
+        @if (ganadoresVM().length > 1) {
+        Ganan
+        } @else {
+        Gana
+        }
+        @for (g of ganadoresVM(); track g.key; let last = $last) {
+        <strong>{{ g.displayLabel }}</strong>{{ last ? '' : ', ' }}
+        }
+        con {{ ganadoresVM()[0].votes }} votos
     </div>
-
-    <div *ngIf="ganadores.length === 0 && votosEmitidos > 0" class="text-warning text-center mb-3 fs-4">
-        ⚠️ No hay ganador — se necesitan al menos
-        <strong>{{ umbralMinimoDeVictoria }}</strong> votos para asegurar la victoria
+    } @else if (ganadoresVM().length === 0 && totalVotosPosibles() > 0) {
+    <div class="text-warning text-center mb-3 fs-4">
+        No hay ganadores: se necesitan al menos
+        <strong>{{ umbralMinimoDeVictoria() }}</strong> votos para asegurar la victoria
     </div>
+    }
 
     <div class="grafico-horizontal">
-        <!-- Destacadas -->
-        @for (c of topCandidaturas; track $index) {
-        <div class="fila-candidatura destacada" [class.ganador]="esGanador(c)"
-            [class.candidatura-imposible]="votosNecesariosParaGanar(c) === -1">
-            <div class="info">
-                <span class="label">{{ c.label }}</span>
+        @for (c of topCandidaturas(); track c.key) {
+        <div class="fila-candidatura destacada" [class.ganador]="c.esGanador"
+            [class.jurado]="c.type === 'jurado'"
+            [class.candidatura-imposible]="c.votosNecesarios === -1">
+            @if (c.type === 'jurado') {
+            <div class="info jurado-info">
+                <div class="jurado-card">
+                    <div class="jurado-media">
+                        @if (c.jurado?.imagen) {
+                        <img [src]="c.jurado?.imagen" alt="Foto jurado">
+                        } @else {
+                        <div class="jurado-placeholder">Sin imagen</div>
+                        }
+                    </div>
+                    <div class="jurado-details">
+                        <div class="label">{{ c.jurado?.nombre }}</div>
+                        <div class="text-muted">{{ c.jurado?.foguera }}</div>
+                    </div>
+                </div>
                 <span class="votes">{{ c.votes }} / {{ c.maxVotes }} votos</span>
             </div>
+            } @else {
+            <div class="info">
+                <span class="label">{{ c.displayLabel }}</span>
+                <span class="votes">{{ c.votes }} / {{ c.maxVotes }} votos</span>
+            </div>
+            }
 
             <div class="barra-grafico">
-                <div class="barra-rellena" [style.width.%]="porcentaje(c.votes)"
-                    [style.backgroundColor]="color(c.votes)"></div>
+                <div class="barra-rellena" [style.width.%]="c.porcentaje" [style.backgroundColor]="c.color"></div>
             </div>
 
-            @if (votosNecesariosParaGanar(c) > 0) {
+            @if (c.votosNecesarios > 0) {
             <div class="info mt-1">
-                <span class="votes text-muted">Se necesitan {{ votosNecesariosParaGanar(c) }} votos más para
-                    ganar</span>
+                <span class="votes text-muted">Se necesitan {{ c.votosNecesarios }} votos más para ganar</span>
             </div>
             }
         </div>
         }
 
-        <!-- Agrupadas -->
         <div class="agrupadas">
-            @for (c of otrasCandidaturas; track $index) {
-            <div class="fila-candidatura secundaria" [class.ganador]="esGanador(c)"
-                [class.candidatura-imposible]="votosNecesariosParaGanar(c) === -1">
-                <div class="info">
-                    <span class="label">{{ c.label }}</span>
+            @for (c of otrasCandidaturas(); track c.key) {
+            <div class="fila-candidatura secundaria" [class.ganador]="c.esGanador"
+                [class.jurado]="c.type === 'jurado'"
+                [class.candidatura-imposible]="c.votosNecesarios === -1">
+                @if (c.type === 'jurado') {
+                <div class="info jurado-info">
+                    <div class="jurado-card">
+                        <div class="jurado-media">
+                            @if (c.jurado?.imagen) {
+                            <img [src]="c.jurado?.imagen" alt="Foto jurado">
+                            } @else {
+                            <div class="jurado-placeholder">Sin imagen</div>
+                            }
+                        </div>
+                        <div class="jurado-details">
+                            <div class="label">{{ c.jurado?.nombre }}</div>
+                            <div class="text-muted">{{ c.jurado?.foguera }}</div>
+                        </div>
+                    </div>
                     <span class="votes">{{ c.votes }} / {{ c.maxVotes }} votos</span>
                 </div>
+                } @else {
+                <div class="info">
+                    <span class="label">{{ c.displayLabel }}</span>
+                    <span class="votes">{{ c.votes }} / {{ c.maxVotes }} votos</span>
+                </div>
+                }
 
                 <div class="barra-grafico">
-                    <div class="barra-rellena" [style.width.%]="porcentaje(c.votes)"
-                        [style.backgroundColor]="color(c.votes)"></div>
+                    <div class="barra-rellena" [style.width.%]="c.porcentaje"
+                        [style.backgroundColor]="c.color"></div>
                 </div>
 
-                @if (votosNecesariosParaGanar(c) > 0) {
+                @if (c.votosNecesarios > 0) {
                 <div class="info mt-1">
-                    <span class="votes text-muted">Se necesitan {{ votosNecesariosParaGanar(c) }} votos más para
-                        ganar</span>
+                    <span class="votes text-muted">Se necesitan {{ c.votosNecesarios }} votos más para ganar</span>
                 </div>
                 }
             </div>

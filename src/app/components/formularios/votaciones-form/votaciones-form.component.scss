@@ -15,3 +15,82 @@
     overflow: auto;
     height: calc(100vh - 105px);
 }
+
+.candidaturas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.candidatura-card {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    background: #fff;
+    padding: 10px;
+    min-height: 120px;
+}
+
+.candidatura-media {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f3f3f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.candidatura-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.candidatura-placeholder {
+    font-size: 12px;
+    color: #999;
+}
+
+.candidatura-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.candidatura-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.candidatura-subtitle {
+    font-size: 12px;
+}
+
+.candidatura-fields {
+    display: grid;
+    gap: 4px;
+}
+
+.candidatura-field {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.field-key {
+    color: #666;
+}
+
+.field-value {
+    text-align: right;
+    color: #333;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

@@ -10,12 +10,31 @@ export interface IRealTimeConfigModel {
 // Votaciones
 export interface IRealTimeVotacion {
     title: string;
-    candidaturas: IRealTimeCandidatura[]
+    totalVotes: number;
+    winnersCount?: number;
+    voteOptions?: number;
+    candidaturas: IRealTimeCandidatura[];
 }
 
 export interface IRealTimeCandidatura {
-    nombre: string;
+    type?: 'simple' | 'multiple' | 'jurado';
+    label?: string;
     votes: number;
+    maxVotes: number;
+    fields?: IRealTimeCandidaturaField[];
+    jurado?: IRealTimeCandidaturaJurado;
+}
+
+export interface IRealTimeCandidaturaField {
+    key: string;
+    value: string | number;
+    inputType: 'text' | 'number' | 'image';
+}
+
+export interface IRealTimeCandidaturaJurado {
+    nombre: string;
+    foguera: string;
+    imagen?: string;
 }
 
 // Eventos
