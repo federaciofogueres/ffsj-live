@@ -108,6 +108,33 @@ describe('ResultadosAsambleaComponent', () => {
     expect(component.ganadores().map(g => g.label)).toEqual(['A']);
   });
 
+  it('accounts for blank votes when calculating remaining votes', () => {
+    const fixture = TestBed.createComponent(ResultadosAsambleaComponent);
+    const component = fixture.componentInstance;
+
+    storageMock.emit({
+      votaciones: [
+        {
+          id: 'v1',
+          title: 'Asamblea',
+          totalVotes: 10,
+          winnersCount: 1,
+          voteOptions: 1,
+          blankVotes: 3,
+          nullVotes: 0,
+          candidaturas: [
+            { label: 'A', votes: 4, maxVotes: 10 },
+            { label: 'B', votes: 3, maxVotes: 10 }
+          ]
+        }
+      ]
+    });
+
+    fixture.detectChanges();
+
+    expect(component.umbralMinimoDeVictoria()).toBe(5);
+  });
+
   it('derives display labels for jurado candidaturas', () => {
     const fixture = TestBed.createComponent(ResultadosAsambleaComponent);
     const component = fixture.componentInstance;

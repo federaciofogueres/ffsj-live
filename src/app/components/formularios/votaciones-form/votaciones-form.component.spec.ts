@@ -32,6 +32,9 @@ describe('VotacionesFormComponent', () => {
       totalVotes: [10],
       winnersCount: [1],
       voteOptions: [1],
+      blankVotes: [0],
+      nullVotes: [0],
+      ballots: fb.array([]),
       candidaturas: fb.array([])
     });
     fixture.detectChanges();
@@ -122,5 +125,46 @@ describe('VotacionesFormComponent', () => {
 
     expect(component.candidaturas.length).toBe(0);
     expect(component.typeControl.value).toBe('jurado');
+  });
+
+  it('adds a ballot and increments vote counts', () => {
+    component.candidaturas.push(
+      fb.group({
+        type: ['simple'],
+        label: ['Opcion A'],
+        votes: [0],
+        maxVotes: [0],
+        fields: fb.array([]),
+        jurado: fb.group({ nombre: [''], foguera: [''], imagen: [''] })
+      })
+    );
+
+    component.toggleBallotSelection(0);
+    component.ballotNulls.setValue(0);
+    component.addBallot(1);
+
+    expect(component.candidaturas.at(0).get('votes')?.value).toBe(1);
+    expect(component.votacionesForm.get('totalVotes')?.value).toBe(10);
+    expect(component.ballots.length).toBe(1);
+  });
+
+  it('adds a double ballot and increments vote counts twice', () => {
+    component.candidaturas.push(
+      fb.group({
+        type: ['simple'],
+        label: ['Opcion A'],
+        votes: [0],
+        maxVotes: [0],
+        fields: fb.array([]),
+        jurado: fb.group({ nombre: [''], foguera: [''], imagen: [''] })
+      })
+    );
+
+    component.toggleBallotSelection(0);
+    component.ballotNulls.setValue(0);
+    component.addBallot(2);
+
+    expect(component.candidaturas.at(0).get('votes')?.value).toBe(2);
+    expect(component.ballots.length).toBe(2);
   });
 });

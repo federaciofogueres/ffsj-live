@@ -94,3 +94,32 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.ballot-panel {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    padding: 12px;
+    background: #fff;
+}
+
+.ballot-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: #666;
+}
+
+.ballot-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+}
+
+.ballot-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}

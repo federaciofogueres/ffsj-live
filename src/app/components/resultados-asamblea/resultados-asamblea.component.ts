@@ -30,6 +30,8 @@ export class ResultadosAsambleaComponent {
   readonly totalPapeletas = computed(() => this.selectedVotacion()?.totalVotes ?? 0);
   readonly winnersCount = computed(() => Math.max(1, this.selectedVotacion()?.winnersCount ?? 1));
   readonly voteOptions = computed(() => Math.max(1, this.selectedVotacion()?.voteOptions ?? 1));
+  readonly blankVotes = computed(() => this.selectedVotacion()?.blankVotes ?? 0);
+  readonly nullVotes = computed(() => this.selectedVotacion()?.nullVotes ?? 0);
   readonly totalVotosPosibles = computed(() => this.totalPapeletas() * this.voteOptions());
 
   private readonly totalVotosActuales = computed(() =>
@@ -42,7 +44,7 @@ export class ResultadosAsambleaComponent {
     calcGanadores(
       this.candidaturas(),
       this.totalVotosPosibles(),
-      this.totalVotosActuales(),
+      this.totalVotosActuales() + this.blankVotes() + this.nullVotes(),
       this.winnersCount(),
       this.totalPapeletas()
     )
@@ -51,7 +53,7 @@ export class ResultadosAsambleaComponent {
   readonly candidaturasVM = computed<CandidaturaVM[]>(() => {
     const candidaturas = this.candidaturas();
     const votosEmitidos = this.totalVotosPosibles();
-    const votosAsignados = this.totalVotosActuales();
+    const votosAsignados = this.totalVotosActuales() + this.blankVotes() + this.nullVotes();
     const ganadores = this.ganadores();
     const maxVotos = Math.max(0, ...candidaturas.map(c => c.votes || 0));
     const ganadoresSet = new Set(ganadores.map(g => candidaturaKey(g)));
@@ -112,7 +114,7 @@ export class ResultadosAsambleaComponent {
       if (!current || !list.some(v => v.id === current)) {
         this.selectedVotacionId.set(list[0].id);
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   selectVotacion(id: string) {

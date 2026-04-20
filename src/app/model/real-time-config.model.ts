@@ -14,6 +14,9 @@ export interface IRealTimeVotacion {
     totalVotes: number;
     winnersCount?: number;
     voteOptions?: number;
+    blankVotes?: number;
+    nullVotes?: number;
+    ballots?: IRealTimeBallot[];
     candidaturas: IRealTimeCandidatura[];
 }
 
@@ -36,6 +39,13 @@ export interface IRealTimeCandidaturaJurado {
     nombre: string;
     foguera: string;
     imagen?: string;
+}
+
+export interface IRealTimeBallot {
+    selected: string[];
+    blanks: number;
+    nulls: number;
+    createdAt: number;
 }
 
 // Eventos

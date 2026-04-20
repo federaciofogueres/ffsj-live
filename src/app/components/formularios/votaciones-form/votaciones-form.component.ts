@@ -53,6 +53,8 @@ export class VotacionesFormComponent {
   private currentType: 'simple' | 'multiple' | 'jurado' = 'simple';
   showCandidaturas = true;
   editingIndex: number | null = null;
+  ballotNulls = new FormControl(0, { nonNullable: true });
+  private ballotSelected = new Set<number>();
 
   nuevaCandidatura = this.fb.group({
     type: ['simple', Validators.required],
@@ -97,6 +99,10 @@ export class VotacionesFormComponent {
     return this.nuevaCandidatura.get('jurado') as FormGroup;
   }
 
+  get ballots(): FormArray {
+    return this.votacionesForm.get('ballots') as FormArray;
+  }
+
   setTab(tab: 'info' | 'opciones' | 'votacion'): void {
     this.activeTab = tab;
   }
@@ -111,6 +117,45 @@ export class VotacionesFormComponent {
 
   toggleCandidaturas(): void {
     this.showCandidaturas = !this.showCandidaturas;
+  }
+
+  toggleBallotSelection(index: number): void {
+    const voteOptions = Number(this.votacionesForm.get('voteOptions')?.value) || 1;
+    if (this.ballotSelected.has(index)) {
+      this.ballotSelected.delete(index);
+    } else if (this.ballotSelected.size < voteOptions) {
+      this.ballotSelected.add(index);
+    }
+  }
+
+  isBallotSelected(index: number): boolean {
+    return this.ballotSelected.has(index);
+  }
+
+  ballotSelectedCount(): number {
+    return this.ballotSelected.size;
+  }
+
+  canSelectBallot(index: number): boolean {
+    const voteOptions = Number(this.votacionesForm.get('voteOptions')?.value) || 1;
+    return this.ballotSelected.has(index) || this.ballotSelected.size < voteOptions;
+  }
+
+  ballotBlanks(): number {
+    const voteOptions = Number(this.votacionesForm.get('voteOptions')?.value) || 1;
+    const nulls = Number(this.ballotNulls.value) || 0;
+    const remaining = Math.max(0, voteOptions - this.ballotSelected.size - nulls);
+    return remaining;
+  }
+
+  canAddBallot(multiplier: number = 1): boolean {
+    const voteOptions = Number(this.votacionesForm.get('voteOptions')?.value) || 1;
+    const totalVotes = Number(this.votacionesForm.get('totalVotes')?.value) || 0;
+    const nulls = Number(this.ballotNulls.value) || 0;
+    if (totalVotes > 0 && this.ballots.length + multiplier > totalVotes) {
+      return false;
+    }
+    return this.ballotSelected.size + nulls <= voteOptions && nulls >= 0;
   }
 
   getCandidaturaType(candidatura: AbstractControl): 'simple' | 'multiple' | 'jurado' {
@@ -165,18 +210,11 @@ export class VotacionesFormComponent {
 
   private recalcularMaxVotes(): void {
     const totalPapeletas = Number(this.votacionesForm.get('totalVotes')?.value) || 0;
-    const opcionesVoto = Number(this.votacionesForm.get('voteOptions')?.value) || 1;
-    const totalVotosPosibles = totalPapeletas * opcionesVoto;
-
-    const votosContados = this.candidaturas.controls.reduce((acc, c) => {
-      return acc + (c.get('votes')?.value || 0);
-    }, 0);
-
-    const votosRestantes = Math.max(0, totalVotosPosibles - votosContados);
+    const remainingBallots = Math.max(0, totalPapeletas - this.ballots.length);
 
     this.candidaturas.controls.forEach(c => {
       const votosActuales = c.get('votes')?.value || 0;
-      const maxVotes = Math.min(totalPapeletas, votosActuales + votosRestantes);
+      const maxVotes = Math.min(totalPapeletas, votosActuales + remainingBallots);
       c.get('maxVotes')?.setValue(maxVotes);
     });
   }
@@ -198,6 +236,50 @@ export class VotacionesFormComponent {
     candidatura.get('votes')?.setValue(newVotes);
     this.recalcularMaxVotes();
     this.formSubmit.emit(this.votacionesForm);
+  }
+
+  addBallot(multiplier: number = 1): void {
+    const voteOptions = Number(this.votacionesForm.get('voteOptions')?.value) || 1;
+    const totalVotes = Number(this.votacionesForm.get('totalVotes')?.value) || 0;
+    const blankVotesControl = this.votacionesForm.get('blankVotes');
+    const nullVotesControl = this.votacionesForm.get('nullVotes');
+    const nulls = Number(this.ballotNulls.value) || 0;
+
+    if (this.ballotSelected.size + nulls > voteOptions) {
+      return;
+    }
+    if (totalVotes > 0 && this.ballots.length + multiplier > totalVotes) {
+      return;
+    }
+
+    const blanks = Math.max(0, voteOptions - this.ballotSelected.size - nulls);
+    const selectedLabels: string[] = [];
+
+    this.ballotSelected.forEach(index => {
+      const control = this.candidaturas.at(index) as FormGroup;
+      const currentVotes = Number(control.get('votes')?.value) || 0;
+      control.get('votes')?.setValue(currentVotes + multiplier);
+      selectedLabels.push(this.getCandidaturaLabel(control));
+    });
+
+    const blankVotes = Number(blankVotesControl?.value) || 0;
+    const nullVotes = Number(nullVotesControl?.value) || 0;
+
+    blankVotesControl?.setValue(blankVotes + blanks * multiplier);
+    nullVotesControl?.setValue(nullVotes + nulls * multiplier);
+
+    for (let i = 0; i < multiplier; i += 1) {
+      this.ballots.push(this.fb.group({
+        selected: [selectedLabels],
+        blanks: [blanks],
+        nulls: [nulls],
+        createdAt: [Date.now()]
+      }));
+    }
+
+    this.recalcularMaxVotes();
+    this.formSubmit.emit(this.votacionesForm);
+    this.resetBallot();
   }
 
   addCandidatura(): void {
@@ -380,6 +462,11 @@ export class VotacionesFormComponent {
       foguera: '',
       imagen: ''
     });
+  }
+
+  private resetBallot(): void {
+    this.ballotSelected.clear();
+    this.ballotNulls.setValue(0);
   }
 
   private initializeTipoCandidatura(): void {

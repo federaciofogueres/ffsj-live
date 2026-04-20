@@ -186,13 +186,26 @@ export class AdminComponent {
       'title',
       'totalVotes',
       'winnersCount',
-      'voteOptions'
+      'voteOptions',
+      'blankVotes',
+      'nullVotes'
     ]);
     this.votacionesForm.patchValue({
       totalVotes: selected.totalVotes ?? 0,
       winnersCount: selected.winnersCount ?? 1,
-      voteOptions: selected.voteOptions ?? 1
+      voteOptions: selected.voteOptions ?? 1,
+      blankVotes: selected.blankVotes ?? 0,
+      nullVotes: selected.nullVotes ?? 0
     });
+    this.votacionesForm.addControl('ballots', this.createFormArray(
+      selected.ballots || [],
+      (ballot: any) => this.fb.group({
+        selected: [ballot.selected || []],
+        blanks: [ballot.blanks || 0],
+        nulls: [ballot.nulls || 0],
+        createdAt: [ballot.createdAt || 0]
+      })
+    ));
     this.votacionesForm.addControl('candidaturas', this.createFormArray(
       selected.candidaturas || [],
       (candidatura: any) => this.fb.group({
@@ -301,6 +314,9 @@ function createEmptyVotacion(): IRealTimeVotacion {
     totalVotes: 0,
     winnersCount: 1,
     voteOptions: 1,
+    blankVotes: 0,
+    nullVotes: 0,
+    ballots: [],
     candidaturas: []
   };
 }

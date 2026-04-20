@@ -253,25 +253,44 @@
         @if (activeTab === 'votacion') {
         <div formArrayName="candidaturas">
             <span class="h3 text-naranja">Votación</span>
-            <ul class="mt-3">
-                @for(candidatura of candidaturas.controls; track candidatura) {
-                <li class="d-flex align-items-center mb-3">
-                    <button [disabled]="(candidatura.get('votes')?.value || 0) <= 0"
-                        class="btn btn-danger btn-lg rounded-circle d-flex align-items-center justify-content-center"
-                        (click)="changeVotes(candidatura, (candidatura.get('votes')?.value || 0) - 1)">
-                        <i class="bi bi-dash-circle fs-4"></i>
+            <div class="mt-3 ballot-panel">
+                <div class="ballot-summary">
+                    <div>Papeletas emitidas: {{ votacionesForm.get('totalVotes')?.value || 0 }}</div>
+                    <div>Registradas: {{ ballots.length }}</div>
+                    <div>Restantes: {{ ((votacionesForm.get('totalVotes')?.value || 0) - ballots.length) }}</div>
+                    <div>Blancos: {{ votacionesForm.get('blankVotes')?.value || 0 }}</div>
+                    <div>Nulos: {{ votacionesForm.get('nullVotes')?.value || 0 }}</div>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="text-naranja">Selecciona candidaturas (hasta {{ votacionesForm.get('voteOptions')?.value || 1 }})</label>
+                    <div class="ballot-list">
+                        @for(candidatura of candidaturas.controls; track candidatura; let i = $index) {
+                        <label class="ballot-item">
+                            <input type="checkbox" [checked]="isBallotSelected(i)" [disabled]="!canSelectBallot(i)"
+                                (change)="toggleBallotSelection(i)">
+                            <span>{{ getCandidaturaLabel(candidatura) | titlecase }}</span>
+                        </label>
+                        }
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="ballotNulls" class="text-naranja">Votos nulos en la papeleta</label>
+                    <input type="number" id="ballotNulls" class="form-control" [formControl]="ballotNulls" min="0">
+                </div>
+                <div class="text-muted mb-3">
+                    Blancos calculados: {{ ballotBlanks() }}
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-primary" [disabled]="!canAddBallot(1)"
+                        (click)="addBallot(1)">
+                        Añadir papeleta simple
                     </button>
-                    <span class="fs-5 mx-3">
-                        {{ getCandidaturaLabel(candidatura) | titlecase }} - {{ candidatura.get('votes')?.value }}
-                    </span>
-                    <button
-                        class="btn btn-success btn-lg rounded-circle d-flex align-items-center justify-content-center"
-                        (click)="changeVotes(candidatura, (candidatura.get('votes')?.value || 0) + 1)">
-                        <i class="bi bi-plus-circle fs-4"></i>
+                    <button type="button" class="btn btn-outline-primary" [disabled]="!canAddBallot(2)"
+                        (click)="addBallot(2)">
+                        Añadir papeleta doble
                     </button>
-                </li>
-                }
-            </ul>
+                </div>
+            </div>
         </div>
         }
 
