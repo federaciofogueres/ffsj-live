@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 import { LiveComponent } from './live.component';
+import { FirebaseStorageService } from '../../services/storage.service';
 
 describe('LiveComponent', () => {
   let component: LiveComponent;
@@ -8,7 +10,16 @@ describe('LiveComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LiveComponent]
+      imports: [LiveComponent],
+      providers: [
+        {
+          provide: FirebaseStorageService,
+          useValue: {
+            listenToRealtimeData: () => {},
+            realtimeData$: of(null)
+          }
+        }
+      ]
     })
     .compileComponents();
     

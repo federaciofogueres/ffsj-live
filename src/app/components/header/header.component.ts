@@ -3,7 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CookieService } from 'ngx-cookie-service';
 import { Subject, takeUntil } from 'rxjs';
-import { AuthService, FfsjAlertService } from '../../../lib/ffsj-web-components';
+import { AuthService, FfsjAlertService } from 'ffsj-web-components';
 
 @Component({
   selector: 'app-header',

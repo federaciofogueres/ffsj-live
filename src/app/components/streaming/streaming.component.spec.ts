@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 import { StreamingComponent } from './streaming.component';
+import { FirebaseStorageService } from '../../services/storage.service';
 
 describe('StreamingComponent', () => {
   let component: StreamingComponent;
@@ -8,7 +10,16 @@ describe('StreamingComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StreamingComponent]
+      imports: [StreamingComponent],
+      providers: [
+        {
+          provide: FirebaseStorageService,
+          useValue: {
+            listenToRealtimeData: () => {},
+            realtimeData$: of(null)
+          }
+        }
+      ]
     })
     .compileComponents();
     

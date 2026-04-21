@@ -2,9 +2,9 @@
   "name": "ffsj-web-components",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/common": "^17.3.0",
-    "@angular/core": "^17.3.0",
-    "@angular/material": "^17.1.2"
+    "@angular/common": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/material": "^21.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

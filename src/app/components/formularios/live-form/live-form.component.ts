@@ -96,7 +96,7 @@ export class LiveFormComponent {
   }
 
   handleSelect(event: any) {
-    console.log(event.target.value.vidaEnFogueres.asociacion_label);
+    void event;
   }
 
   onFileSelected(event: Event): void {

@@ -1,4 +1,4 @@
-@import "../../../../variables.scss";
+@use "../../../../variables" as *;
 
 .container-item {
     width: 50%;
@@ -13,7 +13,7 @@
 
 .formulario-container {
     overflow: auto;
-    height: calc(100vh - 105px);
+    height: calc(var(--app-viewport-height) - 105px);
 }
 
 .candidaturas-grid {

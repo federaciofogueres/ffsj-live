@@ -1,4 +1,4 @@
-@import "../../../variables.scss";
+@use "../../../variables" as *;
 
 app-anuncios-form,
 app-info-form,
@@ -22,5 +22,5 @@ app-list-options-form {
 
 .formulario-container {
     overflow: auto;
-    height: calc(100vh - 105px);
+    height: calc(var(--app-viewport-height) - 105px);
 }

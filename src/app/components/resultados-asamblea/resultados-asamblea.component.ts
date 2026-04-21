@@ -114,7 +114,7 @@ export class ResultadosAsambleaComponent {
       if (!current || !list.some(v => v.id === current)) {
         this.selectedVotacionId.set(list[0].id);
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
   selectVotacion(id: string) {

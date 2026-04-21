@@ -40,7 +40,18 @@ import { IRealTimeVotacion } from '../../../model/real-time-config.model';
   styleUrls: ['./votaciones-form.component.scss']
 })
 export class VotacionesFormComponent {
-  @Input() votacionesForm!: FormGroup;
+  private _votacionesForm!: FormGroup;
+  @Input()
+  set votacionesForm(value: FormGroup) {
+    this._votacionesForm = value;
+    if (value) {
+      this.configureFormControls();
+    }
+  }
+
+  get votacionesForm(): FormGroup {
+    return this._votacionesForm;
+  }
   @Input() votacionesList: IRealTimeVotacion[] = [];
   @Input() selectedVotacionId: string = '';
   @Output() formSubmit = new EventEmitter<FormGroup>();
@@ -175,22 +186,10 @@ export class VotacionesFormComponent {
   ngOnInit() {
     const totalVotesControl = this.votacionesForm.get('totalVotes');
     const voteOptionsControl = this.votacionesForm.get('voteOptions');
-
     if (totalVotesControl && voteOptionsControl) {
-      totalVotesControl.setValidators([Validators.required, Validators.min(0)]);
-      voteOptionsControl.setValidators([Validators.required, Validators.min(1)]);
-      totalVotesControl.updateValueAndValidity({ emitEvent: false });
-      voteOptionsControl.updateValueAndValidity({ emitEvent: false });
-
       merge(totalVotesControl.valueChanges, voteOptionsControl.valueChanges)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => this.recalcularMaxVotes());
-    }
-
-    const winnersCountControl = this.votacionesForm.get('winnersCount');
-    if (winnersCountControl) {
-      winnersCountControl.setValidators([Validators.required, Validators.min(1)]);
-      winnersCountControl.updateValueAndValidity({ emitEvent: false });
     }
 
     this.initializeTipoCandidatura();
@@ -203,8 +202,27 @@ export class VotacionesFormComponent {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['votacionesForm'] && this.votacionesForm) {
+      this.configureFormControls();
       this.initializeTipoCandidatura();
       this.recalcularMaxVotes();
+    }
+  }
+
+  private configureFormControls(): void {
+    const totalVotesControl = this.votacionesForm.get('totalVotes');
+    const voteOptionsControl = this.votacionesForm.get('voteOptions');
+    const winnersCountControl = this.votacionesForm.get('winnersCount');
+
+    if (totalVotesControl && voteOptionsControl) {
+      totalVotesControl.setValidators([Validators.required, Validators.min(0)]);
+      voteOptionsControl.setValidators([Validators.required, Validators.min(1)]);
+      totalVotesControl.updateValueAndValidity({ emitEvent: false });
+      voteOptionsControl.updateValueAndValidity({ emitEvent: false });
+    }
+
+    if (winnersCountControl) {
+      winnersCountControl.setValidators([Validators.required, Validators.min(1)]);
+      winnersCountControl.updateValueAndValidity({ emitEvent: false });
     }
   }
 

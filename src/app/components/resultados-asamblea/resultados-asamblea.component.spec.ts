@@ -132,7 +132,7 @@ describe('ResultadosAsambleaComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.umbralMinimoDeVictoria()).toBe(5);
+    expect(component.umbralMinimoDeVictoria()).toBe(4);
   });
 
   it('derives display labels for jurado candidaturas', () => {

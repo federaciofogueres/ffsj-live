@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { IRealTimeItem } from '../../model/real-time-config.model';
+import { getDefaultCandidataImage, resolveCandidataImage } from '../../utils/candidata-images';
 
 @Component({
   selector: 'app-item-card',
@@ -26,6 +27,7 @@ export class ItemCardComponent {
   currentImage: string = '';
 
   foguera: string = '';
+  readonly defaultImage = getDefaultCandidataImage();
 
   constructor(
     protected router: Router
@@ -38,21 +40,39 @@ export class ItemCardComponent {
   }
 
   ngOnInit() {
-    this.currentImage = (this.item.documentacion.fotoBelleza === '' || !this.item.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.item.documentacion.fotoBelleza;
-    this.alternateImageUrl = (this.item.documentacion.fotoCalle === '' || !this.item.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.item.documentacion.fotoCalle;
-    this.foguera = this.item.vidaEnFogueres.asociacion_label!;
+    this.updateCandidataData();
   }
 
   updateCandidataData() {
-    this.currentImage = (this.item.documentacion.fotoBelleza === '' || !this.item.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.item.documentacion.fotoBelleza;
-    this.alternateImageUrl = (this.item.documentacion.fotoCalle === '' || !this.item.documentacion.fotoBelleza.includes('staticfoguerapp')) ? 'https://staticfoguerapp.hogueras.es/CANDIDATAS/default.png' : this.item.documentacion.fotoCalle;
-    this.foguera = this.item.vidaEnFogueres.asociacion_label!;
+    this.currentImage = resolveCandidataImage(
+      this.item.documentacion?.fotoBelleza,
+      this.item.informacionPersonal?.tipoCandidata,
+      this.item.vidaEnFogueres?.asociacion_order,
+      'belleza'
+    );
+    this.alternateImageUrl = resolveCandidataImage(
+      this.item.documentacion?.fotoCalle,
+      this.item.informacionPersonal?.tipoCandidata,
+      this.item.vidaEnFogueres?.asociacion_order,
+      'calle'
+    );
+    this.foguera = this.item.vidaEnFogueres.asociacion_label || '';
   }
 
   toggleImage() {
-    this.currentImage = this.currentImage === this.item.documentacion.fotoBelleza
-      ? this.item.documentacion.fotoCalle
-      : this.item.documentacion.fotoBelleza;
+    this.currentImage = this.currentImage === this.alternateImageUrl
+      ? resolveCandidataImage(
+        this.item.documentacion?.fotoBelleza,
+        this.item.informacionPersonal?.tipoCandidata,
+        this.item.vidaEnFogueres?.asociacion_order,
+        'belleza'
+      )
+      : this.alternateImageUrl;
+  }
+
+  handleImageError(): void {
+    this.currentImage = this.defaultImage;
+    this.alternateImageUrl = this.defaultImage;
   }
 
   viewDetails() {

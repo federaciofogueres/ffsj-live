@@ -12,15 +12,15 @@
     <div class="row g-0">
         @if(isTelefono) {
         <img [src]="currentImage" class="img-fluid rounded-start animated-image" alt="Foto bellesa"
-            (click)="toggleImage()">
+            (click)="toggleImage()" (error)="handleImageError()">
         } @else {
         <div class="col-md-6">
-            <img [src]="itemData.documentacion.fotoBelleza" class="img-fluid rounded-start animated-image"
-                alt="Foto bellesa">
+            <img [src]="currentImage" class="img-fluid rounded-start animated-image"
+                alt="Foto bellesa" (error)="handleImageError()">
         </div>
         <div class="col-md-6">
-            <img [src]="itemData.documentacion.fotoCalle" class="img-fluid rounded-start animated-image"
-                alt="Foto alternativa">
+            <img [src]="alternateImageUrl" class="img-fluid rounded-start animated-image"
+                alt="Foto alternativa" (error)="handleImageError()">
         </div>
         }
     </div>

@@ -1,14 +1,14 @@
+import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
+import { ActivatedRoute } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
+import { FfsjSpinnerComponent } from 'ffsj-web-components';
 import { IRealTimeItem } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
-
-import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
-import { ActivatedRoute } from '@angular/router';
-import { FfsjSpinnerComponent } from 'ffsj-web-components';
+import { getDefaultCandidataImage, resolveCandidataImage } from '../../utils/candidata-images';
 
 @Component({
   selector: 'app-item-candidata',
@@ -38,25 +38,16 @@ export class ItemCandidataComponent {
 
   isLive: boolean = true;
   loading: boolean = false;
-
-  // URL de la imagen alternativa
   alternateImageUrl: string = '';
-
-  // Estado de volteo
   isFlipped: boolean = false;
-
-  // URL de la imagen actual
   currentImage: string = '';
-
-  // Anotaciones
   anotaciones: string = '';
-
-  // Indica si es un teléfono
   isTelefono: boolean = false;
 
   idUsuario: string = '';
   parsedCurriculum: any[] = [];
   itemsList: IRealTimeItem[] = [];
+  readonly defaultImage = getDefaultCandidataImage();
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -78,10 +69,18 @@ export class ItemCandidataComponent {
   }
 
   private updateImages() {
-    this.currentImage = this._itemData?.documentacion?.fotoBelleza || '';
-    this.alternateImageUrl = this._itemData?.documentacion?.fotoCalle || '';
-
-    // Forzar la detección de cambios si es necesario
+    this.currentImage = resolveCandidataImage(
+      this._itemData?.documentacion?.fotoBelleza,
+      this._itemData?.informacionPersonal?.tipoCandidata,
+      this._itemData?.vidaEnFogueres?.asociacion_order,
+      'belleza'
+    );
+    this.alternateImageUrl = resolveCandidataImage(
+      this._itemData?.documentacion?.fotoCalle,
+      this._itemData?.informacionPersonal?.tipoCandidata,
+      this._itemData?.vidaEnFogueres?.asociacion_order,
+      'calle'
+    );
     this.cdr.detectChanges();
   }
 
@@ -99,14 +98,12 @@ export class ItemCandidataComponent {
           this.isLive = true;
         }
         this.parseCurriculum();
-        this.currentImage = this.itemData?.documentacion?.fotoBelleza || '';
-        this.alternateImageUrl = this.itemData?.documentacion?.fotoCalle || '';
+        this.updateImages();
         this.loading = false;
       }
     });
   }
 
-  // Método para cargar itemData desde la URL
   private loadItemData(itemId: string): IRealTimeItem | null {
     const itemData = Object.values(this.itemsList).flat().find((item: any) => item.id === itemId) as IRealTimeItem;
     return itemData || null;
@@ -124,12 +121,21 @@ export class ItemCandidataComponent {
 
   toggleImage() {
     if (this.itemData) {
-      this.currentImage = this.currentImage === this.itemData.documentacion.fotoBelleza
-        ? this.itemData.documentacion.fotoCalle
-        : this.itemData.documentacion.fotoBelleza;
+      this.currentImage = this.currentImage === this.alternateImageUrl
+        ? resolveCandidataImage(
+          this.itemData.documentacion?.fotoBelleza,
+          this.itemData.informacionPersonal?.tipoCandidata,
+          this.itemData.vidaEnFogueres?.asociacion_order,
+          'belleza'
+        )
+        : this.alternateImageUrl;
     }
-    // Forzar la detección de cambios
     this.cdr.detectChanges();
   }
 
+  handleImageError(): void {
+    this.currentImage = this.defaultImage;
+    this.alternateImageUrl = this.defaultImage;
+    this.cdr.detectChanges();
+  }
 }

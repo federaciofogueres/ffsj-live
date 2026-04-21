@@ -228,7 +228,6 @@ export class AdminComponent {
         })
       })
     ));
-    console.log(this.votacionesForm);
   }
 
   prepareForms() {

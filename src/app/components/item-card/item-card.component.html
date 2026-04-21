@@ -4,7 +4,7 @@
             <div class="overlay-circle background-naranja">{{ item.vidaEnFogueres.asociacion_order }}
             </div>
             <img [src]="currentImage" class="img-fluid rounded-start animated-image h-100 w-100" alt="Foto bellesa"
-                (click)="toggleImage()" loading="lazy">
+                (click)="toggleImage()" (error)="handleImageError()" loading="lazy">
         </div>
         <div class="col-md-8 data-candidata">
             <div class="card-body h-100">

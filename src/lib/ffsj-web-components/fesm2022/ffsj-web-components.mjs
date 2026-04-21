@@ -7,7 +7,6 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Subject, BehaviorSubject } from 'rxjs';
 import * as i1$1 from '@angular/router';
 import * as CryptoJS from 'crypto-js';
-import * as bcrypt from 'bcryptjs';
 import * as i4 from 'ngx-cookie-service';
 import * as i1$2 from '@angular/common';
 import { CommonModule } from '@angular/common';
@@ -302,13 +301,10 @@ class EncoderService {
         this.iv = CryptoJS.enc.Utf8.parse('1234567890123456');
     }
     encryptPassword(data) {
-        const saltRounds = 10;
-        let salt = bcrypt.genSaltSync(saltRounds);
-        let encodedPassword = bcrypt.hashSync(data, salt);
-        return encodedPassword;
+        return CryptoJS.SHA256(data).toString();
     }
     checkPassword(password, encrypted) {
-        return bcrypt.compareSync(password, encrypted);
+        return this.encryptPassword(password) === encrypted;
     }
     // Método para encriptar datos de entrada
     encrypt(password) {
@@ -590,14 +586,14 @@ i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "17.3.11", ngImpo
 class FfsjSpinnerComponent {
     constructor() {
         this.fullscreen = false;
-        this.imagePath = '../../../assets/img/fede.png';
+        this.imagePath = '/assets/img/logo-intranet.png';
     }
     static { this.ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "17.3.11", ngImport: i0, type: FfsjSpinnerComponent, deps: [], target: i0.ɵɵFactoryTarget.Component }); }
-    static { this.ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "14.0.0", version: "17.3.11", type: FfsjSpinnerComponent, isStandalone: true, selector: "lib-ffsj-spinner", inputs: { fullscreen: "fullscreen" }, ngImport: i0, template: "<div class=\"bg-dark preloader\" [ngClass]=\"fullscreen ? ['full-size'] : ['component']\">\r\n    <div class=\"spinner-container\">\r\n        <img [src]=\"imagePath\">\r\n    </div>\r\n    <div class=\"loader\">\r\n        <span></span>\r\n    </div>\r\n</div>", styles: [".full-size{position:fixed}.component{position:relative}.preloader{top:0;left:0;margin:0 auto;width:100%;height:100%;display:flex;justify-content:center;align-items:center;z-index:997}.preloader .spinner-container{width:200px;height:200px;display:flex;justify-content:center;align-items:center}.preloader .spinner-container img{width:130px;height:130px;z-index:999;position:relative}.preloader .loader{position:absolute;width:200px;height:200px;border:4px solid transparent;overflow:hidden;border-radius:50%}.preloader .loader:before{content:\"\";position:absolute;inset:10px;z-index:998;background:#fff;border-radius:50%;border:2px solid transparent}.preloader .loader>span{position:absolute;width:100%;height:100%;border-radius:50%;background-image:linear-gradient(-225deg,#0245ff,#00e1ff,#5edfff);filter:blur(20px);animation:animate .5s linear infinite}@keyframes animate{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"], dependencies: [{ kind: "ngmodule", type: CommonModule }, { kind: "directive", type: i1$2.NgClass, selector: "[ngClass]", inputs: ["class", "ngClass"] }] }); }
+    static { this.ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "14.0.0", version: "17.3.11", type: FfsjSpinnerComponent, isStandalone: true, selector: "lib-ffsj-spinner", inputs: { fullscreen: "fullscreen" }, ngImport: i0, template: "<div class=\"bg-dark preloader\" [ngClass]=\"fullscreen ? ['full-size'] : ['component']\">\r\n    <div class=\"spinner-container\">\r\n        <img [src]=\"imagePath\" width=\"64\" height=\"64\" alt=\"Cargando\">\r\n    </div>\r\n    <div class=\"loader\">\r\n        <span></span>\r\n    </div>\r\n</div>", styles: [".full-size{position:fixed}.component{position:relative}.preloader{top:0;left:0;margin:0 auto;width:100%;height:100%;display:flex;justify-content:center;align-items:center;z-index:997}.preloader .spinner-container{width:200px;height:200px;display:flex;justify-content:center;align-items:center}.preloader .spinner-container img{width:64px;height:64px;z-index:999;position:relative}.preloader .loader{position:absolute;width:200px;height:200px;border:4px solid transparent;overflow:hidden;border-radius:50%}.preloader .loader:before{content:\"\";position:absolute;inset:10px;z-index:998;background:#fff;border-radius:50%;border:2px solid transparent}.preloader .loader>span{position:absolute;width:100%;height:100%;border-radius:50%;background-image:linear-gradient(-225deg,#0245ff,#00e1ff,#5edfff);filter:blur(20px);animation:animate .5s linear infinite}@keyframes animate{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"], dependencies: [{ kind: "ngmodule", type: CommonModule }, { kind: "directive", type: i1$2.NgClass, selector: "[ngClass]", inputs: ["class", "ngClass"] }] }); }
 }
 i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "17.3.11", ngImport: i0, type: FfsjSpinnerComponent, decorators: [{
             type: Component,
-            args: [{ selector: 'lib-ffsj-spinner', standalone: true, imports: [CommonModule], template: "<div class=\"bg-dark preloader\" [ngClass]=\"fullscreen ? ['full-size'] : ['component']\">\r\n    <div class=\"spinner-container\">\r\n        <img [src]=\"imagePath\">\r\n    </div>\r\n    <div class=\"loader\">\r\n        <span></span>\r\n    </div>\r\n</div>", styles: [".full-size{position:fixed}.component{position:relative}.preloader{top:0;left:0;margin:0 auto;width:100%;height:100%;display:flex;justify-content:center;align-items:center;z-index:997}.preloader .spinner-container{width:200px;height:200px;display:flex;justify-content:center;align-items:center}.preloader .spinner-container img{width:130px;height:130px;z-index:999;position:relative}.preloader .loader{position:absolute;width:200px;height:200px;border:4px solid transparent;overflow:hidden;border-radius:50%}.preloader .loader:before{content:\"\";position:absolute;inset:10px;z-index:998;background:#fff;border-radius:50%;border:2px solid transparent}.preloader .loader>span{position:absolute;width:100%;height:100%;border-radius:50%;background-image:linear-gradient(-225deg,#0245ff,#00e1ff,#5edfff);filter:blur(20px);animation:animate .5s linear infinite}@keyframes animate{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"] }]
+            args: [{ selector: 'lib-ffsj-spinner', standalone: true, imports: [CommonModule], template: "<div class=\"bg-dark preloader\" [ngClass]=\"fullscreen ? ['full-size'] : ['component']\">\r\n    <div class=\"spinner-container\">\r\n        <img [src]=\"imagePath\" width=\"64\" height=\"64\" alt=\"Cargando\">\r\n    </div>\r\n    <div class=\"loader\">\r\n        <span></span>\r\n    </div>\r\n</div>", styles: [".full-size{position:fixed}.component{position:relative}.preloader{top:0;left:0;margin:0 auto;width:100%;height:100%;display:flex;justify-content:center;align-items:center;z-index:997}.preloader .spinner-container{width:200px;height:200px;display:flex;justify-content:center;align-items:center}.preloader .spinner-container img{width:64px;height:64px;z-index:999;position:relative}.preloader .loader{position:absolute;width:200px;height:200px;border:4px solid transparent;overflow:hidden;border-radius:50%}.preloader .loader:before{content:\"\";position:absolute;inset:10px;z-index:998;background:#fff;border-radius:50%;border:2px solid transparent}.preloader .loader>span{position:absolute;width:100%;height:100%;border-radius:50%;background-image:linear-gradient(-225deg,#0245ff,#00e1ff,#5edfff);filter:blur(20px);animation:animate .5s linear infinite}@keyframes animate{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"] }]
         }], propDecorators: { fullscreen: [{
                 type: Input
             }] } });

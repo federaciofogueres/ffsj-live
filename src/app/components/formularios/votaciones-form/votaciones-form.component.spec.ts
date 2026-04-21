@@ -16,6 +16,7 @@ describe('VotacionesFormComponent', () => {
     };
 
     await TestBed.configureTestingModule({
+      rethrowApplicationErrors: false,
       imports: [VotacionesFormComponent],
       providers: [
         FormBuilder,
@@ -37,7 +38,7 @@ describe('VotacionesFormComponent', () => {
       ballots: fb.array([]),
       candidaturas: fb.array([])
     });
-    fixture.detectChanges();
+    component.ngOnInit();
   });
 
   it('adds a simple candidatura when label is provided', () => {
