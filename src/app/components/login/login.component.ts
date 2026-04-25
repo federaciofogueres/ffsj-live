@@ -5,6 +5,7 @@ import { AuthService, FfsjAlertService, FfsjLoginComponent } from 'ffsj-web-comp
 import { jwtDecode } from "jwt-decode";
 import { CookieService } from 'ngx-cookie-service';
 import { map } from 'rxjs';
+import { CensoService } from '../../services/censo.service';
 import { FirebaseStorageService } from '../../services/storage.service';
 
 @Component({
@@ -24,6 +25,7 @@ export class LoginComponent {
     private authService: AuthService,
     private cookiesService: CookieService,
     private firebaseStorageService: FirebaseStorageService,
+    private censoService: CensoService,
     private http: HttpClient
   ) { }
 
@@ -47,6 +49,7 @@ export class LoginComponent {
   }
 
   setTokenConfigurations(token: string) {
+    this.censoService.configuration.accessToken = token;
   }
 
   private saveDeviceInfo() {

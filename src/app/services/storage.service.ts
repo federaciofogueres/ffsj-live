@@ -1,4 +1,5 @@
-import { EnvironmentInjector, inject, Injectable, runInInjectionContext } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { EnvironmentInjector, inject, Injectable, OnDestroy, PLATFORM_ID, runInInjectionContext } from '@angular/core';
 import { Database, ref as dbRef, get, onValue, set } from '@angular/fire/database';
 import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
@@ -9,12 +10,14 @@ import { IRealTimeAdds } from '../model/real-time-config.model';
 @Injectable({
     providedIn: 'root'
 })
-export class FirebaseStorageService {
+export class FirebaseStorageService implements OnDestroy {
 
     private _realtimeDataSubject = new BehaviorSubject<any>(null);
     public realtimeData$: Observable<any> = this._realtimeDataSubject.asObservable();
     private toggleAdsTimeout!: ReturnType<typeof setTimeout> | null;
+    private realtimeUnsubscribe: (() => void) | null = null;
     private _injector = inject(EnvironmentInjector);
+    private platformId = inject(PLATFORM_ID);
     private _database = inject(Database);
     private _firestore = inject(Firestore);
     private _firebaseApp = this._firestore.app;
@@ -23,6 +26,10 @@ export class FirebaseStorageService {
     constructor(
         private ffsjAlertService: FfsjAlertService
     ) { }
+
+    private isBrowser(): boolean {
+        return isPlatformBrowser(this.platformId);
+    }
 
     async setShowAdds(): Promise<void> {
         try {
@@ -61,27 +68,41 @@ export class FirebaseStorageService {
     }
 
     listenToRealtimeData(path: string): void {
+        if (!this.isBrowser()) {
+            return;
+        }
+
         try {
-            runInInjectionContext(this._injector, () => {
-                const reference = dbRef(this._database, path);
-                onValue(reference, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = snapshot.val();
-                        if (JSON.stringify(this._realtimeDataSubject.getValue()) !== JSON.stringify(data)) {
-                            this._realtimeDataSubject.next(data);
-                        }
-                    } else {
-                        console.warn(`No data available at path: ${path}`);
-                        this._realtimeDataSubject.next(null);
+            this.stopRealtimeListener();
+            const reference = runInInjectionContext(this._injector, () => dbRef(this._database, path));
+            this.realtimeUnsubscribe = onValue(reference, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (JSON.stringify(this._realtimeDataSubject.getValue()) !== JSON.stringify(data)) {
+                        this._realtimeDataSubject.next(data);
                     }
-                });
+                } else {
+                    console.warn(`No data available at path: ${path}`);
+                    this._realtimeDataSubject.next(null);
+                }
             });
         } catch (error) {
             this.ffsjAlertService.danger(`Error listening to Realtime Database at path: ${path}` + String(error));
         }
     }
 
+    private stopRealtimeListener(): void {
+        if (this.realtimeUnsubscribe) {
+            this.realtimeUnsubscribe();
+            this.realtimeUnsubscribe = null;
+        }
+    }
+
     async getRealtimeData(path: string): Promise<any> {
+        if (!this.isBrowser()) {
+            return null;
+        }
+
         try {
             const reference = runInInjectionContext(this._injector, () => dbRef(this._database, path));
             const snapshot = await get(reference);
@@ -99,6 +120,10 @@ export class FirebaseStorageService {
     }
 
     async setRealtimeData(path: string, data: any): Promise<void> {
+        if (!this.isBrowser()) {
+            return;
+        }
+
         try {
             const reference = runInInjectionContext(this._injector, () => dbRef(this._database, path));
             await set(reference, data);
@@ -175,6 +200,14 @@ export class FirebaseStorageService {
         } catch (error) {
             this.ffsjAlertService.danger('Error al eliminar la imagen de Firebase Storage:' + String(error));
             throw error;
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.stopRealtimeListener();
+        if (this.toggleAdsTimeout) {
+            clearTimeout(this.toggleAdsTimeout);
+            this.toggleAdsTimeout = null;
         }
     }
 

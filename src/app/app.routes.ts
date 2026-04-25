@@ -7,9 +7,10 @@ import { LiveComponent } from './components/live/live.component';
 import { LoginComponent } from './components/login/login.component';
 import { ResultadosAsambleaComponent } from './components/resultados-asamblea/resultados-asamblea.component';
 import { StreamingComponent } from './components/streaming/streaming.component';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-    { path: 'admin', component: AdminComponent /**, canActivate: [AuthGuard] */ },
+    { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
     { path: 'list', component: ListComponent },
     { path: 'list/:id', component: ItemComponent },
     { path: 'streaming', component: StreamingComponent },

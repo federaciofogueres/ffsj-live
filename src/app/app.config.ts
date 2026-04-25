@@ -1,7 +1,7 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { AngularFireStorage, AngularFireStorageModule } from '@angular/fire/compat/storage';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -19,16 +19,13 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideClientHydration(),
-    provideHttpClient(),
+    provideHttpClient(withFetch()),
     // ApiModule,
     // {
     //   provide: BASE_PATH,
     //   useValue: environment.API_BASE_PATH
     // },
     provideAnimationsAsync(),
-    provideRouter(routes),
-    provideClientHydration(),
-    provideHttpClient(),
     AngularFireStorageModule,
     AngularFireStorage,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
@@ -37,6 +34,5 @@ export const appConfig: ApplicationConfig = {
     provideAnalytics(() => getAnalytics()),
     provideFirestore(() => getFirestore()),
     provideStorage(() => getStorage()),
-    provideAuth(() => getAuth()),
   ]
 };

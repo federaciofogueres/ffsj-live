@@ -1,14 +1,22 @@
-import { EnvironmentInjector, Injectable, inject, runInInjectionContext } from '@angular/core';
+import { EnvironmentInjector, Injectable, PLATFORM_ID, inject, runInInjectionContext } from '@angular/core';
 import { Auth, onAuthStateChanged, signInAnonymously } from '@angular/fire/auth';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthFirebaseService {
     private readonly injector = inject(EnvironmentInjector);
+    private readonly platformId = inject(PLATFORM_ID);
 
     constructor(private auth: Auth) {
-        this.authenticateUser();
+        if (this.isBrowser()) {
+            this.authenticateUser();
+        }
+    }
+
+    private isBrowser(): boolean {
+        return isPlatformBrowser(this.platformId);
     }
 
     private authenticateUser(): void {
@@ -22,6 +30,10 @@ export class AuthFirebaseService {
     }
 
     ensureAuthenticated(): Promise<void> {
+        if (!this.isBrowser()) {
+            return Promise.resolve();
+        }
+
         return new Promise((resolve, reject) => {
             runInInjectionContext(this.injector, () => {
                 const unsubscribe = onAuthStateChanged(this.auth, (user) => {
