@@ -15,6 +15,8 @@ export class FirebaseStorageService implements OnDestroy {
 
     private _realtimeDataSubject = new BehaviorSubject<any>(null);
     public realtimeData$: Observable<any> = this._realtimeDataSubject.asObservable();
+    private readonly realtimeCachePrefix = 'ffsj-live.realtimeDataCache.';
+    private readonly realtimeCheckpointChild = 'cacheTimestamp';
     private toggleAdsTimeout!: ReturnType<typeof setTimeout> | null;
     private realtimeUnsubscribe: (() => void) | null = null;
     private _injector = inject(EnvironmentInjector);
@@ -76,18 +78,38 @@ export class FirebaseStorageService implements OnDestroy {
 
         try {
             this.stopRealtimeListener();
+            const cachedData = this.getCachedRealtimeData(path);
+            if (cachedData) {
+                this.emitRealtimeData(cachedData.data);
+            }
+
             this.realtimeUnsubscribe = runInInjectionContext(this._injector, () => {
-                const reference = dbRef(this._database, path);
-                return onValue(reference, (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    if (JSON.stringify(this._realtimeDataSubject.getValue()) !== JSON.stringify(data)) {
-                        this._realtimeDataSubject.next(data);
+                const reference = dbRef(this._database, `${path}/${this.realtimeCheckpointChild}`);
+                return onValue(reference, async (snapshot) => {
+                    try {
+                        const firebaseTimestamp = this.normalizeTimestamp(snapshot.val());
+                        const localCachedData = this.getCachedRealtimeData(path);
+
+                        if (localCachedData && firebaseTimestamp > 0 && firebaseTimestamp <= localCachedData.timestamp) {
+                            this.emitRealtimeData(localCachedData.data);
+                            return;
+                        }
+
+                        const data = await this.readRealtimeData(path);
+                        if (data !== null) {
+                            this.setCachedRealtimeData(path, data, firebaseTimestamp || Date.now());
+                            this.emitRealtimeData(data);
+                        }
+                    } catch (error) {
+                        const fallbackCache = this.getCachedRealtimeData(path);
+                        if (fallbackCache) {
+                            this.emitRealtimeData(fallbackCache.data);
+                            return;
+                        }
+
+                        console.warn(`No cached data available for path: ${path}`, error);
+                        this._realtimeDataSubject.next(null);
                     }
-                } else {
-                    console.warn(`No data available at path: ${path}`);
-                    this._realtimeDataSubject.next(null);
-                }
                 });
             });
         } catch (error) {
@@ -108,13 +130,9 @@ export class FirebaseStorageService implements OnDestroy {
         }
 
         try {
-            const snapshot = await runInInjectionContext(this._injector, () => {
-                const reference = dbRef(this._database, path);
-                return get(reference);
-            });
-
-            if (snapshot.exists()) {
-                return snapshot.val();
+            const data = await this.readRealtimeData(path);
+            if (data !== null) {
+                return data;
             }
 
             this.ffsjAlertService.danger(`No data available at path: ${path}`);
@@ -135,6 +153,7 @@ export class FirebaseStorageService implements OnDestroy {
                 const reference = dbRef(this._database, path);
                 return set(reference, data);
             });
+            await this.touchRealtimeCheckpoint(path);
             this.ffsjAlertService.success(`Data written successfully at path: ${path}`);
         } catch (error) {
             this.ffsjAlertService.danger(`Error writing data to Realtime Database at path: ${path}` + String(error));
@@ -160,11 +179,115 @@ export class FirebaseStorageService implements OnDestroy {
         const item = items[itemIndex];
 
         const delta = favorite ? 1 : -1;
-        await runInInjectionContext(this._injector, () => {
+        const transactionResult = await runInInjectionContext(this._injector, () => {
             const reference = dbRef(this._database, `config/list/items/${itemIndex}/favoriteCount`);
             return runTransaction(reference, (currentValue) => Math.max((Number(currentValue) || 0) + delta, 0));
         });
+        this.updateCachedFavoriteCount(itemIndex, Number(transactionResult.snapshot.val()) || 0);
         await this.registerFavoriteMark(item, favorite ? 'marked' : 'unmarked');
+    }
+
+    private async readRealtimeData(path: string): Promise<any> {
+        const snapshot = await runInInjectionContext(this._injector, () => {
+            const reference = dbRef(this._database, path);
+            return get(reference);
+        });
+
+        return snapshot.exists() ? snapshot.val() : null;
+    }
+
+    private emitRealtimeData(data: any): void {
+        if (JSON.stringify(this._realtimeDataSubject.getValue()) !== JSON.stringify(data)) {
+            this._realtimeDataSubject.next(data);
+        }
+    }
+
+    private getCachedRealtimeData(path: string): { timestamp: number; data: any } | null {
+        if (!this.isBrowser()) {
+            return null;
+        }
+
+        try {
+            const rawValue = localStorage.getItem(this.getRealtimeCacheKey(path));
+            if (!rawValue) {
+                return null;
+            }
+
+            const parsedValue = JSON.parse(rawValue);
+            if (!parsedValue || typeof parsedValue.timestamp !== 'number' || parsedValue.data === undefined) {
+                return null;
+            }
+
+            return parsedValue;
+        } catch {
+            return null;
+        }
+    }
+
+    private setCachedRealtimeData(path: string, data: any, timestamp: number): void {
+        if (!this.isBrowser()) {
+            return;
+        }
+
+        localStorage.setItem(this.getRealtimeCacheKey(path), JSON.stringify({ timestamp, data }));
+    }
+
+    private getRealtimeCacheKey(path: string): string {
+        return `${this.realtimeCachePrefix}${path}`;
+    }
+
+    private normalizeTimestamp(value: unknown): number {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            const numericValue = Number(value);
+            if (Number.isFinite(numericValue)) {
+                return numericValue;
+            }
+
+            const parsedDate = Date.parse(value);
+            if (Number.isFinite(parsedDate)) {
+                return parsedDate;
+            }
+        }
+
+        return 0;
+    }
+
+    private updateCachedFavoriteCount(itemIndex: number, favoriteCount: number): void {
+        const currentConfig = this._realtimeDataSubject.getValue();
+        const items = currentConfig?.list?.items;
+        if (!Array.isArray(items) || !items[itemIndex]) {
+            return;
+        }
+
+        const nextConfig = {
+            ...currentConfig,
+            list: {
+                ...currentConfig.list,
+                items: items.map((item: any, index: number) =>
+                    index === itemIndex ? { ...item, favoriteCount } : item
+                )
+            }
+        };
+
+        const cachedConfig = this.getCachedRealtimeData('config');
+        this.setCachedRealtimeData('config', nextConfig, cachedConfig?.timestamp || Date.now());
+        this.emitRealtimeData(nextConfig);
+    }
+
+    private async touchRealtimeCheckpoint(path: string): Promise<void> {
+        const rootPath = path.split('/')[0];
+        if (!rootPath || path === `${rootPath}/${this.realtimeCheckpointChild}`) {
+            return;
+        }
+
+        await runInInjectionContext(this._injector, () => {
+            const reference = dbRef(this._database, `${rootPath}/${this.realtimeCheckpointChild}`);
+            return set(reference, Date.now());
+        });
     }
 
     private async registerFavoriteMark(item: {
