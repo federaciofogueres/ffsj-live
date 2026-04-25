@@ -4,6 +4,39 @@
     gap: 16px;
 }
 
+.favorites-filter-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.75rem 0.5rem 0.25rem;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid #e2e5e9;
+    border-radius: 8px;
+    color: #495057;
+    background: #fff;
+    font-weight: 700;
+
+    i {
+        color: #8a8f98;
+    }
+}
+
+.favorites-filter-button--active {
+    border-color: #ffe2a8;
+    color: #3f3420;
+    background: #fff7df;
+
+    i {
+        color: #f2a900;
+    }
+}
+
+.empty-list {
+    grid-column: 1 / -1;
+    color: #6c757d;
+    padding: 1rem 0.5rem;
+}
+
 .scrollable {
     height: 100%;
     overflow-y: auto;

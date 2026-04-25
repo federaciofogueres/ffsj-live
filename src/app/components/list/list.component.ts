@@ -30,6 +30,7 @@ export class ListComponent {
   public filteredItems: IRealTimeItem[] = [];
   public filterKeys: string[] = [];
   public userAdmin: boolean = false;
+  public showOnlyFavorites: boolean = false;
 
   constructor(
     protected router: Router,
@@ -47,8 +48,8 @@ export class ListComponent {
       if (data) {
         this.config = data;
         this.items = this.config.list?.items || [];
-        this.filteredItems = this.items;
         this.filterKeys = this.config.list?.filterKeys || [];
+        this.applyFilters();
         this.loading = false;
       }
     });
@@ -56,13 +57,35 @@ export class ListComponent {
   }
 
   filterItems(value: Event): void {
-    const lowerValue = (value.target as HTMLInputElement).value.toLowerCase() || '';
-    this.filteredItems = this.items.filter((item) =>
-      this.filterKeys.some((key) => {
+    this.searchControl.setValue((value.target as HTMLInputElement).value, { emitEvent: false });
+    this.applyFilters();
+  }
+
+  toggleFavoritesFilter(): void {
+    this.showOnlyFavorites = !this.showOnlyFavorites;
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    const lowerValue = this.searchControl.value?.toString().toLowerCase() || '';
+
+    this.filteredItems = this.items.filter((item) => {
+      const matchesFavorite = !this.showOnlyFavorites || this.isFavoriteMarked(item);
+      const matchesSearch = !lowerValue || this.filterKeys.some((key) => {
         const fieldValue = this.getFieldValue(item, key)?.toString()?.toLowerCase() || '';
         return fieldValue.includes(lowerValue);
-      })
-    );
+      });
+
+      return matchesFavorite && matchesSearch;
+    });
+  }
+
+  private isFavoriteMarked(item: IRealTimeItem): boolean {
+    if (typeof localStorage === 'undefined') {
+      return false;
+    }
+
+    return localStorage.getItem(`ffsj-live.favorite.${item.id}`) === 'true';
   }
 
   private getFieldValue(item: IRealTimeItem, key: string): any {

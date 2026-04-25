@@ -4,6 +4,12 @@
             {{config.list?.title}}
         </span>
 
+        <button type="button" class="favorites-filter-button" [class.favorites-filter-button--active]="showOnlyFavorites"
+            [attr.aria-pressed]="showOnlyFavorites" (click)="toggleFavoritesFilter()">
+            <i class="bi" [ngClass]="showOnlyFavorites ? 'bi-star-fill' : 'bi-star'"></i>
+            <span>Mis favoritas</span>
+        </button>
+
         @if (config.list?.searching) {
         <div class="input-group m-2 mb-3 w-auto">
             <span class="input-group-text" id="basic-addon1">
@@ -20,6 +26,10 @@
         <div class="item-list">
             @for (item of filteredItems; track $index) {
             <app-item-card [item]="item" [showFavoriteCount]="userAdmin"></app-item-card>
+            } @empty {
+            <div class="empty-list">
+                No hay candidatas que coincidan con el filtro.
+            </div>
             }
         </div>
         }
