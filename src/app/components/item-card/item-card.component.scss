@@ -20,6 +20,7 @@
     position: absolute;
     top: 5px;
     right: 5px;
+    z-index: 1;
     width: 30px;
     height: 30px;
     color: white;
@@ -32,20 +33,14 @@
 }
 
 .image-candidata {
-    height: 250px;
-}
-
-.data-candidata {
-    height: 140px;
-}
-
-.candidata {
     position: relative;
+    height: 250px;
 
     .favorite-row {
         position: absolute;
-        top: 0;
-        right: 0;
+        right: 6px;
+        bottom: 6px;
+        z-index: 1;
         display: flex;
         align-items: center;
         gap: 0.35rem;
@@ -76,15 +71,25 @@
 
     .favorite-count {
         min-width: 1.5rem;
-        color: #495057;
+        padding: 0.15rem 0.35rem;
+        color: #212529;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 999px;
         font-size: 0.85rem;
         font-weight: 700;
         text-align: right;
     }
+}
+
+.data-candidata {
+    height: 140px;
+}
+
+.candidata {
+    position: relative;
 
     .candidata-data {
         height: 4rem;
-        padding-right: 3rem;
     }
 
     .asociacion-label {

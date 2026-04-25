@@ -5,25 +5,24 @@
             </div>
             <img [src]="currentImage" class="img-fluid rounded-start animated-image h-100 w-100" alt="Foto bellesa"
                 (click)="toggleImage()" (error)="handleImageError()" loading="lazy">
+            <div class="favorite-row">
+                <button type="button" class="favorite-button" [class.favorite-button--active]="favoriteMarked"
+                    [attr.aria-pressed]="favoriteMarked"
+                    [attr.aria-label]="favoriteMarked ? 'Desmarcar candidata como favorita' : 'Marcar candidata como favorita'"
+                    (click)="toggleFavorite($event)">
+                    <i class="bi" [ngClass]="favoriteMarked ? 'bi-star-fill' : 'bi-star'"></i>
+                </button>
+                @if (showFavoriteCount) {
+                <span class="favorite-count">{{ item.favoriteCount || 0 }}</span>
+                }
+            </div>
         </div>
         <div class="col-md-8 data-candidata">
             <div class="card-body h-100">
                 <div class="d-flex flex-column candidata">
-                    <div class="favorite-row">
-                        <button type="button" class="favorite-button" [class.favorite-button--active]="favoriteMarked"
-                            [attr.aria-pressed]="favoriteMarked"
-                            [attr.aria-label]="favoriteMarked ? 'Desmarcar candidata como favorita' : 'Marcar candidata como favorita'"
-                            [disabled]="favoriteUpdating" (click)="toggleFavorite($event)">
-                            <i class="bi" [ngClass]="favoriteMarked ? 'bi-star-fill' : 'bi-star'"></i>
-                        </button>
-                        @if (showFavoriteCount) {
-                        <span class="favorite-count">{{ item.favoriteCount || 0 }}</span>
-                        }
-                    </div>
                     <div class="d-flex flex-column candidata-data">
                         <span class="nombre h6">{{item.informacionPersonal.nombre| titlecase }} </span>
-                        <span class="asociacion-label">{{(foguera | slice:0:20) + (foguera.length > 20 ? '...' : '') |
-                            titlecase}}</span>
+                        <span class="asociacion-label">{{ foguera | titlecase }}</span>
                     </div>
                     <button class="details-button mt-2 btn btn-primary btn-foc-naranja" (click)="viewDetails()">Ver
                         detalles</button>

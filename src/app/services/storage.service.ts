@@ -76,8 +76,9 @@ export class FirebaseStorageService implements OnDestroy {
 
         try {
             this.stopRealtimeListener();
-            const reference = runInInjectionContext(this._injector, () => dbRef(this._database, path));
-            this.realtimeUnsubscribe = onValue(reference, (snapshot) => {
+            this.realtimeUnsubscribe = runInInjectionContext(this._injector, () => {
+                const reference = dbRef(this._database, path);
+                return onValue(reference, (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     if (JSON.stringify(this._realtimeDataSubject.getValue()) !== JSON.stringify(data)) {
@@ -87,6 +88,7 @@ export class FirebaseStorageService implements OnDestroy {
                     console.warn(`No data available at path: ${path}`);
                     this._realtimeDataSubject.next(null);
                 }
+                });
             });
         } catch (error) {
             this.ffsjAlertService.danger(`Error listening to Realtime Database at path: ${path}` + String(error));
@@ -106,8 +108,10 @@ export class FirebaseStorageService implements OnDestroy {
         }
 
         try {
-            const reference = runInInjectionContext(this._injector, () => dbRef(this._database, path));
-            const snapshot = await get(reference);
+            const snapshot = await runInInjectionContext(this._injector, () => {
+                const reference = dbRef(this._database, path);
+                return get(reference);
+            });
 
             if (snapshot.exists()) {
                 return snapshot.val();
@@ -127,8 +131,10 @@ export class FirebaseStorageService implements OnDestroy {
         }
 
         try {
-            const reference = runInInjectionContext(this._injector, () => dbRef(this._database, path));
-            await set(reference, data);
+            await runInInjectionContext(this._injector, () => {
+                const reference = dbRef(this._database, path);
+                return set(reference, data);
+            });
             this.ffsjAlertService.success(`Data written successfully at path: ${path}`);
         } catch (error) {
             this.ffsjAlertService.danger(`Error writing data to Realtime Database at path: ${path}` + String(error));
@@ -153,13 +159,11 @@ export class FirebaseStorageService implements OnDestroy {
         }
         const item = items[itemIndex];
 
-        const reference = runInInjectionContext(
-            this._injector,
-            () => dbRef(this._database, `config/list/items/${itemIndex}/favoriteCount`)
-        );
-
         const delta = favorite ? 1 : -1;
-        await runTransaction(reference, (currentValue) => Math.max((Number(currentValue) || 0) + delta, 0));
+        await runInInjectionContext(this._injector, () => {
+            const reference = dbRef(this._database, `config/list/items/${itemIndex}/favoriteCount`);
+            return runTransaction(reference, (currentValue) => Math.max((Number(currentValue) || 0) + delta, 0));
+        });
         await this.registerFavoriteMark(item, favorite ? 'marked' : 'unmarked');
     }
 
@@ -171,7 +175,7 @@ export class FirebaseStorageService implements OnDestroy {
         const user = this._auth.currentUser;
         const visitorId = this.getVisitorId();
 
-        await addDoc(collection(this._firestore, 'candidataFavoriteMarks'), {
+        await runInInjectionContext(this._injector, () => addDoc(collection(this._firestore, 'candidataFavoriteMarks'), {
             action,
             candidataId: item.id,
             candidataNombre: item.informacionPersonal?.nombre || '',
@@ -182,7 +186,7 @@ export class FirebaseStorageService implements OnDestroy {
             visitorId,
             createdAt: serverTimestamp(),
             clientTimestamp: new Date().toISOString()
-        });
+        }));
     }
 
     private getVisitorId(): string {
