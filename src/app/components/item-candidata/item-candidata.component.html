@@ -4,9 +4,19 @@
 @if(itemData && !loading) {
 <div class="container" [ngClass]="isLive ? [] : ['scrollable']">
     <div class="row g-1">
-        <div class="d-flex flex-column">
-            <span><b>{{itemData.informacionPersonal.nombre}}</b></span>
-            <span>{{itemData.vidaEnFogueres.asociacion_label}}</span>
+        <div class="candidata-heading">
+            <div class="d-flex flex-column">
+                <span><b>{{itemData.informacionPersonal.nombre}}</b></span>
+                <span>{{itemData.vidaEnFogueres.asociacion_label}}</span>
+                @if (userAdmin) {
+                <span class="favorite-admin-count">Favoritos: {{ itemData.favoriteCount || 0 }}</span>
+                }
+            </div>
+            <button type="button" class="favorite-button" [class.favorite-button--active]="favoriteMarked"
+                [attr.aria-pressed]="favoriteMarked" aria-label="Marcar candidata como favorita"
+                (click)="toggleFavorite()">
+                <i class="bi" [ngClass]="favoriteMarked ? 'bi-star-fill' : 'bi-star'"></i>
+            </button>
         </div>
     </div>
     <div class="row g-0">

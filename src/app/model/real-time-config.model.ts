@@ -80,6 +80,7 @@ export interface IRealTimeList {
 
 export interface IRealTimeItem {
     id: string;
+    favoriteCount?: number;
     informacionPersonal: {
         dni: string;
         nombre: string;

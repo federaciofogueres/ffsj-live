@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
-import { FfsjSpinnerComponent } from 'ffsj-web-components';
+import { AuthService, FfsjSpinnerComponent } from 'ffsj-web-components';
 import { IRealTimeItem } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { getDefaultCandidataImage, resolveCandidataImage } from '../../utils/candidata-images';
@@ -47,11 +47,14 @@ export class ItemCandidataComponent {
   idUsuario: string = '';
   parsedCurriculum: any[] = [];
   itemsList: IRealTimeItem[] = [];
+  favoriteMarked = false;
+  userAdmin = false;
   readonly defaultImage = getDefaultCandidataImage();
 
   constructor(
     private breakpointObserver: BreakpointObserver,
     private firebaseStorageService: FirebaseStorageService,
+    private authService: AuthService,
     private cookieService: CookieService,
     private activatedRoute: ActivatedRoute,
     private cdr: ChangeDetectorRef
@@ -59,6 +62,7 @@ export class ItemCandidataComponent {
 
   async ngOnInit() {
     this.loading = true;
+    this.userAdmin = this.authService.getCargos().some((cargo: { idCargo: number }) => cargo.idCargo === 16);
     this.breakpointObserver
       .observe(['(max-width: 768px)'])
       .subscribe((state: BreakpointState) => {
@@ -98,6 +102,7 @@ export class ItemCandidataComponent {
           this.isLive = true;
         }
         this.parseCurriculum();
+        this.favoriteMarked = this.isFavoriteMarked();
         this.updateImages();
         this.loading = false;
       }
@@ -137,5 +142,51 @@ export class ItemCandidataComponent {
     this.currentImage = this.defaultImage;
     this.alternateImageUrl = this.defaultImage;
     this.cdr.detectChanges();
+  }
+
+  async toggleFavorite(): Promise<void> {
+    if (!this.itemData?.id || this.favoriteMarked) {
+      return;
+    }
+
+    this.favoriteMarked = true;
+    this.saveFavoriteState(true);
+
+    try {
+      await this.firebaseStorageService.incrementCandidataFavorite(this.itemData.id);
+    } catch (error) {
+      this.favoriteMarked = false;
+      this.saveFavoriteState(false);
+      console.error('Error al marcar favorita:', error);
+    }
+  }
+
+  private isFavoriteMarked(): boolean {
+    if (!this.canUseLocalStorage()) {
+      return false;
+    }
+
+    return localStorage.getItem(this.favoriteStorageKey()) === 'true';
+  }
+
+  private saveFavoriteState(value: boolean): void {
+    if (!this.canUseLocalStorage()) {
+      return;
+    }
+
+    if (value) {
+      localStorage.setItem(this.favoriteStorageKey(), 'true');
+      return;
+    }
+
+    localStorage.removeItem(this.favoriteStorageKey());
+  }
+
+  private favoriteStorageKey(): string {
+    return `ffsj-live.favorite.${this.itemData?.id || ''}`;
+  }
+
+  private canUseLocalStorage(): boolean {
+    return typeof localStorage !== 'undefined';
   }
 }

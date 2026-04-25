@@ -1,0 +1,28 @@
+<div class="ranking-shell">
+    <div class="ranking-header">
+        <h1>Ranking</h1>
+    </div>
+
+    @if (loading) {
+    <lib-ffsj-spinner [fullscreen]="true"></lib-ffsj-spinner>
+    } @else {
+    <div class="ranking-list">
+        @for (item of rankingItems; track item.id) {
+        <div class="ranking-row">
+            <div class="ranking-position">{{ $index + 1 }}</div>
+            <img class="ranking-avatar" [src]="getCandidataImage(item)" [alt]="item.informacionPersonal.nombre"
+                (error)="($any($event.target).src = defaultImage)" loading="lazy">
+            <div class="ranking-data">
+                <div class="ranking-main">
+                    <span class="ranking-name">{{ item.informacionPersonal.nombre | titlecase }}</span>
+                    <span class="ranking-count">{{ item.favoriteCount || 0 }}</span>
+                </div>
+                <span class="ranking-association">{{ item.vidaEnFogueres.asociacion_label | titlecase }}</span>
+            </div>
+        </div>
+        } @empty {
+        <div class="ranking-empty">No hay candidatas para mostrar.</div>
+        }
+    </div>
+    }
+</div>

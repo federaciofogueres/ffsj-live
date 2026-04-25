@@ -19,7 +19,7 @@
         }@else {
         <div class="item-list">
             @for (item of filteredItems; track $index) {
-            <app-item-card [item]="item"></app-item-card>
+            <app-item-card [item]="item" [showFavoriteCount]="userAdmin"></app-item-card>
             }
         </div>
         }

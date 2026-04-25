@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { AuthService } from 'ffsj-web-components';
 
 import { ListComponent } from './list.component';
 import { IRealTimeConfigModel, IRealTimeItem } from '../../model/real-time-config.model';
@@ -23,6 +24,12 @@ describe('ListComponent', () => {
           useValue: {
             listenToRealtimeData: jasmine.createSpy('listenToRealtimeData'),
             realtimeData$
+          }
+        },
+        {
+          provide: AuthService,
+          useValue: {
+            getCargos: jasmine.createSpy('getCargos').and.returnValue([])
           }
         }
       ]

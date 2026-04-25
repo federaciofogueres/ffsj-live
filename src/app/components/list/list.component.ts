@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { FfsjSpinnerComponent } from 'ffsj-web-components';
+import { AuthService, FfsjSpinnerComponent } from 'ffsj-web-components';
 import { IRealTimeConfigModel, IRealTimeItem } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
 import { ItemCardComponent } from '../item-card/item-card.component';
@@ -29,13 +29,16 @@ export class ListComponent {
   public items: IRealTimeItem[] = [];
   public filteredItems: IRealTimeItem[] = [];
   public filterKeys: string[] = [];
+  public userAdmin: boolean = false;
 
   constructor(
     protected router: Router,
-    private firebaseStorageService: FirebaseStorageService
+    private firebaseStorageService: FirebaseStorageService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
+    this.userAdmin = this.authService.getCargos().some((cargo: { idCargo: number }) => cargo.idCargo === 16);
     this.loadData();
   }
 

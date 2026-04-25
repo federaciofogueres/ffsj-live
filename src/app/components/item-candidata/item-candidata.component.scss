@@ -15,6 +15,40 @@
     overflow: auto;
 }
 
+.candidata-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.25rem 0;
+}
+
+.favorite-button {
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 50%;
+    color: #8a8f98;
+    background: #f5f6f8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.favorite-button--active {
+    color: #f2a900;
+    background: #fff6da;
+}
+
+.favorite-admin-count {
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
 /* filepath: g:\Proyectos\FFSJ\ffsj-live\src\app\components\item-candidata\item-candidata.component.scss */
 .bg-light {
     background-color: #f8f9fa !important;

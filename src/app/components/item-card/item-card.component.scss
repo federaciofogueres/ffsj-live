@@ -40,8 +40,46 @@
 }
 
 .candidata {
+    position: relative;
+
+    .favorite-row {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .favorite-button {
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 0;
+        border-radius: 50%;
+        color: #8a8f98;
+        background: #f5f6f8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+
+    .favorite-button--active {
+        color: #f2a900;
+        background: #fff6da;
+    }
+
+    .favorite-count {
+        min-width: 1.5rem;
+        color: #495057;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-align: right;
+    }
+
     .candidata-data {
         height: 4rem;
+        padding-right: 3rem;
     }
 
     .asociacion-label {

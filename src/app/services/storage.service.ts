@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, inject, Injectable, OnDestroy, PLATFORM_ID, runInInjectionContext } from '@angular/core';
-import { Database, ref as dbRef, get, onValue, set } from '@angular/fire/database';
+import { Database, ref as dbRef, get, onValue, runTransaction, set } from '@angular/fire/database';
 import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
 import { FfsjAlertService } from 'ffsj-web-components';
@@ -132,6 +132,30 @@ export class FirebaseStorageService implements OnDestroy {
             this.ffsjAlertService.danger(`Error writing data to Realtime Database at path: ${path}` + String(error));
             throw error;
         }
+    }
+
+    async incrementCandidataFavorite(itemId: string): Promise<void> {
+        if (!this.isBrowser() || !itemId) {
+            return;
+        }
+
+        const currentConfig = this._realtimeDataSubject.getValue();
+        const items = currentConfig?.list?.items;
+        if (!Array.isArray(items)) {
+            throw new Error('No se pudo localizar el listado de candidatas.');
+        }
+
+        const itemIndex = items.findIndex((item: { id?: string }) => item.id === itemId);
+        if (itemIndex < 0) {
+            throw new Error(`No se encontro la candidata con id ${itemId}.`);
+        }
+
+        const reference = runInInjectionContext(
+            this._injector,
+            () => dbRef(this._database, `config/list/items/${itemIndex}/favoriteCount`)
+        );
+
+        await runTransaction(reference, (currentValue) => (Number(currentValue) || 0) + 1);
     }
 
     uploadFile(filePath: string, file: File): Promise<string> {
