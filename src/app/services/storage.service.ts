@@ -136,7 +136,7 @@ export class FirebaseStorageService implements OnDestroy {
         }
     }
 
-    async incrementCandidataFavorite(itemId: string): Promise<void> {
+    async setCandidataFavorite(itemId: string, favorite: boolean): Promise<void> {
         if (!this.isBrowser() || !itemId) {
             return;
         }
@@ -158,19 +158,21 @@ export class FirebaseStorageService implements OnDestroy {
             () => dbRef(this._database, `config/list/items/${itemIndex}/favoriteCount`)
         );
 
-        await runTransaction(reference, (currentValue) => (Number(currentValue) || 0) + 1);
-        await this.registerFavoriteMark(item);
+        const delta = favorite ? 1 : -1;
+        await runTransaction(reference, (currentValue) => Math.max((Number(currentValue) || 0) + delta, 0));
+        await this.registerFavoriteMark(item, favorite ? 'marked' : 'unmarked');
     }
 
     private async registerFavoriteMark(item: {
         id: string;
         informacionPersonal?: { nombre?: string };
         vidaEnFogueres?: { asociacion_label?: string; asociacion_order?: number };
-    }): Promise<void> {
+    }, action: 'marked' | 'unmarked'): Promise<void> {
         const user = this._auth.currentUser;
         const visitorId = this.getVisitorId();
 
         await addDoc(collection(this._firestore, 'candidataFavoriteMarks'), {
+            action,
             candidataId: item.id,
             candidataNombre: item.informacionPersonal?.nombre || '',
             asociacion: item.vidaEnFogueres?.asociacion_label || '',

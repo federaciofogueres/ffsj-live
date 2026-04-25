@@ -11,8 +11,9 @@
                 <div class="d-flex flex-column candidata">
                     <div class="favorite-row">
                         <button type="button" class="favorite-button" [class.favorite-button--active]="favoriteMarked"
-                            [attr.aria-pressed]="favoriteMarked" aria-label="Marcar candidata como favorita"
-                            (click)="toggleFavorite($event)">
+                            [attr.aria-pressed]="favoriteMarked"
+                            [attr.aria-label]="favoriteMarked ? 'Desmarcar candidata como favorita' : 'Marcar candidata como favorita'"
+                            [disabled]="favoriteUpdating" (click)="toggleFavorite($event)">
                             <i class="bi" [ngClass]="favoriteMarked ? 'bi-star-fill' : 'bi-star'"></i>
                         </button>
                         @if (showFavoriteCount) {

@@ -30,6 +30,7 @@ export class ItemCardComponent {
 
   foguera: string = '';
   favoriteMarked = false;
+  favoriteUpdating = false;
   readonly defaultImage = getDefaultCandidataImage();
 
   constructor(
@@ -71,19 +72,24 @@ export class ItemCardComponent {
   async toggleFavorite(event: Event): Promise<void> {
     event.stopPropagation();
 
-    if (!this.item?.id || this.favoriteMarked) {
+    if (!this.item?.id || this.favoriteUpdating) {
       return;
     }
 
-    this.favoriteMarked = true;
-    this.saveFavoriteState(true);
+    const previousValue = this.favoriteMarked;
+    const nextValue = !previousValue;
+    this.favoriteUpdating = true;
+    this.favoriteMarked = nextValue;
+    this.saveFavoriteState(nextValue);
 
     try {
-      await this.firebaseStorageService.incrementCandidataFavorite(this.item.id);
+      await this.firebaseStorageService.setCandidataFavorite(this.item.id, nextValue);
     } catch (error) {
-      this.favoriteMarked = false;
-      this.saveFavoriteState(false);
-      console.error('Error al marcar favorita:', error);
+      this.favoriteMarked = previousValue;
+      this.saveFavoriteState(previousValue);
+      console.error('Error al actualizar favorita:', error);
+    } finally {
+      this.favoriteUpdating = false;
     }
   }
 

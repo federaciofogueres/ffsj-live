@@ -48,6 +48,7 @@ export class ItemCandidataComponent {
   parsedCurriculum: any[] = [];
   itemsList: IRealTimeItem[] = [];
   favoriteMarked = false;
+  favoriteUpdating = false;
   userAdmin = false;
   readonly defaultImage = getDefaultCandidataImage();
 
@@ -145,19 +146,24 @@ export class ItemCandidataComponent {
   }
 
   async toggleFavorite(): Promise<void> {
-    if (!this.itemData?.id || this.favoriteMarked) {
+    if (!this.itemData?.id || this.favoriteUpdating) {
       return;
     }
 
-    this.favoriteMarked = true;
-    this.saveFavoriteState(true);
+    const previousValue = this.favoriteMarked;
+    const nextValue = !previousValue;
+    this.favoriteUpdating = true;
+    this.favoriteMarked = nextValue;
+    this.saveFavoriteState(nextValue);
 
     try {
-      await this.firebaseStorageService.incrementCandidataFavorite(this.itemData.id);
+      await this.firebaseStorageService.setCandidataFavorite(this.itemData.id, nextValue);
     } catch (error) {
-      this.favoriteMarked = false;
-      this.saveFavoriteState(false);
-      console.error('Error al marcar favorita:', error);
+      this.favoriteMarked = previousValue;
+      this.saveFavoriteState(previousValue);
+      console.error('Error al actualizar favorita:', error);
+    } finally {
+      this.favoriteUpdating = false;
     }
   }
 
