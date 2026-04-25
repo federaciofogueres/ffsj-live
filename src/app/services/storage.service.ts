@@ -1,7 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, inject, Injectable, OnDestroy, PLATFORM_ID, runInInjectionContext } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import { Database, ref as dbRef, get, onValue, runTransaction, set } from '@angular/fire/database';
-import { collection, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
+import { addDoc, collection, doc, Firestore, getDocs, serverTimestamp, setDoc } from '@angular/fire/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable } from '@angular/fire/storage';
 import { FfsjAlertService } from 'ffsj-web-components';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -18,6 +19,7 @@ export class FirebaseStorageService implements OnDestroy {
     private realtimeUnsubscribe: (() => void) | null = null;
     private _injector = inject(EnvironmentInjector);
     private platformId = inject(PLATFORM_ID);
+    private _auth = inject(Auth);
     private _database = inject(Database);
     private _firestore = inject(Firestore);
     private _firebaseApp = this._firestore.app;
@@ -149,6 +151,7 @@ export class FirebaseStorageService implements OnDestroy {
         if (itemIndex < 0) {
             throw new Error(`No se encontro la candidata con id ${itemId}.`);
         }
+        const item = items[itemIndex];
 
         const reference = runInInjectionContext(
             this._injector,
@@ -156,6 +159,45 @@ export class FirebaseStorageService implements OnDestroy {
         );
 
         await runTransaction(reference, (currentValue) => (Number(currentValue) || 0) + 1);
+        await this.registerFavoriteMark(item);
+    }
+
+    private async registerFavoriteMark(item: {
+        id: string;
+        informacionPersonal?: { nombre?: string };
+        vidaEnFogueres?: { asociacion_label?: string; asociacion_order?: number };
+    }): Promise<void> {
+        const user = this._auth.currentUser;
+        const visitorId = this.getVisitorId();
+
+        await addDoc(collection(this._firestore, 'candidataFavoriteMarks'), {
+            candidataId: item.id,
+            candidataNombre: item.informacionPersonal?.nombre || '',
+            asociacion: item.vidaEnFogueres?.asociacion_label || '',
+            asociacionOrder: item.vidaEnFogueres?.asociacion_order ?? null,
+            firebaseUid: user?.uid || null,
+            firebaseAnonymous: user?.isAnonymous ?? true,
+            visitorId,
+            createdAt: serverTimestamp(),
+            clientTimestamp: new Date().toISOString()
+        });
+    }
+
+    private getVisitorId(): string {
+        const storageKey = 'ffsj-live.visitorId';
+
+        if (!this.isBrowser()) {
+            return 'server';
+        }
+
+        const existingId = localStorage.getItem(storageKey);
+        if (existingId) {
+            return existingId;
+        }
+
+        const visitorId = crypto.randomUUID();
+        localStorage.setItem(storageKey, visitorId);
+        return visitorId;
     }
 
     uploadFile(filePath: string, file: File): Promise<string> {

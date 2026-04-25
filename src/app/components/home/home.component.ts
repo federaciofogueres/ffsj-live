@@ -19,6 +19,7 @@ export class HomeComponent {
     eventos: []
   }
   showProtagonists = false;
+  showWelcomeModal = true;
 
   constructor(
     protected router: Router,
@@ -41,5 +42,14 @@ export class HomeComponent {
   // Alternar la visibilidad de los protagonistas
   toggleProtagonists(): void {
     this.showProtagonists = !this.showProtagonists;
+  }
+
+  closeWelcomeModal(): void {
+    this.showWelcomeModal = false;
+  }
+
+  goToCandidatas(): void {
+    this.closeWelcomeModal();
+    this.router.navigateByUrl('/list');
   }
 }

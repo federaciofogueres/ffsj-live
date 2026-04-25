@@ -1,3 +1,39 @@
+@if (showWelcomeModal) {
+<div class="welcome-modal-backdrop" role="presentation">
+    <section class="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
+        <button type="button" class="welcome-close" aria-label="Cerrar aviso" (click)="closeWelcomeModal()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+
+        <div class="welcome-kicker">
+            <i class="bi bi-stars"></i>
+            Vive la elección
+        </div>
+
+        <h2 id="welcome-modal-title">Tu candidata favorita también cuenta</h2>
+
+        <p class="welcome-copy">
+            Entra en el listado de candidatas desde la última opción, descubre cada perfil pulsando sobre su ficha y
+            quédate con sus fotos, su trayectoria y su foguera.
+        </p>
+
+        <div class="welcome-highlight">
+            <i class="bi bi-star-fill"></i>
+            <span><b>Novedad:</b> marca tus candidatas favoritas y acompáñalas durante toda la gala.</span>
+        </div>
+
+        <div class="welcome-actions">
+            <button type="button" class="btn btn-foc-naranja" (click)="goToCandidatas()">
+                Ver candidatas
+            </button>
+            <button type="button" class="btn btn-foc-rojo" (click)="closeWelcomeModal()">
+                Empezar
+            </button>
+        </div>
+    </section>
+</div>
+}
+
 <div class="home-container">
     <div class="d-flex flex-column text-center">
         <span class="h1">{{ eventInfo.title }}</span>
