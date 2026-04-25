@@ -1,5 +1,17 @@
 @use "../../../variables" as *;
 
+:host {
+    display: block;
+    flex: 0 0 var(--app-header-height);
+    height: var(--app-header-height);
+    z-index: 10;
+}
+
+:host > div {
+    height: 100%;
+    box-sizing: border-box;
+}
+
 .img-header {
     height: 32px;
 }
