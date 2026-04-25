@@ -111,6 +111,10 @@ export interface IRealTimeItem {
         dniEscaneado: string;
         fotoBelleza: string;
         fotoCalle: string;
+        fotoBellezaThumb?: string;
+        fotoCalleThumb?: string;
+        fotoBellezaLarge?: string;
+        fotoCalleLarge?: string;
     };
     responsables: {
         nombreTutor1?: string;
@@ -173,7 +177,11 @@ export function createDefaultLiveInfo(): IRealTimeLive {
                 derechosAutor: '',
                 dniEscaneado: '',
                 fotoBelleza: '',
-                fotoCalle: ''
+                fotoCalle: '',
+                fotoBellezaThumb: '',
+                fotoCalleThumb: '',
+                fotoBellezaLarge: '',
+                fotoCalleLarge: ''
             },
             responsables: {
                 nombreTutor1: undefined,

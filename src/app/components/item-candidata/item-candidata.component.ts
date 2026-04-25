@@ -78,13 +78,15 @@ export class ItemCandidataComponent {
       this._itemData?.documentacion?.fotoBelleza,
       this._itemData?.informacionPersonal?.tipoCandidata,
       this._itemData?.vidaEnFogueres?.asociacion_order,
-      'belleza'
+      'belleza',
+      this._itemData?.documentacion?.fotoBellezaLarge
     );
     this.alternateImageUrl = resolveCandidataImage(
       this._itemData?.documentacion?.fotoCalle,
       this._itemData?.informacionPersonal?.tipoCandidata,
       this._itemData?.vidaEnFogueres?.asociacion_order,
-      'calle'
+      'calle',
+      this._itemData?.documentacion?.fotoCalleLarge
     );
     this.cdr.detectChanges();
   }
@@ -132,7 +134,8 @@ export class ItemCandidataComponent {
           this.itemData.documentacion?.fotoBelleza,
           this.itemData.informacionPersonal?.tipoCandidata,
           this.itemData.vidaEnFogueres?.asociacion_order,
-          'belleza'
+          'belleza',
+          this.itemData.documentacion?.fotoBellezaLarge
         )
         : this.alternateImageUrl;
     }

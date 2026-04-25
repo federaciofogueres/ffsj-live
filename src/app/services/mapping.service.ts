@@ -37,7 +37,11 @@ export class MappingService {
                 derechosAutor: item.derechosAutor || '',
                 dniEscaneado: item.dniEscaneado || '',
                 fotoBelleza: item.fotoBelleza || '',
-                fotoCalle: item.fotoCalle || ''
+                fotoCalle: item.fotoCalle || '',
+                fotoBellezaThumb: item.fotoBellezaThumb || '',
+                fotoCalleThumb: item.fotoCalleThumb || '',
+                fotoBellezaLarge: item.fotoBellezaLarge || '',
+                fotoCalleLarge: item.fotoCalleLarge || ''
             },
             responsables: {
                 nombreTutor1: item.nombreTutor1 || '',
@@ -74,6 +78,10 @@ export class MappingService {
             dniEscaneado: item.documentacion?.dniEscaneado || '',
             fotoBelleza: item.documentacion?.fotoBelleza || '',
             fotoCalle: item.documentacion?.fotoCalle || '',
+            fotoBellezaThumb: item.documentacion?.fotoBellezaThumb || '',
+            fotoCalleThumb: item.documentacion?.fotoCalleThumb || '',
+            fotoBellezaLarge: item.documentacion?.fotoBellezaLarge || '',
+            fotoCalleLarge: item.documentacion?.fotoCalleLarge || '',
             nombreTutor1: item.responsables?.nombreTutor1 || '',
             nombreTutor2: item.responsables?.nombreTutor2 || '',
             telefonoTutor1: item.responsables?.telefonoTutor1 || '',

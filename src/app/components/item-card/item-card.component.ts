@@ -57,13 +57,15 @@ export class ItemCardComponent {
       this.item.documentacion?.fotoBelleza,
       this.item.informacionPersonal?.tipoCandidata,
       this.item.vidaEnFogueres?.asociacion_order,
-      'belleza'
+      'belleza',
+      this.item.documentacion?.fotoBellezaThumb
     );
     this.alternateImageUrl = resolveCandidataImage(
       this.item.documentacion?.fotoCalle,
       this.item.informacionPersonal?.tipoCandidata,
       this.item.vidaEnFogueres?.asociacion_order,
-      'calle'
+      'calle',
+      this.item.documentacion?.fotoCalleThumb
     );
     this.foguera = this.item.vidaEnFogueres.asociacion_label || '';
     this.favoriteMarked = this.isFavoriteMarked();
@@ -128,7 +130,8 @@ export class ItemCardComponent {
         this.item.documentacion?.fotoBelleza,
         this.item.informacionPersonal?.tipoCandidata,
         this.item.vidaEnFogueres?.asociacion_order,
-        'belleza'
+        'belleza',
+        this.item.documentacion?.fotoBellezaThumb
       )
       : this.alternateImageUrl;
   }

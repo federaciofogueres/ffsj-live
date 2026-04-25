@@ -102,7 +102,11 @@ export class CandidataService {
                         derechosAutor: dataBD['derechosAutor'] || "",
                         dniEscaneado: dataBD['dniEscaneado'] || "",
                         fotoBelleza: dataBD['fotoBelleza'] || "",
-                        fotoCalle: dataBD['fotoCalle'] || ""
+                        fotoCalle: dataBD['fotoCalle'] || "",
+                        fotoBellezaThumb: dataBD['fotoBellezaThumb'] || "",
+                        fotoCalleThumb: dataBD['fotoCalleThumb'] || "",
+                        fotoBellezaLarge: dataBD['fotoBellezaLarge'] || "",
+                        fotoCalleLarge: dataBD['fotoCalleLarge'] || ""
                     },
                     responsables: {
                         nombreTutor1: dataBD['nombreTutor1'] || "",

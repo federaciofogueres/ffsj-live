@@ -5,8 +5,14 @@ export function resolveCandidataImage(
     explicitUrl: string | undefined,
     tipoCandidata: string | undefined,
     asociacionOrder: number | undefined,
-    variant: 'belleza' | 'calle'
+    variant: 'belleza' | 'calle',
+    optimizedUrl?: string
 ): string {
+    const trimmedOptimizedUrl = String(optimizedUrl || '').trim();
+    if (trimmedOptimizedUrl) {
+        return trimmedOptimizedUrl;
+    }
+
     const trimmedUrl = String(explicitUrl || '').trim();
     if (trimmedUrl) {
         return trimmedUrl;

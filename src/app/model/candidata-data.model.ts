@@ -31,6 +31,10 @@ export interface Documentacion {
   dniEscaneado: string;
   fotoBelleza: string;
   fotoCalle: string;
+  fotoBellezaThumb?: string;
+  fotoCalleThumb?: string;
+  fotoBellezaLarge?: string;
+  fotoCalleLarge?: string;
 }
 
 export interface Responsables {
@@ -74,6 +78,10 @@ export const LabelsFormulario: { [key in string]: string } = {
   ['dniEscaneado']: 'DNI escaneado',
   ['fotoBelleza']: 'Foto belleza',
   ['fotoCalle']: 'Foto calle',
+  ['fotoBellezaThumb']: 'Foto belleza miniatura',
+  ['fotoCalleThumb']: 'Foto calle miniatura',
+  ['fotoBellezaLarge']: 'Foto belleza optimizada',
+  ['fotoCalleLarge']: 'Foto calle optimizada',
   ['nombreTutor1']: 'Nombre del tutor 1',
   ['nombreTutor2']: 'Nombre del tutor 2',
   ['telefonoTutor1']: 'Teléfono del tutor 1',

@@ -7,6 +7,18 @@ describe('candidata-images utils', () => {
     );
   });
 
+  it('should prefer the optimized image url when provided', () => {
+    expect(
+      resolveCandidataImage(
+        'https://cdn.example.com/original.jpg',
+        'belleza',
+        7,
+        'belleza',
+        'https://cdn.example.com/thumb.webp'
+      )
+    ).toBe('https://cdn.example.com/thumb.webp');
+  });
+
   it('should build the fallback image path from candidata data', () => {
     expect(resolveCandidataImage('', 'adulta', 12, 'calle')).toBe(
       'https://staticfoguerapp.hogueras.es/CANDIDATAS/calle/adulta/12.jpg'

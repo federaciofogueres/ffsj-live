@@ -43,7 +43,8 @@ export class RankingComponent implements OnInit {
       item.documentacion?.fotoBelleza,
       item.informacionPersonal?.tipoCandidata,
       item.vidaEnFogueres?.asociacion_order,
-      'belleza'
+      'belleza',
+      item.documentacion?.fotoBellezaThumb
     );
   }
 }
