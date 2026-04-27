@@ -21,6 +21,19 @@ app-list-options-form {
     min-height: 2.5rem;
 }
 
+.image-type-field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-weight: 700;
+}
+
+.image-type-field input {
+    width: 8rem;
+    min-height: 2.5rem;
+}
+
 .admin-toolbar button {
     min-height: 2.5rem;
     font-weight: 700;

@@ -59,6 +59,7 @@ export class AdminComponent {
   public imageZipGenerating = false;
   public imageZipProgress = '';
   public imageUrlsUpdating = false;
+  public imageExportType = 'adulta';
 
   protected _selectedView: string = 'votaciones';
   protected loading: boolean = true;
@@ -309,19 +310,19 @@ export class AdminComponent {
         items: items.map((item) => ({
           id: item.id,
           nombre: item.informacionPersonal?.nombre || '',
-          tipo: item.informacionPersonal?.tipoCandidata || '',
+          tipo: this.getCandidataImageType(item),
           orden: item.vidaEnFogueres?.asociacion_order || item.id,
           bellezaUrl: resolveCandidataImage(
-          item.documentacion?.fotoBelleza,
-          item.informacionPersonal?.tipoCandidata,
-          item.vidaEnFogueres?.asociacion_order,
-          'belleza'
+            item.documentacion?.fotoBelleza,
+            this.getCandidataImageType(item),
+            item.vidaEnFogueres?.asociacion_order,
+            'belleza'
           ),
           calleUrl: resolveCandidataImage(
-          item.documentacion?.fotoCalle,
-          item.informacionPersonal?.tipoCandidata,
-          item.vidaEnFogueres?.asociacion_order,
-          'calle'
+            item.documentacion?.fotoCalle,
+            this.getCandidataImageType(item),
+            item.vidaEnFogueres?.asociacion_order,
+            'calle'
           )
         }))
       };
@@ -365,7 +366,7 @@ export class AdminComponent {
 
     try {
       const updatedItems = items.map((item) => {
-        const tipo = this.safePathSegment(item.informacionPersonal?.tipoCandidata || 'sin-tipo');
+        const tipo = this.safePathSegment(this.getCandidataImageType(item));
         const orden = this.safePathSegment(String(item.vidaEnFogueres?.asociacion_order || item.id || 'sin-orden'));
         const basePath = `https://staticfoguerapp.hogueras.es/LIVE/CANDIDATAS`;
 
@@ -405,6 +406,10 @@ export class AdminComponent {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9_-]+/g, '-')
       .replace(/^-+|-+$/g, '') || 'sin-datos';
+  }
+
+  private getCandidataImageType(item: IRealTimeList['items'][number]): string {
+    return String(item.informacionPersonal?.tipoCandidata || this.imageExportType || '').trim();
   }
 }
 

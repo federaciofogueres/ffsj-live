@@ -14,6 +14,11 @@
         <option value="votaciones">Votaciones</option>
     </select>
 
+    <label class="image-type-field">
+        <span>Tipo imagenes</span>
+        <input type="text" class="form-control" [(ngModel)]="imageExportType" placeholder="adulta">
+    </label>
+
     <button type="button" class="btn btn-primary btn-foc-naranja" [disabled]="imageZipGenerating"
         (click)="downloadCandidatasImagesZip()">
         {{ imageZipGenerating ? imageZipProgress : 'Descargar ZIP imagenes LIVE' }}
