@@ -3,6 +3,7 @@
 } @else {
 <div class="d-flex flex-column h-100">
     <!-- Botón desplegable -->
+    <div class="admin-toolbar">
     <select [(ngModel)]="selectedView">
         <option value="info">Información principal</option>
         <option value="streaming">Streaming</option>
@@ -12,6 +13,17 @@
         <option value="anuncios">Anuncios</option>
         <option value="votaciones">Votaciones</option>
     </select>
+
+    <button type="button" class="btn btn-primary btn-foc-naranja" [disabled]="imageZipGenerating"
+        (click)="downloadCandidatasImagesZip()">
+        {{ imageZipGenerating ? imageZipProgress : 'Descargar ZIP imagenes LIVE' }}
+    </button>
+
+    <button type="button" class="btn btn-primary btn-foc-naranja" [disabled]="imageUrlsUpdating"
+        (click)="updateCandidatasStaticImageUrls()">
+        {{ imageUrlsUpdating ? 'Actualizando URLs...' : 'Actualizar URLs imagenes LIVE' }}
+    </button>
+    </div>
 
     <div class="scrollable">
         @switch (selectedView) {

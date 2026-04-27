@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FfsjSpinnerComponent } from 'ffsj-web-components';
 import { IRealTimeItem } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { ffsjDebugLog } from '../../utils/debug-log';
 import { getDefaultCandidataImage, resolveCandidataImage } from '../../utils/candidata-images';
 
 @Component({
@@ -44,7 +45,20 @@ export class RankingComponent implements OnInit {
       item.informacionPersonal?.tipoCandidata,
       item.vidaEnFogueres?.asociacion_order,
       'belleza',
-      item.documentacion?.fotoBellezaThumb
+      item.documentacion?.fotoThumbBelleza
     );
+  }
+
+  handleImageLoad(event: Event, item: IRealTimeItem): void {
+    const image = event.target as HTMLImageElement;
+    ffsjDebugLog('image', 'ranking cargada', {
+      id: item.id,
+      nombre: item.informacionPersonal?.nombre,
+      currentSrc: image.currentSrc || image.src,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+      renderedWidth: image.clientWidth,
+      renderedHeight: image.clientHeight
+    });
   }
 }

@@ -7,6 +7,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { AuthFirebaseService } from './services/auth.service';
 import { FirebaseStorageService } from './services/storage.service';
+import { installFirebaseNetworkDebugLogger } from './utils/debug-log';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +37,8 @@ export class AppComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    installFirebaseNetworkDebugLogger();
+
     this.authFirebase.ensureAuthenticated().then(() => {
       // Escuchar los datos de Firebase solo después de la autenticación
       this.firebaseStorageService.listenToRealtimeData('config');

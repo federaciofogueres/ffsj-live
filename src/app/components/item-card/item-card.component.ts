@@ -3,6 +3,7 @@ import { Component, Input, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { IRealTimeItem } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { ffsjDebugLog } from '../../utils/debug-log';
 import { getDefaultCandidataImage, resolveCandidataImage } from '../../utils/candidata-images';
 
 @Component({
@@ -58,17 +59,24 @@ export class ItemCardComponent {
       this.item.informacionPersonal?.tipoCandidata,
       this.item.vidaEnFogueres?.asociacion_order,
       'belleza',
-      this.item.documentacion?.fotoBellezaThumb
+      this.item.documentacion?.fotoThumbBelleza
     );
     this.alternateImageUrl = resolveCandidataImage(
       this.item.documentacion?.fotoCalle,
       this.item.informacionPersonal?.tipoCandidata,
       this.item.vidaEnFogueres?.asociacion_order,
       'calle',
-      this.item.documentacion?.fotoCalleThumb
+      this.item.documentacion?.fotoThumbCalle
     );
     this.foguera = this.item.vidaEnFogueres.asociacion_label || '';
     this.favoriteMarked = this.isFavoriteMarked();
+    ffsjDebugLog('image', 'card resuelta', {
+      id: this.item.id,
+      nombre: this.item.informacionPersonal?.nombre,
+      selected: this.currentImage,
+      thumb: this.item.documentacion?.fotoThumbBelleza || null,
+      original: this.item.documentacion?.fotoBelleza || null
+    });
   }
 
   async toggleFavorite(event: Event): Promise<void> {
@@ -131,14 +139,31 @@ export class ItemCardComponent {
         this.item.informacionPersonal?.tipoCandidata,
         this.item.vidaEnFogueres?.asociacion_order,
         'belleza',
-        this.item.documentacion?.fotoBellezaThumb
+        this.item.documentacion?.fotoThumbBelleza
       )
       : this.alternateImageUrl;
   }
 
   handleImageError(): void {
+    ffsjDebugLog('image', 'card error, usando default', {
+      id: this.item?.id,
+      failed: this.currentImage
+    });
     this.currentImage = this.defaultImage;
     this.alternateImageUrl = this.defaultImage;
+  }
+
+  handleImageLoad(event: Event): void {
+    const image = event.target as HTMLImageElement;
+    ffsjDebugLog('image', 'card cargada', {
+      id: this.item?.id,
+      nombre: this.item?.informacionPersonal?.nombre,
+      currentSrc: image.currentSrc || image.src,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+      renderedWidth: image.clientWidth,
+      renderedHeight: image.clientHeight
+    });
   }
 
   viewDetails() {

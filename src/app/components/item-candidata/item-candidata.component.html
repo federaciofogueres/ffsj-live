@@ -20,18 +20,23 @@
             </button>
         </div>
     </div>
-    <div class="row g-0">
+    <div class="row g-0 image-section">
+        @if (imageLoading) {
+        <div class="image-loading-overlay">
+            <lib-ffsj-spinner [fullscreen]="false"></lib-ffsj-spinner>
+        </div>
+        }
         @if(isTelefono) {
         <img [src]="currentImage" class="img-fluid rounded-start animated-image" alt="Foto bellesa"
-            (click)="toggleImage()" (error)="handleImageError()">
+            (click)="toggleImage()" (load)="handleImageLoad($event, 'detalle-mobile')" (error)="handleImageError()">
         } @else {
         <div class="col-md-6">
             <img [src]="currentImage" class="img-fluid rounded-start animated-image"
-                alt="Foto bellesa" (error)="handleImageError()">
+                alt="Foto bellesa" (load)="handleImageLoad($event, 'detalle-belleza')" (error)="handleImageError()">
         </div>
         <div class="col-md-6">
             <img [src]="alternateImageUrl" class="img-fluid rounded-start animated-image"
-                alt="Foto alternativa" (error)="handleImageError()">
+                alt="Foto alternativa" (load)="handleImageLoad($event, 'detalle-calle')" (error)="handleImageError()">
         </div>
         }
     </div>

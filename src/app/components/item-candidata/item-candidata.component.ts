@@ -8,6 +8,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { AuthService, FfsjSpinnerComponent } from 'ffsj-web-components';
 import { IRealTimeItem } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { ffsjDebugLog } from '../../utils/debug-log';
 import { getDefaultCandidataImage, resolveCandidataImage } from '../../utils/candidata-images';
 
 @Component({
@@ -41,6 +42,8 @@ export class ItemCandidataComponent {
   alternateImageUrl: string = '';
   isFlipped: boolean = false;
   currentImage: string = '';
+  imageLoading = false;
+  private pendingImageLoads = 0;
   anotaciones: string = '';
   isTelefono: boolean = false;
 
@@ -74,20 +77,31 @@ export class ItemCandidataComponent {
   }
 
   private updateImages() {
+    this.startImageLoading();
     this.currentImage = resolveCandidataImage(
       this._itemData?.documentacion?.fotoBelleza,
       this._itemData?.informacionPersonal?.tipoCandidata,
       this._itemData?.vidaEnFogueres?.asociacion_order,
       'belleza',
-      this._itemData?.documentacion?.fotoBellezaLarge
+      this._itemData?.documentacion?.fotoLargeBelleza
     );
     this.alternateImageUrl = resolveCandidataImage(
       this._itemData?.documentacion?.fotoCalle,
       this._itemData?.informacionPersonal?.tipoCandidata,
       this._itemData?.vidaEnFogueres?.asociacion_order,
       'calle',
-      this._itemData?.documentacion?.fotoCalleLarge
+      this._itemData?.documentacion?.fotoLargeCalle
     );
+    ffsjDebugLog('image', 'detalle resuelta', {
+      id: this._itemData?.id,
+      nombre: this._itemData?.informacionPersonal?.nombre,
+      selected: this.currentImage,
+      alternate: this.alternateImageUrl,
+      bellezaLarge: this._itemData?.documentacion?.fotoLargeBelleza || null,
+      calleLarge: this._itemData?.documentacion?.fotoLargeCalle || null,
+      bellezaOriginal: this._itemData?.documentacion?.fotoBelleza || null,
+      calleOriginal: this._itemData?.documentacion?.fotoCalle || null
+    });
     this.cdr.detectChanges();
   }
 
@@ -129,13 +143,14 @@ export class ItemCandidataComponent {
 
   toggleImage() {
     if (this.itemData) {
+      this.startImageLoading();
       this.currentImage = this.currentImage === this.alternateImageUrl
         ? resolveCandidataImage(
           this.itemData.documentacion?.fotoBelleza,
           this.itemData.informacionPersonal?.tipoCandidata,
           this.itemData.vidaEnFogueres?.asociacion_order,
           'belleza',
-          this.itemData.documentacion?.fotoBellezaLarge
+          this.itemData.documentacion?.fotoLargeBelleza
         )
         : this.alternateImageUrl;
     }
@@ -143,9 +158,38 @@ export class ItemCandidataComponent {
   }
 
   handleImageError(): void {
+    ffsjDebugLog('image', 'detalle error, usando default', {
+      id: this.itemData?.id,
+      failed: this.currentImage
+    });
     this.currentImage = this.defaultImage;
     this.alternateImageUrl = this.defaultImage;
+    this.finishImageLoading();
     this.cdr.detectChanges();
+  }
+
+  handleImageLoad(event: Event, context: string): void {
+    const image = event.target as HTMLImageElement;
+    this.finishImageLoading();
+    ffsjDebugLog('image', `${context} cargada`, {
+      id: this.itemData?.id,
+      nombre: this.itemData?.informacionPersonal?.nombre,
+      currentSrc: image.currentSrc || image.src,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+      renderedWidth: image.clientWidth,
+      renderedHeight: image.clientHeight
+    });
+  }
+
+  private startImageLoading(): void {
+    this.pendingImageLoads = this.isTelefono ? 1 : 2;
+    this.imageLoading = true;
+  }
+
+  private finishImageLoading(): void {
+    this.pendingImageLoads = Math.max(this.pendingImageLoads - 1, 0);
+    this.imageLoading = this.pendingImageLoads > 0;
   }
 
   async toggleFavorite(): Promise<void> {

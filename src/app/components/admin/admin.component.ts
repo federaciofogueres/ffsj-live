@@ -10,6 +10,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FfsjAlertService } from 'ffsj-web-components';
 import { IRealTimeConfigModel, IRealTimeList, IRealTimeVotacion } from '../../model/real-time-config.model';
 import { FirebaseStorageService } from '../../services/storage.service';
+import { resolveCandidataImage } from '../../utils/candidata-images';
 import { AnunciosFormComponent } from '../formularios/anuncios-form/anuncios-form.component';
 import { InfoFormComponent } from '../formularios/info-form/info-form.component';
 import { ListFormComponent } from '../formularios/list-form/list-form.component';
@@ -55,6 +56,9 @@ export class AdminComponent {
 
   public liveItemId: number = 0;
   public itemList!: IRealTimeList;
+  public imageZipGenerating = false;
+  public imageZipProgress = '';
+  public imageUrlsUpdating = false;
 
   protected _selectedView: string = 'votaciones';
   protected loading: boolean = true;
@@ -288,6 +292,119 @@ export class AdminComponent {
       this.ffsjAlertService.success('Nueva votacion creada.');
       this.prepareVotacionesForm();
     });
+  }
+
+  async downloadCandidatasImagesZip(): Promise<void> {
+    const items = this.config.list?.items || [];
+    if (!items.length) {
+      this.ffsjAlertService.warning('No hay candidatas cargadas para exportar imagenes.');
+      return;
+    }
+
+    this.imageZipGenerating = true;
+    this.imageZipProgress = 'Generando ZIP...';
+
+    try {
+      const payload = {
+        items: items.map((item) => ({
+          id: item.id,
+          nombre: item.informacionPersonal?.nombre || '',
+          tipo: item.informacionPersonal?.tipoCandidata || '',
+          orden: item.vidaEnFogueres?.asociacion_order || item.id,
+          bellezaUrl: resolveCandidataImage(
+          item.documentacion?.fotoBelleza,
+          item.informacionPersonal?.tipoCandidata,
+          item.vidaEnFogueres?.asociacion_order,
+          'belleza'
+          ),
+          calleUrl: resolveCandidataImage(
+          item.documentacion?.fotoCalle,
+          item.informacionPersonal?.tipoCandidata,
+          item.vidaEnFogueres?.asociacion_order,
+          'calle'
+          )
+        }))
+      };
+
+      const response = await fetch('/api/admin/candidatas-images.zip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Servidor devolvio ${response.status}`);
+      }
+
+      const content = await response.blob();
+      const url = URL.createObjectURL(content);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `ffsj-live-candidatas-${new Date().toISOString().slice(0, 10)}.zip`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+
+      this.ffsjAlertService.success('ZIP de imagenes generado correctamente.');
+    } catch (error) {
+      console.error('Error generando ZIP de imagenes:', error);
+      this.ffsjAlertService.danger('Error generando ZIP de imagenes: ' + String(error));
+    } finally {
+      this.imageZipGenerating = false;
+      this.imageZipProgress = '';
+    }
+  }
+
+  async updateCandidatasStaticImageUrls(): Promise<void> {
+    const items = this.config.list?.items || [];
+    if (!items.length) {
+      this.ffsjAlertService.warning('No hay candidatas cargadas para actualizar URLs.');
+      return;
+    }
+
+    this.imageUrlsUpdating = true;
+
+    try {
+      const updatedItems = items.map((item) => {
+        const tipo = this.safePathSegment(item.informacionPersonal?.tipoCandidata || 'sin-tipo');
+        const orden = this.safePathSegment(String(item.vidaEnFogueres?.asociacion_order || item.id || 'sin-orden'));
+        const basePath = `https://staticfoguerapp.hogueras.es/LIVE/CANDIDATAS`;
+
+        return {
+          ...item,
+          documentacion: {
+            ...item.documentacion,
+            fotoThumbBelleza: `${basePath}/thumbs/belleza/${tipo}/${orden}.webp`,
+            fotoThumbCalle: `${basePath}/thumbs/calle/${tipo}/${orden}.webp`,
+            fotoLargeBelleza: `${basePath}/large/belleza/${tipo}/${orden}.webp`,
+            fotoLargeCalle: `${basePath}/large/calle/${tipo}/${orden}.webp`
+          }
+        };
+      });
+
+      await this.firebaseStorageService.setRealtimeData('config/list/items', updatedItems);
+      this.config = {
+        ...this.config,
+        list: this.config.list ? { ...this.config.list, items: updatedItems } : undefined
+      };
+      this.itemList = this.config.list!;
+      this.ffsjAlertService.success('URLs de imagenes LIVE actualizadas correctamente.');
+    } catch (error) {
+      console.error('Error actualizando URLs de imagenes LIVE:', error);
+      this.ffsjAlertService.danger('Error actualizando URLs de imagenes LIVE: ' + String(error));
+    } finally {
+      this.imageUrlsUpdating = false;
+    }
+  }
+
+  private safePathSegment(value: string): string {
+    return value
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'sin-datos';
   }
 }
 

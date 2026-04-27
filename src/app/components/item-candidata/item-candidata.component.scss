@@ -16,6 +16,22 @@
     opacity: 0;
 }
 
+.image-section {
+    position: relative;
+    min-height: 12rem;
+}
+
+.image-loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 12rem;
+    background: rgba(255, 255, 255, 0.72);
+}
+
 .scrollable {
     height: 100%;
     overflow: auto;

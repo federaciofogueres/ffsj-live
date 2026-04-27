@@ -11,7 +11,7 @@
         <div class="ranking-row">
             <div class="ranking-position">{{ $index + 1 }}</div>
             <img class="ranking-avatar" [src]="getCandidataImage(item)" [alt]="item.informacionPersonal.nombre"
-                (error)="($any($event.target).src = defaultImage)" loading="lazy">
+                (load)="handleImageLoad($event, item)" (error)="($any($event.target).src = defaultImage)" loading="lazy">
             <div class="ranking-data">
                 <div class="ranking-main">
                     <span class="ranking-name">{{ item.informacionPersonal.nombre | titlecase }}</span>

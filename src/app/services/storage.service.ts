@@ -7,6 +7,7 @@ import { deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable } f
 import { FfsjAlertService } from 'ffsj-web-components';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { IRealTimeAdds } from '../model/real-time-config.model';
+import { ffsjDebugLog } from '../utils/debug-log';
 
 @Injectable({
     providedIn: 'root'
@@ -15,6 +16,9 @@ export class FirebaseStorageService implements OnDestroy {
 
     private _realtimeDataSubject = new BehaviorSubject<any>(null);
     public realtimeData$: Observable<any> = this._realtimeDataSubject.asObservable();
+    private firebaseConfigReadCount = 0;
+    private firebaseConfigSubscriptionEventCount = 0;
+    private firebaseCollectionReadCount = 0;
     private readonly realtimeCachePrefix = 'ffsj-live.realtimeDataCache.';
     private readonly realtimeCheckpointChild = 'cacheTimestamp';
     private toggleAdsTimeout!: ReturnType<typeof setTimeout> | null;
@@ -80,21 +84,46 @@ export class FirebaseStorageService implements OnDestroy {
             this.stopRealtimeListener();
             const cachedData = this.getCachedRealtimeData(path);
             if (cachedData) {
+                ffsjDebugLog('cache', `localStorage inicial para "${path}"`, {
+                    timestamp: cachedData.timestamp,
+                    date: new Date(cachedData.timestamp).toISOString(),
+                    bytes: JSON.stringify(cachedData.data).length
+                });
                 this.emitRealtimeData(cachedData.data);
+            } else {
+                ffsjDebugLog('cache', `sin cache local para "${path}"`);
             }
 
             this.realtimeUnsubscribe = runInInjectionContext(this._injector, () => {
                 const reference = dbRef(this._database, `${path}/${this.realtimeCheckpointChild}`);
                 return onValue(reference, async (snapshot) => {
                     try {
+                        if (path === 'config') {
+                            this.firebaseConfigSubscriptionEventCount += 1;
+                            console.info('[FFSJ DEBUG Firebase config listener]', {
+                                count: this.firebaseConfigSubscriptionEventCount,
+                                path: `${path}/${this.realtimeCheckpointChild}`,
+                                value: snapshot.val(),
+                                timestamp: new Date().toISOString()
+                            });
+                        }
+
                         const firebaseTimestamp = this.normalizeTimestamp(snapshot.val());
                         const localCachedData = this.getCachedRealtimeData(path);
+                        ffsjDebugLog('cache', `checkpoint Firebase para "${path}"`, {
+                            firebaseTimestamp,
+                            firebaseDate: firebaseTimestamp ? new Date(firebaseTimestamp).toISOString() : null,
+                            localTimestamp: localCachedData?.timestamp || null,
+                            localDate: localCachedData?.timestamp ? new Date(localCachedData.timestamp).toISOString() : null
+                        });
 
                         if (localCachedData && firebaseTimestamp > 0 && firebaseTimestamp <= localCachedData.timestamp) {
+                            ffsjDebugLog('cache', `usando localStorage para "${path}"`);
                             this.emitRealtimeData(localCachedData.data);
                             return;
                         }
 
+                        ffsjDebugLog('cache', `descargando "${path}" desde Firebase`);
                         const data = await this.readRealtimeData(path);
                         if (data !== null) {
                             this.setCachedRealtimeData(path, data, firebaseTimestamp || Date.now());
@@ -193,6 +222,19 @@ export class FirebaseStorageService implements OnDestroy {
             return get(reference);
         });
 
+        if (path === 'config' || path.startsWith('config/list')) {
+            this.firebaseConfigReadCount += 1;
+            console.info('[FFSJ DEBUG Firebase config read]', {
+                count: this.firebaseConfigReadCount,
+                path,
+                exists: snapshot.exists(),
+                hasList: !!snapshot.val()?.list,
+                itemsCount: snapshot.val()?.list?.items?.length ?? null,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        ffsjDebugLog('firebase', `get ${path}`, { exists: snapshot.exists() });
         return snapshot.exists() ? snapshot.val() : null;
     }
 
@@ -230,6 +272,11 @@ export class FirebaseStorageService implements OnDestroy {
         }
 
         localStorage.setItem(this.getRealtimeCacheKey(path), JSON.stringify({ timestamp, data }));
+        ffsjDebugLog('cache', `guardado localStorage para "${path}"`, {
+            timestamp,
+            date: new Date(timestamp).toISOString(),
+            bytes: JSON.stringify(data).length
+        });
     }
 
     private getRealtimeCacheKey(path: string): string {
@@ -359,6 +406,12 @@ export class FirebaseStorageService implements OnDestroy {
     }
 
     async getCollection(collectionName: string) {
+        this.firebaseCollectionReadCount += 1;
+        console.info('[FFSJ DEBUG Firestore collection read]', {
+            count: this.firebaseCollectionReadCount,
+            collectionName,
+            timestamp: new Date().toISOString()
+        });
         const colRef = collection(this._firestore, collectionName);
         const snapshot = await getDocs(colRef);
         const docs = snapshot.docs.map(docEntry => docEntry.data());

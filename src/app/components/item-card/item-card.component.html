@@ -4,7 +4,7 @@
             <div class="overlay-circle background-naranja">{{ item.vidaEnFogueres.asociacion_order }}
             </div>
             <img [src]="currentImage" class="img-fluid rounded-start animated-image h-100 w-100" alt="Foto bellesa"
-                (click)="toggleImage()" (error)="handleImageError()" loading="lazy">
+                (click)="toggleImage()" (load)="handleImageLoad($event)" (error)="handleImageError()" loading="lazy">
             <div class="favorite-row">
                 <button type="button" class="favorite-button" [class.favorite-button--active]="favoriteMarked"
                     [attr.aria-pressed]="favoriteMarked"
